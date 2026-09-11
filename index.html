@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snack Office</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <div class="login-container" id="loginScreen">
+<div class="login-decoration snack-1">🍪</div>
+<div class="login-decoration snack-2">🍫</div>         
+<div class="login-decoration snack-3">🍿</div>
+<div class="login-decoration snack-4">🍬</div>
+<div class="login-decoration snack-5">🍫</div>
+<div class="login-decoration snack-6">🍭</div>
+<div class="login-decoration snack-7">🍪</div>
+<div class="login-decoration snack-8">🍬</div>
+<div class="login-decoration snack-9">🍫</div>
+
+
+        <div class="login-card">
+
+            <div class="login-header">
+
+                <h1>Snack Office</h1>
+
+                <p>Sistema de Punto de Venta</p>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Usuario</label>
+
+                <input
+                id="usuario"
+                    type="text"
+                    placeholder="Ingrese su usuario">
+
+
+                    <div class="form-group">
+
+    <label>Contraseña</label>
+
+    <input
+    id="password"
+        type="password"
+            placeholder="Ingrese su contraseña">
+
+<button
+    id="btnLogin"
+    class="login-button">
+
+    Iniciar sesión
+
+</button>
+
+</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+<div id="adminScreen" style="display: none;">
+<div class="admin-container">
+
+    <aside class="sidebar">
+
+        <h2>Snack Office</h2>
+
+        <button id="btnInventario">📦 Inventario</button>
+        
+        <button id="btnComisiones">💰 Comisiones</button>
+
+        <button>📊 Cortes</button>
+
+        <button>📈 Reportes</button>
+
+        <button>🚪 Cerrar sesión</button>
+
+    </aside>
+
+    <main class="content">
+
+       <div id="contentArea">
+
+        <h1>Bienvenido Administrador 👨‍💼</h1>
+
+        <p>Selecciona una opción del menú.</p>
+
+    </div>   
+    </main>
+    
+    </div> <!-- Cierra admin-container -->
+</div> <!-- Cierra adminScreen -->
+
+<!-- =========================================
+     PANTALLA DE VENTAS
+========================================= -->
+
+<div id="ventasScreen" style="display: none;">
+
+    <div class="admin-container">
+
+        <aside class="sidebar">
+
+            <h2>Snack Office</h2>
+
+            <button id="btnNuevaVenta">
+                🛒 Nueva venta
+            </button>
+
+            <button id="btnHistorialVentas">
+                📋 Historial
+            </button>
+
+            <button id="btnCerrarSesionVentas">
+                🚪 Cerrar sesión
+            </button>
+
+        </aside>
+
+        <main class="content">
+
+            <div id="ventasContentArea">
+
+    <!-- =========================================
+         PANTALLA PRINCIPAL DE VENTAS
+    ========================================== -->
+
+    <div id="ventasInicio">
+
+        <h1>Bienvenido Ventas 🧑‍💼</h1>
+
+        <p>
+            Selecciona una opción del menú.
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         NUEVA VENTA
+    ========================================== -->
+
+<div id="nuevaVentaScreen" style="display: none;">
+
+    <div class="venta-header">
+        <div>
+            <h1>🛒 Nueva venta</h1>
+            <p>Selecciona una categoría para comenzar.</p>
+        </div>
+
+        <div class="venta-contador">
+            🛒 <span id="contadorCarrito">0</span>
+        </div>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="venta-buscador">
+        <input
+            type="text"
+            id="buscarProductoVenta"
+            placeholder="🔎 Buscar producto..."
+        >
+    </div>
+
+    <!-- CATEGORÍAS -->
+    <div class="venta-categorias">
+
+        <button class="categoria-venta" data-categoria="Botanas">
+            <span>🥨</span>
+            <strong>Botanas</strong>
+            <small>28 productos</small>
+        </button>
+
+        <button class="categoria-venta" data-categoria="Galletas">
+            <span>🍪</span>
+            <strong>Galletas</strong>
+            <small>17 productos</small>
+        </button>
+
+        <button class="categoria-venta" data-categoria="Dulces y chocolates">
+            <span>🍫</span>
+            <strong>Dulces y chocolates</strong>
+            <small>6 productos</small>
+        </button>
+
+        <button class="categoria-venta" data-categoria="Barras y snacks">
+            <span>🥜</span>
+            <strong>Barras y snacks</strong>
+            <small>8 productos</small>
+        </button>
+
+        <button class="categoria-venta" data-categoria="Chicles">
+            <span>🧊</span>
+            <strong>Chicles</strong>
+            <small>1 producto</small>
+        </button>
+
+        <button class="categoria-venta" data-categoria="Postres">
+            <span>🍰</span>
+            <strong>Postres</strong>
+            <small>1 producto</small>
+        </button>
+
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="venta-productos">
+
+        <div class="productos-header">
+            <h2 id="tituloCategoria">
+                Productos disponibles
+            </h2>
+
+            <button
+                type="button"
+                id="btnVolverCategorias"
+                class="btn-volver-categorias">
+                ← Categorías
+            </button>
+        </div>
+
+        <div id="listaProductosVenta">
+            <div class="mensaje-ventas">
+                <span>🛍️</span>
+                <p>Selecciona una categoría para ver los productos.</p>
+            </div>
+        </div>
+
+    </div>
+<!-- =========================================
+     PANEL DE VENTA
+========================================= -->
+
+<div class="venta-panel">
+
+    <!-- CARRITO -->
+    <div class="venta-carrito">
+
+        <h2>🛒 Carrito</h2>
+
+        <div id="carritoVenta">
+            <p>
+                No hay productos agregados.
+            </p>
+        </div>
+
+    </div>
+
+<!-- FORMA DE PAGO -->
+
+<div class="venta-pago">
+
+    <h3>Forma de pago</h3>
+
+    <div class="pago-opciones">
+
+        <button
+            type="button"
+            class="btn-pago activo"
+            data-pago="Efectivo">
+            💵 Efectivo
+        </button>
+
+        <button
+            type="button"
+            class="btn-pago"
+            data-pago="Tarjeta">
+            💳 Tarjeta
+        </button>
+
+        <button
+            type="button"
+            class="btn-pago"
+            data-pago="Transferencia">
+            🔄 Transferencia
+        </button>
+
+        <button
+            type="button"
+            class="btn-pago"
+            data-pago="Pendiente">
+            🕐 Pendiente
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- CLIENTE -->
+
+<div class="venta-cliente">
+
+    <h3>Cliente</h3>
+
+    <input
+        type="text"
+        id="clienteVenta"
+        placeholder="Nombre del cliente">
+
+</div>
+
+    <!-- TOTAL -->
+
+    <div class="venta-total">
+
+        <h2>
+            Total:
+            <span id="totalVenta">$0.00</span>
+        </h2>
+
+    </div>
+
+
+    <!-- ACCIONES -->
+
+    <div class="venta-acciones">
+
+        <button id="btnRegistrarVenta">
+            🧾 Registrar venta
+        </button>
+
+        <button id="btnCancelarVenta">
+            ❌ Cancelar
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+    <!-- =========================================
+     HISTORIAL DE VENTAS
+========================================== -->
+
+<div id="historialVentasScreen" style="display: none;">
+
+    <h1>📋 Historial de ventas</h1>
+
+    <p>
+        Consulta las ventas realizadas en el sistema.
+    </p>
+
+    <div id="listaHistorialVentas">
+
+        <p>No hay ventas registradas.</p>
+
+    </div>
+
+</div>
+
+</div>
+
+
+        </main>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script type="module" src="js/app.js"></script>    
+
+</body>
+</html>

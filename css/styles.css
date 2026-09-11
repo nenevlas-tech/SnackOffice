@@ -1,0 +1,3144 @@
+:root{
+
+    /* ===== Colores Corporativos ===== */
+
+    --azul-corporativo: #021333;
+    --naranja-principal: #FE530B;
+    --verde-exito: #389D27;
+    --rojo-error: #E82313;
+    --naranja-dorado: #ED9C4D;
+    --blanco: #FFFFFF;
+
+    /* ===== Colores del Sistema ===== */
+
+    --fondo: #F4F6F9;
+    --texto: #021333;
+    --gris-claro: #E8ECF2;
+    --gris-borde: #D1D5DB;
+}
+
+/*===================
+Proyecto Mercurio
+
+Snack Office
+
+====================*/
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing:border-box;
+
+    
+}
+
+body {
+    background-color: var(--fondo);
+    color: var(--texto);
+font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-container {
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-card{
+
+    width: 450px;
+
+    padding: 65px;
+
+    background-color: var(--blanco);
+
+    border-radius: 20px;
+
+    box-shadow: 0px 10px 25px rgba(0,0,0,.12);
+
+}
+
+.login-header{
+
+    text-align:center;
+
+    margin-bottom:60px;
+    
+}
+
+.login-header h1{
+
+    color: var(--azul-corporativo);
+
+    font-size:36px;
+
+    margin-bottom:10px;
+
+}
+
+.login-header p{
+
+    color:#6B7280;
+
+    font-size:16px;
+
+}
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    margin-bottom:28px;
+
+
+}
+
+.form-group label{
+
+    margin-bottom:8px;
+
+    font-weight:bold;
+
+    color:var(--texto);
+
+}
+
+.form-group input{
+
+    padding:14px;
+
+    width: 100%;
+
+    border:1px solid var(--gris-borde);
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    outline:none;
+
+    transition:all .25 ease;
+
+    .form-group input:focus{
+
+    border-color:var(--naranja-principal);
+
+    box-shadow:0 0 0 4px rgba(254,83,11,.18);
+
+}
+
+}
+
+.form-group input:focus{
+
+    border-color: var(--naranja-principal);
+
+}
+
+.login-button{
+
+    width:100%;
+
+    padding:15px;
+
+    background-color:var(--naranja-principal);
+
+    color:var(--blanco);
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:all .25s ease;
+
+    .login-button:hover{
+
+    background-color:#e84a09;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 20px rgba(254,83,11,.30);
+    .login-button:active{
+
+    transform:translateY(0);
+    
+    margin-top:20px;
+
+}
+
+}
+
+}
+
+/*==============================
+PANEL ADMINISTRADOR
+==============================*/
+
+.admin-container{
+
+    display:flex;
+
+    height:100vh;
+
+}
+
+.sidebar{
+
+    width:280px;
+
+    background:#061539;
+
+    color:white;
+
+    padding:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.sidebar h2{
+
+    margin-bottom:auto;
+
+}
+
+.sidebar button{
+
+    margin-bottom:15px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    background:#ff5a14;
+
+    color:white;
+
+    font-size:16px;
+
+    width:100%;
+
+}
+
+.sidebar button:hover{
+
+    background:#e84d0d;
+
+}
+
+.content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+    padding:30px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.inventario-form{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr 1fr auto;
+
+    gap:15px;
+
+    margin:25px 0;
+
+}
+
+.inventario-form input{
+
+    padding:14px;
+
+    border-radius:10px;
+
+    border:1px solid var(--gris-borde);
+
+    font-size:15px;
+
+    outline:none;
+
+    transition:.25s;
+
+}
+
+.inventario-form button{
+
+    background:var(--naranja-principal);
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:14px 22px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.inventario-form button:hover{
+
+    transform:translateY(-2px);
+
+    background:#e84b09;
+
+    box-shadow:0 10px 20px rgba(254,83,11,.25);
+
+}
+    
+#tablaProductos{
+
+    margin-top:20px;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.05);
+
+}
+
+#tablaProductos tbody tr{
+
+    transition:.20s;
+
+}
+
+#tablaProductos tbody tr:hover{
+
+    background:#f5f7fb;
+
+}
+
+
+#tablaProductos th{
+
+    background:#0c1d49;
+
+    color:white;
+
+    padding:12px;
+
+}
+
+#tablaProductos td{
+
+    padding:12px;
+
+    border-bottom:1px solid #ddd;
+
+    text-align:center;
+
+}
+
+/*==============================
+    TARJETA INVENTARIO
+==============================*/
+
+.card-inventario{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+    width:900px;
+
+}
+
+.titulo-inventario{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:8px;
+
+}
+
+.titulo-inventario h1{
+
+    font-size:42px;
+
+    color:var(--azul-corporativo);
+
+}
+
+.subtitulo{
+
+    color:#6b7280;
+
+    margin-bottom:25px;
+
+}
+
+.btn-editar{
+
+    background:#3498db;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:8px 14px;
+
+    cursor:pointer;
+
+    margin-right:8px;
+
+}
+
+.btn-editar:hover{
+
+    background:#2980b9;
+
+}
+
+.btn-eliminar{
+
+    background:#e74c3c;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:8px 14px;
+
+    cursor:pointer;
+
+}
+
+.btn-eliminar:hover{
+
+    background:#c0392b;
+
+}
+
+
+
+/* =========================================================
+   PANTALLA DE VENTAS - DISEÑO POS
+   Mantiene los IDs y clases usados por ventas.js
+   ========================================================= */
+
+#ventasScreen .content {
+    align-items: stretch;
+    padding: 36px 42px;
+}
+
+#ventasContentArea {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+#ventasInicio,
+#nuevaVentaScreen,
+#historialVentasScreen {
+    width: 100%;
+}
+
+#nuevaVentaScreen {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.85fr);
+
+    grid-template-areas:
+        "titulo titulo"
+        "subtitulo subtitulo"
+        "buscador buscador"
+        "productos panel";
+
+    gap: 18px 24px;
+    align-items: start;
+}
+
+#nuevaVentaScreen > h1 {
+    grid-area: titulo;
+    font-size: 38px;
+    line-height: 1.15;
+    color: var(--azul-corporativo);
+    margin: 0;
+}
+
+#nuevaVentaScreen > p {
+    grid-area: subtitulo;
+    color: #64748b;
+    font-size: 16px;
+    margin: -8px 0 2px;
+}
+
+.venta-buscador {
+    grid-area: buscador;
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.venta-buscador input {
+    width: 100%;
+    height: 50px;
+    padding: 0 18px;
+    border: 1px solid var(--gris-borde);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--texto);
+    font-size: 15px;
+    outline: none;
+    box-shadow: 0 4px 14px rgba(2, 19, 51, .05);
+    transition: .2s ease;
+}
+
+.venta-buscador input:focus {
+    border-color: var(--naranja-principal);
+    box-shadow: 0 0 0 4px rgba(254, 83, 11, .13);
+}
+
+.venta-productos {
+    grid-area: productos;
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 25px rgba(2, 19, 51, .07);
+}
+
+/* =========================================
+   PANEL DERECHO DE VENTA
+========================================= */
+
+.venta-panel {
+    grid-area: panel;
+
+    position: sticky;
+    top: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    align-self: start;
+}
+
+.venta-productos h2,
+.venta-carrito h2 {
+    color: var(--azul-corporativo);
+    font-size: 21px;
+    margin-bottom: 16px;
+}
+
+#listaProductosVenta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.producto-venta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 142px;
+    padding: 17px;
+    border: 1px solid #e4e9f0;
+    border-radius: 14px;
+    background: #fbfcfe;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.producto-venta:hover {
+    transform: translateY(-2px);
+    border-color: rgba(254, 83, 11, .35);
+    box-shadow: 0 8px 18px rgba(2, 19, 51, .08);
+}
+
+.producto-venta h3 {
+    color: var(--azul-corporativo);
+    font-size: 16px;
+    line-height: 1.3;
+    margin-bottom: 9px;
+}
+
+.producto-venta p {
+    color: #64748b;
+    font-size: 13px;
+    margin: 4px 0;
+}
+
+.producto-venta p:first-of-type {
+    color: var(--azul-corporativo);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.producto-venta button {
+    width: 100%;
+    margin-top: 13px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 9px;
+    background: var(--naranja-principal);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.producto-venta button:hover {
+    background: #e84b09;
+    transform: translateY(-1px);
+    box-shadow: 0 7px 15px rgba(254, 83, 11, .22);
+}
+
+.producto-venta button:active {
+    transform: translateY(0);
+}
+
+.venta-carrito {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 25px rgba(2, 19, 51, .07);
+
+    /* Mantener el carrito visible */
+    position: sticky;
+    top: 20px;
+
+    min-height: 180px;
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+}
+
+#carritoVenta > p {
+    padding: 28px 10px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.item-carrito {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.item-carrito:last-child {
+    border-bottom: none;
+}
+
+.item-carrito strong {
+    display: block;
+    color: var(--azul-corporativo);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.item-carrito p {
+    color: #64748b;
+    font-size: 12px;
+    margin: 2px 0;
+}
+
+.item-carrito > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.item-carrito button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid #dce2e9;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--azul-corporativo);
+    cursor: pointer;
+    transition: .15s ease;
+}
+
+.item-carrito button:hover {
+    background: #f1f4f8;
+    border-color: #c7d0dc;
+}
+
+.item-carrito button[data-accion="eliminar"] {
+    color: var(--rojo-error);
+}
+
+.item-carrito button[data-accion="eliminar"]:hover {
+    background: #fff1f0;
+    border-color: #f4b7b2;
+}
+
+.venta-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 22px;
+    background: var(--azul-corporativo);
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(2, 19, 51, .16);
+}
+
+.venta-total h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 17px;
+}
+
+#totalVenta {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 27px;
+    color: #fff;
+}
+
+.venta-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.venta-acciones button {
+    min-height: 48px;
+    padding: 11px 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+#btnRegistrarVenta {
+    background: var(--verde-exito);
+    color: #fff;
+}
+
+#btnRegistrarVenta:hover {
+    background: #2f8621;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(56, 157, 39, .22);
+}
+
+#btnCancelarVenta {
+    background: #eef1f5;
+    color: var(--azul-corporativo);
+}
+
+#btnCancelarVenta:hover {
+    background: #e1e6ed;
+}
+
+/* Historial: misma identidad visual de la pantalla de ventas */
+#historialVentasScreen {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(2, 19, 51, .07);
+}
+
+#historialVentasScreen h1 {
+    color: var(--azul-corporativo);
+    font-size: 36px;
+    margin-bottom: 7px;
+}
+
+#historialVentasScreen > p {
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+#listaHistorialVentas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Mensaje de búsqueda sin resultados */
+#listaProductosVenta > p {
+    grid-column: 1 / -1;
+    padding: 35px 15px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 1050px) {
+    #ventasScreen {
+        grid-template-areas:
+        "titulo"
+        "subtitulo"
+        "buscador"
+        "productos"
+        "panel";
+    }
+    
+    #listaProductosVenta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    #ventasScreen .content {
+        padding: 24px 16px;
+    }
+
+    #listaProductosVenta {
+        grid-template-columns: 1fr;
+    }
+
+    #nuevaVentaScreen > h1,
+    #historialVentasScreen h1 {
+        font-size: 29px;
+    }
+
+    .venta-productos,
+    .venta-carrito,
+    #historialVentasScreen {
+        padding: 17px;
+    }
+
+    .item-carrito {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .item-carrito > div:last-child {
+        width: 100%;
+    }
+
+    .item-carrito button {
+        flex: 1;
+    }
+
+    .venta-acciones {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* El JS muestra la pantalla con style="display: block"; conservamos el layout grid. */
+#nuevaVentaScreen[style*="display: block"] {
+    display: grid !important;
+}
+/* =========================================================
+   NUEVO DISEÑO DE CATEGORÍAS - PUNTO DE VENTA
+   ========================================================= */
+
+.venta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.venta-header h1 {
+    margin: 0;
+    color: var(--azul-corporativo);
+    font-size: 36px;
+}
+
+.venta-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+}
+
+.venta-contador {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 700;
+    color: var(--azul-corporativo);
+}
+
+
+/* CATEGORÍAS */
+
+.venta-categorias {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.categoria-venta {
+    min-height: 125px;
+    border: 1px solid #e3e8ef;
+    border-radius: 16px;
+    background: #fff;
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 5px;
+
+    transition: .2s ease;
+
+    box-shadow:
+        0 5px 18px rgba(2, 19, 51, .06);
+}
+
+.categoria-venta span {
+    font-size: 34px;
+}
+
+.categoria-venta strong {
+    font-size: 17px;
+    color: var(--azul-corporativo);
+}
+
+.categoria-venta small {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.categoria-venta:hover {
+    transform: translateY(-3px);
+    border-color: var(--naranja-principal);
+
+    box-shadow:
+        0 10px 25px rgba(2, 19, 51, .10);
+}
+
+
+/* CABECERA DE PRODUCTOS */
+
+.productos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.productos-header h2 {
+    margin: 0;
+}
+
+
+/* BOTÓN VOLVER */
+
+.btn-volver-categorias {
+    border: none;
+    background: #eef1f5;
+    color: var(--azul-corporativo);
+    padding: 9px 13px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-volver-categorias:hover {
+    background: #e1e6ed;
+}
+
+
+/* TARJETAS DE PRODUCTO */
+
+.producto-venta {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+    padding: 15px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    transition: .18s ease;
+}
+
+.producto-venta:hover {
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 6px 18px rgba(2, 19, 51, .08);
+}
+
+.producto-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.producto-icono {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f8fafc;
+    border-radius: 10px;
+
+    font-size: 22px;
+}
+
+.producto-venta h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: var(--azul-corporativo);
+}
+
+.producto-precio {
+    margin: 0;
+    font-weight: 700;
+    color: #111827;
+}
+
+.producto-stock {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+
+/* BOTÓN AGREGAR */
+
+.btn-agregar-producto {
+    border: none;
+    border-radius: 9px;
+    padding: 9px 13px;
+
+    background: var(--naranja-principal);
+    color: #fff;
+
+    cursor: pointer;
+    font-weight: 700;
+
+    transition: .18s ease;
+}
+
+.btn-agregar-producto:hover {
+    transform: translateY(-1px);
+}
+
+
+/* MENSAJES */
+
+.mensaje-ventas {
+    min-height: 180px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    color: #94a3b8;
+}
+
+.mensaje-ventas span {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+
+    .venta-categorias {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 550px) {
+
+    .venta-categorias {
+        grid-template-columns: 1fr;
+    }
+
+    .venta-header {
+        align-items: flex-start;
+    }
+
+}
+/* =========================================
+   PANEL FIJO DE VENTA
+========================================= */
+
+.venta-carrito {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+/* Mantener total y botones visibles */
+.venta-total,
+.venta-acciones {
+    position: sticky;
+    z-index: 10;
+}
+
+/* Total */
+.venta-total {
+    top: 20px;
+}
+
+/* Botones */
+.venta-acciones {
+    top: 100px;
+}
+.venta-pago h3,
+.venta-cliente h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--azul-corporativo);
+}
+
+.pago-opciones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.btn-pago {
+    min-height: 46px;
+    border: 1px solid #dce2e9;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--azul-corporativo);
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.btn-pago:hover {
+    background: #f1f4f8;
+}
+
+.btn-pago.activo {
+    background: var(--azul-corporativo);
+    color: #fff;
+    border-color: var(--azul-corporativo);
+}
+
+#clienteVenta {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #dce2e9;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+#clienteVenta:focus {
+    outline: none;
+    border-color: var(--azul-corporativo);
+    box-shadow: 0 0 0 3px rgba(2, 19, 51, .08);
+}
+/* =========================================
+   HISTORIAL DE VENTAS
+========================================= */
+
+#historialVentasScreen {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 20px 40px;
+}
+
+#historialVentasScreen > h1 {
+    margin-bottom: 8px;
+    color: var(--azul-corporativo);
+    font-size: 32px;
+}
+
+#historialVentasScreen > p {
+    color: #64748B;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+
+/* CONTENEDOR DE VENTAS */
+
+#listaHistorialVentas {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+/* TARJETA DE CADA VENTA */
+
+.historial-venta {
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.historial-venta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.09);
+}
+
+
+/* ENCABEZADO */
+
+.historial-venta h3:first-child {
+    color: var(--azul-corporativo);
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.historial-venta p {
+    margin: 5px 0;
+    color: #334155;
+    font-size: 15px;
+}
+
+
+/* CLIENTE Y PAGO */
+
+.historial-venta p strong {
+    color: var(--azul-corporativo);
+}
+
+
+/* SEPARADOR */
+
+.historial-venta hr {
+    border: none;
+    border-top: 1px solid var(--gris-claro);
+    margin: 14px 0;
+}
+
+
+/* PRODUCTOS */
+
+.historial-venta div > div p {
+    font-size: 14px;
+    margin: 7px 0;
+}
+
+.historial-venta div > div p strong {
+    font-weight: 600;
+}
+
+
+/* TOTAL */
+
+.historial-venta h3:last-child {
+    text-align: right;
+    color: var(--azul-corporativo);
+    font-size: 20px;
+    margin-top: 14px;
+}
+
+
+/* MENSAJE SIN VENTAS */
+
+#listaHistorialVentas > p {
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    color: #64748B;
+}
+
+/* =========================================================
+   COMISIONES - DISEÑO ADMINISTRADOR
+   Solo estilos - NO modifica la lógica de admin.js
+   ========================================================= */
+
+.admin-resumen-comisiones {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 22px 0;
+}
+
+.admin-metrica {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.admin-metrica:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.07);
+}
+
+.admin-metrica span {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 7px;
+}
+
+.admin-metrica strong {
+    display: block;
+    font-size: 23px;
+    color: var(--azul-corporativo);
+    margin-bottom: 4px;
+}
+
+.admin-metrica small {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* ================================
+   REGLA DE COMISIÓN
+   ================================ */
+
+.regla-comision-inventario {
+    background: #f8fafc;
+    border-left: 4px solid var(--azul-corporativo);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    color: #334155;
+    line-height: 1.8;
+}
+
+.regla-comision-inventario strong {
+    color: var(--azul-corporativo);
+}
+
+
+/* ================================
+   FILTROS
+   ================================ */
+
+.admin-filtros-comisiones {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    margin: 22px 0;
+    padding: 15px 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.admin-filtros-comisiones label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    color: #334155;
+    font-size: 14px;
+}
+
+.admin-filtros-comisiones input[type="date"] {
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #1e293b;
+    font-family: inherit;
+}
+
+.admin-filtros-comisiones input[type="date"]:focus {
+    outline: none;
+    border-color: var(--azul-corporativo);
+    box-shadow: 0 0 0 3px rgba(12,29,73,.08);
+}
+
+#btnLimpiarFiltroComision {
+    height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 8px;
+    background: #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+#btnLimpiarFiltroComision:hover {
+    background: #cbd5e1;
+}
+
+
+/* ================================
+   TABLA DE COMISIONES
+   ================================ */
+
+.tabla-admin-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: white;
+}
+
+.tabla-comisiones-admin {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+    font-size: 14px;
+}
+
+.tabla-comisiones-admin thead th {
+    background: var(--azul-corporativo);
+    color: white;
+    padding: 13px 12px;
+    text-align: center;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tabla-comisiones-admin tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.tabla-comisiones-admin tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-comisiones-admin tbody tr {
+    transition: background .18s ease;
+}
+
+.tabla-comisiones-admin tbody tr:hover {
+    background: #f8fafc;
+}
+
+.tabla-comisiones-admin td:first-child strong {
+    color: var(--azul-corporativo);
+}
+
+
+/* ================================
+   TOTAL Y COMISIÓN
+   ================================ */
+
+.tabla-comisiones-admin td:nth-child(5) strong {
+    color: var(--azul-corporativo);
+}
+
+.comision-destacada {
+    font-weight: 800;
+    color: #166534 !important;
+    background: #f0fdf4;
+}
+
+
+/* ================================
+   MENSAJE SIN VENTAS
+   ================================ */
+
+.admin-vacio {
+    text-align: center;
+    padding: 35px 20px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+
+/* ================================
+   NOTA INFORMATIVA
+   ================================ */
+
+.nota-comisiones-admin {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 900px) {
+
+    .admin-resumen-comisiones {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .admin-resumen-comisiones {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-filtros-comisiones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #btnLimpiarFiltroComision {
+        width: 100%;
+    }
+
+}
+/* =========================================================
+   SNACK OFFICE
+   NUEVO DISEÑO MAESTRO - PANTALLA DE VENTAS
+   ========================================================= */
+
+/* CONTENEDOR GENERAL */
+#ventasScreen .content {
+    align-items: stretch;
+    padding: 28px 36px;
+    overflow-y: auto;
+}
+
+#ventasContentArea {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+/* =========================================================
+   NUEVA VENTA
+   ========================================================= */
+
+#nuevaVentaScreen {
+    width: 100%;
+    display: grid !important;
+
+    grid-template-columns: minmax(0, 1fr) 390px;
+
+    grid-template-areas:
+        "header header"
+        "buscador buscador"
+        "categorias categorias"
+        "productos panel";
+
+    gap: 18px 24px;
+    align-items: start;
+}
+
+/* Encabezado */
+
+.venta-header {
+    grid-area: header;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 0;
+}
+
+.venta-header h1 {
+    margin: 0;
+    color: var(--azul-corporativo);
+    font-size: 36px;
+}
+
+.venta-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+}
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.venta-buscador {
+    grid-area: buscador;
+    width: 100%;
+}
+
+.venta-buscador input {
+    width: 100%;
+    height: 48px;
+
+    padding: 0 16px;
+
+    border: 1px solid var(--gris-borde);
+    border-radius: 12px;
+
+    background: #fff;
+    color: var(--texto);
+
+    font-size: 15px;
+    outline: none;
+
+    box-shadow: 0 4px 14px rgba(2, 19, 51, .05);
+}
+
+.venta-buscador input:focus {
+    border-color: var(--naranja-principal);
+    box-shadow: 0 0 0 4px rgba(254, 83, 11, .12);
+}
+
+/* =========================================================
+   CATEGORÍAS
+   ========================================================= */
+
+.venta-categorias {
+    grid-area: categorias;
+
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+
+    gap: 12px;
+    margin: 0;
+}
+
+.categoria-venta {
+    min-height: 100px;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+
+    background: #fff;
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 4px;
+
+    transition: .18s ease;
+    box-shadow: 0 5px 16px rgba(2, 19, 51, .05);
+}
+
+.categoria-venta span {
+    font-size: 28px;
+}
+
+.categoria-venta strong {
+    font-size: 14px;
+    color: var(--azul-corporativo);
+}
+
+.categoria-venta small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.categoria-venta:hover {
+    transform: translateY(-2px);
+    border-color: var(--naranja-principal);
+    box-shadow: 0 8px 20px rgba(2, 19, 51, .09);
+}
+
+/* =========================================================
+   PRODUCTOS
+   ========================================================= */
+
+.venta-productos {
+    grid-area: productos;
+
+    min-width: 0;
+
+    background: #fff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow: 0 8px 25px rgba(2, 19, 51, .07);
+}
+
+.productos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.productos-header h2 {
+    margin: 0;
+    color: var(--azul-corporativo);
+    font-size: 21px;
+}
+
+/* GRID DE PRODUCTOS */
+
+#listaProductosVenta {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+
+    max-height: calc(100vh - 430px);
+    overflow-y: auto;
+
+    padding: 3px;
+}
+
+/* =========================================================
+   TARJETA DEL PRODUCTO
+   ========================================================= */
+
+.producto-venta {
+    min-width: 0;
+    min-height: 180px;
+
+    padding: 0;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+
+    background: #fff;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+.producto-venta:hover {
+    transform: translateY(-3px);
+
+    border-color: var(--naranja-principal);
+
+    box-shadow:
+        0 10px 24px rgba(2, 19, 51, .11);
+}
+
+.producto-venta:active {
+    transform: scale(.98);
+}
+
+/* Imagen / icono */
+
+.producto-icono {
+    width: 100%;
+    height: 105px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f8fafc;
+
+    font-size: 42px;
+}
+
+/* Información */
+
+.producto-info {
+    display: flex;
+    flex-direction: column;
+
+    padding: 12px 14px;
+
+    gap: 0;
+}
+
+.producto-venta h3 {
+    margin: 0 0 5px;
+
+    color: var(--azul-corporativo);
+
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.producto-precio {
+    margin: 0;
+
+    color: var(--azul-corporativo);
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.producto-stock {
+    margin: 3px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+}
+
+/* Ya no necesitamos el botón como protagonista */
+.btn-agregar-producto {
+    display: none;
+}
+
+/* =========================================================
+   PANEL DERECHO
+   ========================================================= */
+
+.venta-panel {
+    grid-area: panel;
+
+    width: 390px;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    position: sticky;
+    top: 20px;
+
+    align-self: start;
+}
+
+/* =========================================================
+   CARRITO
+   ========================================================= */
+
+.venta-carrito {
+    background: #fff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow: 0 8px 25px rgba(2, 19, 51, .07);
+
+    position: relative;
+
+    min-height: 150px;
+
+    max-height: 300px;
+
+    overflow-y: auto;
+}
+
+.venta-carrito h2 {
+    margin: 0 0 10px;
+
+    color: var(--azul-corporativo);
+    font-size: 21px;
+
+    position: sticky;
+    top: -20px;
+
+    padding-bottom: 10px;
+
+    background: #fff;
+}
+
+/* Producto dentro del carrito */
+
+.item-carrito {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 11px 0;
+
+    border-bottom: 1px solid #edf0f4;
+}
+
+.item-carrito:last-child {
+    border-bottom: none;
+}
+
+.item-carrito strong {
+    display: block;
+
+    color: var(--azul-corporativo);
+
+    font-size: 13px;
+
+    margin-bottom: 3px;
+}
+
+.item-carrito p {
+    color: #64748b;
+
+    font-size: 12px;
+
+    margin: 2px 0;
+}
+
+.item-carrito > div:first-child {
+    min-width: 0;
+}
+
+.item-carrito > div:first-child strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Botones cantidad */
+
+.item-carrito > div:last-child {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    flex-shrink: 0;
+}
+
+.item-carrito button {
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+
+    border: 1px solid #dce2e9;
+    border-radius: 7px;
+
+    background: #fff;
+
+    color: var(--azul-corporativo);
+
+    cursor: pointer;
+}
+
+.item-carrito button:hover {
+    background: #f1f4f8;
+}
+
+.item-carrito button[data-accion="eliminar"] {
+    color: var(--rojo-error);
+}
+
+/* =========================================================
+   PAGO
+   ========================================================= */
+
+.venta-pago,
+.venta-cliente {
+    background: #fff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+
+    padding: 16px;
+
+    box-shadow: 0 6px 18px rgba(2, 19, 51, .05);
+}
+
+.venta-pago h3,
+.venta-cliente h3 {
+    margin: 0 0 9px;
+
+    color: var(--azul-corporativo);
+
+    font-size: 14px;
+}
+
+.pago-opciones {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 7px;
+}
+
+.btn-pago {
+    min-height: 42px;
+
+    padding: 7px;
+
+    border: 1px solid #dce2e9;
+    border-radius: 9px;
+
+    background: #fff;
+
+    color: var(--azul-corporativo);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .18s ease;
+}
+
+.btn-pago:hover {
+    background: #f1f4f8;
+}
+
+.btn-pago.activo {
+    background: var(--azul-corporativo);
+
+    color: #fff;
+
+    border-color: var(--azul-corporativo);
+}
+
+/* =========================================================
+   CLIENTE
+   ========================================================= */
+
+#clienteVenta {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid #dce2e9;
+    border-radius: 9px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+#clienteVenta:focus {
+    border-color: var(--azul-corporativo);
+
+    box-shadow:
+        0 0 0 3px rgba(2, 19, 51, .08);
+}
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
+
+.venta-total {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 18px;
+
+    background: var(--azul-corporativo);
+
+    border-radius: 14px;
+
+    color: #fff;
+
+    box-shadow:
+        0 8px 20px rgba(2, 19, 51, .16);
+}
+
+.venta-total h2 {
+    margin: 0;
+
+    color: #fff;
+
+    font-size: 16px;
+}
+
+#totalVenta {
+    margin-left: 8px;
+
+    color: #fff;
+
+    font-size: 25px;
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.venta-acciones {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 9px;
+}
+
+.venta-acciones button {
+    min-height: 45px;
+
+    padding: 10px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .18s ease;
+}
+
+#btnRegistrarVenta {
+    background: var(--verde-exito);
+    color: #fff;
+}
+
+#btnRegistrarVenta:hover {
+    background: #2f8621;
+
+    transform: translateY(-1px);
+}
+
+#btnCancelarVenta {
+    background: #eef1f5;
+
+    color: var(--azul-corporativo);
+}
+
+#btnCancelarVenta:hover {
+    background: #e1e6ed;
+}
+
+/* =========================================================
+   MENSAJES
+   ========================================================= */
+
+.mensaje-ventas {
+    min-height: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    color: #94a3b8;
+}
+
+.mensaje-ventas span {
+    font-size: 42px;
+
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1150px) {
+
+    #nuevaVentaScreen {
+        grid-template-columns: minmax(0, 1fr) 340px;
+    }
+
+    .venta-panel {
+        width: 340px;
+    }
+
+    #listaProductosVenta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .venta-categorias {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 850px) {
+
+    #nuevaVentaScreen {
+        grid-template-columns: 1fr;
+
+        grid-template-areas:
+            "header"
+            "buscador"
+            "categorias"
+            "productos"
+            "panel";
+    }
+
+    .venta-panel {
+        width: 100%;
+
+        position: static;
+    }
+
+    #listaProductosVenta {
+        max-height: none;
+    }
+}
+
+@media (max-width: 550px) {
+
+    #ventasScreen .content {
+        padding: 20px 14px;
+    }
+
+    .venta-categorias {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #listaProductosVenta {
+        grid-template-columns: 1fr;
+    }
+
+    .venta-acciones {
+        grid-template-columns: 1fr;
+    }
+}
+/* =========================================================
+   SNACK OFFICE — INVENTARIO V2
+   Diseño moderno conservando identidad azul + naranja
+   ========================================================= */
+
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================= */
+
+.card-inventario {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(7, 26, 65, 0.08);
+}
+
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+.titulo-inventario {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px;
+}
+
+.titulo-inventario span {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff1eb;
+    border-radius: 15px;
+
+    font-size: 28px;
+}
+
+.titulo-inventario h1 {
+    margin: 0;
+    color: #071a41;
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.card-inventario .subtitulo {
+    margin: 0 0 25px 66px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   HERRAMIENTAS EXCEL
+   ========================================================= */
+
+.herramientas-inventario {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    padding: 16px;
+
+    background: #f6f8fc;
+    border: 1px solid #e5eaf2;
+    border-radius: 15px;
+
+    margin-bottom: 18px;
+}
+
+.herramientas-inventario button {
+    border: none;
+    border-radius: 10px;
+
+    padding: 11px 17px;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.herramientas-inventario button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(7, 26, 65, 0.12);
+}
+
+
+/* Cargar */
+
+#btnImportarExcel {
+    background: #ff5a1f;
+    color: #ffffff;
+}
+
+
+/* Exportar */
+
+#btnExportarExcel {
+    background: #071a41;
+    color: #ffffff;
+}
+
+
+/* Herramientas temporales */
+
+#btnRecuperarCategorias,
+#btnRecuperarCostos {
+    display: none !important;
+}
+
+
+/* =========================================================
+   FORMULARIO DE PRODUCTO
+   ========================================================= */
+
+.form-producto {
+    display: grid;
+
+    grid-template-columns:
+        minmax(180px, 1.5fr)
+        minmax(150px, 1fr)
+        minmax(130px, 0.8fr)
+        minmax(130px, 0.8fr)
+        auto;
+
+    gap: 10px;
+
+    padding: 18px;
+
+    background: #f8fafc;
+    border: 1px solid #e5eaf2;
+    border-radius: 15px;
+
+    margin-bottom: 18px;
+}
+
+.form-producto input,
+.form-producto select {
+    width: 100%;
+    min-height: 44px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8e0eb;
+    border-radius: 10px;
+
+    padding: 0 12px;
+
+    background: #ffffff;
+    color: #102040;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-producto input:focus,
+.form-producto select:focus {
+    outline: none;
+
+    border-color: #ff5a1f;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 90, 31, 0.12);
+}
+
+
+/* Botón agregar */
+
+#btnGuardarProducto {
+    min-height: 44px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #ff5a1f;
+    color: #ffffff;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#btnGuardarProducto:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 14px rgba(255, 90, 31, 0.22);
+}
+
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.buscador-inventario {
+    width: 100%;
+    min-height: 46px;
+
+    box-sizing: border-box;
+
+    padding: 0 15px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid #d8e0eb;
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #102040;
+
+    font-size: 14px;
+
+    box-shadow:
+        0 4px 12px rgba(7, 26, 65, 0.04);
+}
+
+.buscador-inventario:focus {
+    outline: none;
+
+    border-color: #ff5a1f;
+
+    box-shadow:
+        0 0 0 3px rgba(255, 90, 31, 0.10);
+}
+
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+#tablaProductos {
+    width: 100%;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e9f1;
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 24px rgba(7, 26, 65, 0.06);
+}
+
+
+/* Encabezado */
+
+#tablaProductos thead {
+    background: #071a41;
+}
+
+#tablaProductos th {
+    padding: 15px 14px;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-align: center;
+
+    border: none;
+}
+
+
+/* Celdas */
+
+#tablaProductos td {
+    padding: 13px 14px;
+
+    color: #102040;
+
+    font-size: 14px;
+
+    text-align: center;
+
+    border-bottom: 1px solid #edf1f5;
+}
+
+
+/* Filas */
+
+#tablaProductos tbody tr {
+    transition: background 0.15s ease;
+}
+
+#tablaProductos tbody tr:hover td {
+    background: #f8fafc;
+}
+
+#tablaProductos tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   BOTONES DE TABLA
+   ========================================================= */
+
+#tablaProductos .btn-editar,
+#tablaProductos .btn-eliminar {
+    border: none;
+
+    border-radius: 9px;
+
+    padding: 8px 13px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease;
+}
+
+#tablaProductos .btn-editar {
+    background: #2496df;
+    color: #ffffff;
+}
+
+#tablaProductos .btn-eliminar {
+    background: #ef4b3f;
+    color: #ffffff;
+}
+
+#tablaProductos .btn-editar:hover,
+#tablaProductos .btn-eliminar:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.95);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .form-producto {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    #btnGuardarProducto {
+        grid-column: 1 / -1;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .card-inventario {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .titulo-inventario h1 {
+        font-size: 30px;
+    }
+
+    .card-inventario .subtitulo {
+        margin-left: 0;
+    }
+
+    .form-producto {
+        grid-template-columns: 1fr;
+    }
+
+    #btnGuardarProducto {
+        grid-column: auto;
+    }
+
+    .herramientas-inventario {
+        flex-direction: column;
+    }
+
+    .herramientas-inventario button {
+        width: 100%;
+    }
+
+    #tablaProductos {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+}
+
+/* Selector de imagen dentro del formulario */
+.form-producto input[type="file"] {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 8px 10px;
+
+    border: 1px solid #d8e0eb;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.form-producto input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 8px 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #071a41;
+    color: #ffffff;
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.form-producto input[type="file"]::file-selector-button:hover {
+    background: #ff5a1f;
+}
+/* Selector de imagen — solo mostrar botón */
+.form-producto input[type="file"] {
+    color: transparent;
+    padding: 6px;
+    overflow: hidden;
+}
+
+.form-producto input[type="file"]::file-selector-button {
+    margin: 0;
+
+    padding: 9px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #071a41;
+    color: #ffffff;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.form-producto input[type="file"]::file-selector-button:hover {
+    background: #ff5a1f;
+}
+/* =========================================================
+   SNACK OFFICE — LOGIN PREMIUM
+   ========================================================= */
+
+#loginScreen {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 12% 20%, rgba(255,255,255,.32) 0 80px, transparent 81px),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.25) 0 110px, transparent 111px),
+        linear-gradient(135deg, #ffad32 0%, #ffd98b 48%, #ff8a27 100%);
+}
+
+
+/* =========================================================
+   FORMAS DECORATIVAS DEL FONDO
+   ========================================================= */
+
+#loginScreen::before {
+    content: "";
+
+    position: absolute;
+
+    width: 900px;
+    height: 380px;
+
+    left: -180px;
+    bottom: -180px;
+
+    background: rgba(255, 255, 255, .18);
+
+    border-radius: 50%;
+
+    transform: rotate(-8deg);
+}
+
+
+#loginScreen::after {
+    content: "";
+
+    position: absolute;
+
+    width: 900px;
+    height: 360px;
+
+    right: -220px;
+    top: -180px;
+
+    background: rgba(255, 255, 255, .20);
+
+    border-radius: 50%;
+
+    transform: rotate(8deg);
+}
+
+
+/* =========================================================
+   TARJETA
+   ========================================================= */
+
+#loginScreen .login-card {
+
+    position: relative;
+    z-index: 10;
+
+    width: min(390px, calc(100% - 40px));
+
+    padding: 38px 36px 34px;
+
+    background: rgba(255, 255, 255, .96);
+
+    border: 1px solid rgba(255,255,255,.7);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 25px 60px rgba(7, 26, 65, .20),
+        0 5px 15px rgba(7, 26, 65, .08);
+
+    backdrop-filter: blur(12px);
+
+    animation: loginEntrada .6s ease-out;
+}
+
+
+@keyframes loginEntrada {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+#loginScreen .login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+#loginScreen .login-header h1 {
+
+    margin: 0;
+
+    color: #071a41;
+
+    font-size: 36px;
+    font-weight: 900;
+
+    letter-spacing: -1px;
+}
+
+
+#loginScreen .login-header h1::before {
+    content: "🍪";
+    display: block;
+
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff1e8;
+
+    border-radius: 18px;
+
+    font-size: 34px;
+
+    box-shadow:
+        0 8px 20px rgba(255, 90, 31, .12);
+}
+
+
+#loginScreen .login-header p {
+
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+#loginScreen .form-group {
+    margin-bottom: 18px;
+}
+
+
+#loginScreen .form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #071a41;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+#loginScreen .form-group input {
+
+    width: 100%;
+    height: 46px;
+
+    box-sizing: border-box;
+
+    padding: 0 14px;
+
+    border: 1px solid #d9e1eb;
+
+    border-radius: 11px;
+
+    background: #f8fafc;
+
+    color: #071a41;
+
+    font-size: 14px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+
+#loginScreen .form-group input:hover {
+    background: #ffffff;
+}
+
+
+#loginScreen .form-group input:focus {
+
+    outline: none;
+
+    background: #ffffff;
+
+    border-color: #ff5a1f;
+
+    box-shadow:
+        0 0 0 4px rgba(255, 90, 31, .12);
+}
+
+
+#loginScreen .form-group input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   BOTÓN
+   ========================================================= */
+
+#loginScreen .login-button {
+
+    width: 100%;
+    height: 48px;
+
+    margin-top: 5px;
+
+    border: none;
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        #ff5a1f,
+        #ff741f
+    );
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 18px rgba(255, 90, 31, .25);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        filter .2s ease;
+}
+
+
+#loginScreen .login-button:hover {
+
+    transform: translateY(-2px);
+
+    filter: brightness(1.03);
+
+    box-shadow:
+        0 12px 24px rgba(255, 90, 31, .32);
+}
+
+
+#loginScreen .login-button:active {
+
+    transform: translateY(0);
+
+    box-shadow:
+        0 5px 12px rgba(255, 90, 31, .22);
+}
+
+
+/* =========================================================
+   DECORACIONES LATERALES
+   ========================================================= */
+
+#loginScreen .login-decoration {
+
+    position: absolute;
+
+    z-index: 2;
+
+    pointer-events: none;
+
+    font-size: 52px;
+
+    opacity: .75;
+
+    filter: drop-shadow(
+        0 8px 8px rgba(7, 26, 65, .10)
+    );
+
+    animation: snackFlotar 5s ease-in-out infinite;
+}
+
+
+@keyframes snackFlotar {
+
+    0%, 100% {
+        transform: translateY(0) rotate(-4deg);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(4deg);
+    }
+}
+
+
+#loginScreen .snack-1 {
+    left: 9%;
+    top: 22%;
+}
+
+
+#loginScreen .snack-2 {
+    right: 10%;
+    top: 17%;
+
+    animation-delay: .8s;
+}
+
+
+#loginScreen .snack-3 {
+    left: 13%;
+    bottom: 19%;
+
+    animation-delay: 1.4s;
+}
+
+
+#loginScreen .snack-4 {
+    right: 12%;
+    bottom: 15%;
+
+    animation-delay: 2s;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    #loginScreen .login-card {
+        width: min(360px, calc(100% - 30px));
+
+        padding: 30px 24px;
+    }
+
+    #loginScreen .login-header h1 {
+        font-size: 31px;
+    }
+
+    #loginScreen .login-decoration {
+        font-size: 38px;
+        opacity: .45;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    #loginScreen .snack-1,
+    #loginScreen .snack-3 {
+        left: 3%;
+    }
+
+    #loginScreen .snack-2,
+    #loginScreen .snack-4 {
+        right: 3%;
+    }
+
+}
+/* =========================================================
+   MÁS PRODUCTOS DECORATIVOS
+   ========================================================= */
+
+#loginScreen .snack-5 {
+    left: 28%;
+    top: 12%;
+    font-size: 38px;
+    animation-delay: 1s;
+}
+
+#loginScreen .snack-6 {
+    right: 28%;
+    top: 28%;
+    font-size: 34px;
+    animation-delay: 1.8s;
+}
+
+#loginScreen .snack-7 {
+    left: 31%;
+    bottom: 14%;
+    font-size: 42px;
+    animation-delay: 2.5s;
+}
+
+#loginScreen .snack-8 {
+    right: 31%;
+    bottom: 12%;
+    font-size: 38px;
+    animation-delay: 3.2s;
+}
