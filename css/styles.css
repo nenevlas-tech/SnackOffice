@@ -3696,3 +3696,130 @@ PANEL ADMINISTRADOR
     }
 
 }
+/* =========================================================
+   RESPONSIVE GENERAL - CELULARES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* PANEL ADMINISTRADOR */
+    .admin-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-height: 100vh;
+        height: auto;
+    }
+
+    /* MENÚ */
+    .sidebar {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        position: relative;
+    }
+
+    .sidebar h2 {
+        width: 100%;
+        font-size: 28px;
+        margin-bottom: 5px;
+    }
+
+    .sidebar button {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 140px;
+        margin: 0;
+        padding: 14px 10px;
+        font-size: 15px;
+    }
+
+    /* CONTENIDO */
+    .content {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 20px 15px !important;
+        overflow-x: hidden;
+    }
+
+    .content h1 {
+        font-size: 30px;
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+    }
+
+    .content p {
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    /* TABLAS */
+    .tabla-container,
+    .tabla-productos,
+    .tabla-historial {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    /* INVENTARIO */
+    .form-producto {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* COMISIONES */
+    .admin-resumen-comisiones {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-filtros-comisiones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+
+/* =========================================================
+   CELULARES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .sidebar {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .sidebar h2 {
+        font-size: 25px;
+    }
+
+    .sidebar button {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .content {
+        padding: 18px 12px !important;
+    }
+
+    .content h1 {
+        font-size: 27px;
+    }
+
+    .content p {
+        font-size: 17px;
+    }
+}
