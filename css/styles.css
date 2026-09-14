@@ -3142,3 +3142,557 @@ PANEL ADMINISTRADOR
     font-size: 38px;
     animation-delay: 3.2s;
 }
+/* =========================================================
+   SNACK OFFICE
+   RESPONSIVE GENERAL
+   PC / TABLET / CELULAR
+   ========================================================= */
+
+
+/* =========================================================
+   TABLETS Y PANTALLAS MEDIANAS
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+        width: 230px;
+        padding: 20px;
+    }
+
+    .content {
+        padding: 25px 20px;
+    }
+
+    .card-inventario {
+        width: 100%;
+    }
+
+    .titulo-inventario h1 {
+        font-size: 32px;
+    }
+
+}
+
+
+/* =========================================================
+   CELULARES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    /* -----------------------------------------
+       CONFIGURACIÓN GENERAL
+       ----------------------------------------- */
+
+    body {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+
+    /* -----------------------------------------
+       LOGIN
+       ----------------------------------------- */
+
+    #loginScreen {
+        min-height: 100dvh;
+        padding: 20px 15px;
+    }
+
+    #loginScreen .login-card {
+        width: 100%;
+        max-width: 380px;
+        padding: 32px 24px;
+        border-radius: 18px;
+    }
+
+    #loginScreen .login-header {
+        margin-bottom: 35px;
+    }
+
+    #loginScreen .login-header h1 {
+        font-size: 30px;
+    }
+
+    #loginScreen .login-header p {
+        font-size: 14px;
+    }
+
+    #loginScreen .form-group {
+        margin-bottom: 20px;
+    }
+
+    #loginScreen .form-group input {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    #loginScreen .login-button {
+        min-height: 48px;
+    }
+
+
+    /* -----------------------------------------
+       DECORACIONES DEL LOGIN
+       ----------------------------------------- */
+
+    #loginScreen .login-decoration {
+        font-size: 32px;
+        opacity: .35;
+    }
+
+    #loginScreen .snack-5,
+    #loginScreen .snack-6,
+    #loginScreen .snack-7,
+    #loginScreen .snack-8,
+    #loginScreen .snack-9 {
+        display: none;
+    }
+
+
+    /* -----------------------------------------
+       ADMINISTRADOR
+       ----------------------------------------- */
+
+    .admin-container {
+        min-height: 100dvh;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* -----------------------------------------
+       MENÚ LATERAL → MENÚ SUPERIOR
+       ----------------------------------------- */
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        height: auto;
+
+        padding: 15px;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        position: relative;
+    }
+
+    .sidebar h2 {
+        width: 100%;
+        margin: 0 0 8px;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .sidebar button {
+        flex: 1 1 calc(50% - 8px);
+
+        width: auto;
+
+        margin: 0;
+
+        min-height: 46px;
+        padding: 10px 8px;
+
+        font-size: 14px;
+    }
+
+
+    /* -----------------------------------------
+       CONTENIDO
+       ----------------------------------------- */
+
+    .content {
+        width: 100%;
+        min-width: 0;
+
+        padding: 20px 14px;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        align-items: stretch;
+    }
+
+
+    /* -----------------------------------------
+       INVENTARIO
+       ----------------------------------------- */
+
+    .card-inventario {
+        width: 100%;
+        max-width: 100%;
+
+        padding: 20px 16px;
+
+        border-radius: 16px;
+    }
+
+    .titulo-inventario {
+        gap: 10px;
+    }
+
+    .titulo-inventario span {
+        width: 44px;
+        height: 44px;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .titulo-inventario h1 {
+        font-size: 27px;
+    }
+
+    .card-inventario .subtitulo {
+        margin-left: 0;
+        font-size: 14px;
+    }
+
+
+    /* -----------------------------------------
+       FORMULARIOS DE INVENTARIO
+       ----------------------------------------- */
+
+    .form-producto {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    #btnGuardarProducto {
+        grid-column: auto !important;
+        width: 100%;
+    }
+
+    .herramientas-inventario {
+        flex-direction: column;
+    }
+
+    .herramientas-inventario button {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------
+       TABLAS
+       ----------------------------------------- */
+
+    #tablaProductos,
+    .tabla-admin-contenedor {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    #tablaProductos table,
+    .tabla-comisiones-admin {
+        min-width: 650px;
+    }
+
+
+    /* -----------------------------------------
+       COMISIONES
+       ----------------------------------------- */
+
+    .admin-resumen-comisiones {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-filtros-comisiones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-filtros-comisiones label,
+    .admin-filtros-comisiones input,
+    #btnLimpiarFiltroComision {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------
+       HISTORIAL DE VENTAS
+       ----------------------------------------- */
+
+    #historialVentasScreen {
+        width: 100%;
+        max-width: 100%;
+
+        padding: 20px 16px;
+
+        border-radius: 16px;
+    }
+
+    #historialVentasScreen > h1 {
+        font-size: 27px;
+    }
+
+    #historialVentasScreen > p {
+        font-size: 14px;
+    }
+
+
+    /* -----------------------------------------
+       PANTALLA DE VENTAS
+       ----------------------------------------- */
+
+    #ventasScreen .content {
+        padding: 18px 12px;
+    }
+
+    #ventasContentArea {
+        width: 100%;
+        max-width: 100%;
+    }
+
+
+    /* -----------------------------------------
+       ENCABEZADO DE VENTAS
+       ----------------------------------------- */
+
+    .venta-header {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .venta-header h1 {
+        font-size: 27px;
+    }
+
+    .venta-header p {
+        font-size: 14px;
+    }
+
+    .venta-contador {
+        padding: 10px 13px;
+        flex-shrink: 0;
+    }
+
+
+    /* -----------------------------------------
+       CATEGORÍAS
+       ----------------------------------------- */
+
+    .venta-categorias {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px;
+    }
+
+    .categoria-venta {
+        min-height: 105px;
+        padding: 10px 5px;
+    }
+
+    .categoria-venta span {
+        font-size: 28px;
+    }
+
+    .categoria-venta strong {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .categoria-venta small {
+        font-size: 11px;
+    }
+
+
+    /* -----------------------------------------
+       PRODUCTOS
+       ----------------------------------------- */
+
+    .venta-productos {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .productos-header {
+        gap: 8px;
+    }
+
+    .productos-header h2 {
+        font-size: 18px;
+    }
+
+    .btn-volver-categorias {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    #listaProductosVenta {
+        grid-template-columns: 1fr !important;
+        max-height: none;
+    }
+
+    .producto-venta {
+        min-height: 150px;
+    }
+
+    .producto-icono {
+        height: 85px;
+        font-size: 36px;
+    }
+
+
+    /* -----------------------------------------
+       PANEL DE VENTA
+       ----------------------------------------- */
+
+    .venta-panel {
+        width: 100% !important;
+
+        position: static !important;
+
+        gap: 10px;
+    }
+
+    .venta-carrito {
+        max-height: none;
+        min-height: 130px;
+        padding: 16px;
+    }
+
+    .venta-pago,
+    .venta-cliente {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------
+       FORMA DE PAGO
+       ----------------------------------------- */
+
+    .pago-opciones {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .btn-pago {
+        min-height: 48px;
+        font-size: 13px;
+    }
+
+
+    /* -----------------------------------------
+       TOTAL
+       ----------------------------------------- */
+
+    .venta-total {
+        padding: 17px;
+    }
+
+    .venta-total h2 {
+        font-size: 15px;
+    }
+
+    #totalVenta {
+        font-size: 23px;
+    }
+
+
+    /* -----------------------------------------
+       BOTONES DE VENTA
+       ----------------------------------------- */
+
+    .venta-acciones {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+
+    .venta-acciones button {
+        min-height: 50px;
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   CELULARES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    #loginScreen {
+        padding: 15px 10px;
+    }
+
+    #loginScreen .login-card {
+        padding: 28px 20px;
+    }
+
+    #loginScreen .login-header h1 {
+        font-size: 27px;
+    }
+
+
+    .sidebar {
+        padding: 12px;
+    }
+
+    .sidebar h2 {
+        font-size: 20px;
+    }
+
+    .sidebar button {
+        flex: 1 1 100%;
+        font-size: 13px;
+    }
+
+
+    .content {
+        padding: 16px 10px;
+    }
+
+
+    .titulo-inventario h1 {
+        font-size: 24px;
+    }
+
+
+    .venta-header {
+        flex-direction: column;
+    }
+
+    .venta-contador {
+        align-self: flex-end;
+    }
+
+
+    .venta-categorias {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .categoria-venta {
+        min-height: 95px;
+    }
+
+    .categoria-venta span {
+        font-size: 25px;
+    }
+
+    .categoria-venta strong {
+        font-size: 13px;
+    }
+
+
+    .pago-opciones {
+        grid-template-columns: 1fr;
+    }
+
+
+    #historialVentasScreen {
+        padding: 17px 13px;
+    }
+
+    #historialVentasScreen > h1 {
+        font-size: 24px;
+    }
+
+}
