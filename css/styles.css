@@ -1165,6 +1165,11 @@ PANEL ADMINISTRADOR
     align-items: start;
 }
 
+/* Mantener el layout de Nueva Venta cuando el JS la muestra. */
+#nuevaVentaScreen[style*="display: block"] {
+    display: grid !important;
+}
+
 /* Encabezado */
 
 .venta-header {
@@ -1765,6 +1770,16 @@ PANEL ADMINISTRADOR
 /* =========================================================
    RESPONSIVE
    ========================================================= */
+
+/* Escritorio: productos a la izquierda y panel de venta a la derecha. */
+#nuevaVentaScreen {
+    grid-template-columns: minmax(0, 1fr) 390px;
+    grid-template-areas:
+        "header header"
+        "buscador buscador"
+        "categorias categorias"
+        "productos panel";
+}
 
 @media (max-width: 1150px) {
 
