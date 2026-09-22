@@ -121,6 +121,10 @@
                 📋 Historial
             </button>
 
+            <button id="btnPendientesVentas">
+                📒 Pendientes
+            </button>
+
             <button id="btnCerrarSesionVentas">
                 🚪 Cerrar sesión
             </button>
@@ -306,7 +310,10 @@
     <input
         type="text"
         id="clienteVenta"
-        placeholder="Nombre del cliente">
+        placeholder="Nombre del cliente"
+        autocomplete="off">
+
+    <div id="estadoClienteVenta" class="estado-cliente-venta" aria-live="polite" style="display: none;"></div>
 
 </div>
 
@@ -360,6 +367,62 @@
 
 </div>
 
+<!-- =========================================
+     CUENTAS PENDIENTES
+========================================== -->
+<div id="pendientesVentasScreen" style="display: none;">
+
+    <div class="pendientes-header">
+        <div>
+            <h1>📒 Cuentas pendientes</h1>
+            <p>Consulta y administra los saldos pendientes de tus clientes.</p>
+        </div>
+    </div>
+
+    <div class="pendientes-resumen">
+        <div class="resumen-pendiente">
+            <span>👥</span>
+            <div>
+                <small>Cuentas activas</small>
+                <strong id="totalCuentasPendientes">0</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>💰</span>
+            <div>
+                <small>Saldo pendiente</small>
+                <strong id="saldoPendienteTotal">$0.00</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>💵</span>
+            <div>
+                <small>Total abonado</small>
+                <strong id="totalAbonadoPendientes">$0.00</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>🟢</span>
+            <div>
+                <small>Saldo a favor</small>
+                <strong id="saldoFavorTotal">$0.00</strong>
+            </div>
+        </div>
+    </div>
+
+    <div id="listaPendientesVentas">
+        <div class="mensaje-pendientes">
+            <span>📒</span>
+            <h3>No hay cuentas pendientes</h3>
+            <p>Las ventas registradas como pendientes aparecerán aquí.</p>
+        </div>
+    </div>
+
+</div>
+
 </div>
 
 
@@ -368,6 +431,10 @@
     </div>
 
 </div>
+
+
+
+
 
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script type="module" src="js/app.js"></script>    

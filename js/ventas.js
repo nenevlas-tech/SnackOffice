@@ -28,6 +28,7 @@ export function iniciarVentas() {
 function configurarNavegacionVentas() {
     const btnNuevaVenta = document.getElementById("btnNuevaVenta");
     const btnHistorialVentas = document.getElementById("btnHistorialVentas");
+    const btnPendientesVentas = document.getElementById("btnPendientesVentas");
     const btnCancelarVenta = document.getElementById("btnCancelarVenta");
 
     if (btnNuevaVenta) {
@@ -38,6 +39,13 @@ function configurarNavegacionVentas() {
         btnHistorialVentas.addEventListener("click", () => {
             mostrarPantallaVentas("historialVentasScreen");
             cargarHistorialVentas();
+        });
+    }
+
+    if (btnPendientesVentas) {
+        btnPendientesVentas.addEventListener("click", () => {
+            mostrarPantallaVentas("pendientesVentasScreen");
+            cargarPendientesVentas();
         });
     }
 
@@ -57,6 +65,7 @@ function iniciarNuevaVenta() {
         cliente.value = "";
     }
 
+    actualizarAvisoCliente();
     establecerMetodoPagoActivo("Efectivo");
     renderizarCarrito();
     mostrarPantallaVentas("nuevaVentaScreen");
@@ -77,6 +86,13 @@ function configurarNuevaVenta() {
         buscador.addEventListener("input", () => {
             cargarProductosVenta(buscador.value);
         });
+    }
+
+    const campoCliente = document.getElementById("clienteVenta");
+
+    if (campoCliente) {
+        campoCliente.addEventListener("input", actualizarAvisoCliente);
+        campoCliente.addEventListener("blur", actualizarAvisoCliente);
     }
 
     categorias.forEach(boton => {
@@ -134,7 +150,8 @@ function mostrarPantallaVentas(pantalla) {
     const pantallas = [
         "ventasInicio",
         "nuevaVentaScreen",
-        "historialVentasScreen"
+        "historialVentasScreen",
+        "pendientesVentasScreen"
     ];
 
     pantallas.forEach(id => {
@@ -472,7 +489,11 @@ function registrarVenta() {
     descontarStockVenta(productos);
     localStorage.setItem("productos", JSON.stringify(productos));
 
-    guardarVentaHistorial();
+    const ventaRegistrada = guardarVentaHistorial();
+
+    if (ventaRegistrada && metodoPago === "Pendiente") {
+        guardarCuentaPendiente(ventaRegistrada);
+    }
 
     carrito = [];
     renderizarCarrito();
@@ -534,6 +555,8 @@ function guardarVentaHistorial() {
         0
     );
 
+    const esPendiente = pagoRegistrado === "Pendiente";
+
     const venta = {
         id: Date.now(),
         fecha: new Date().toLocaleString("es-MX"),
@@ -545,11 +568,16 @@ function guardarVentaHistorial() {
             cantidad: producto.cantidad,
             subtotal: Number(producto.precio) * Number(producto.cantidad)
         })),
-        total
+        total,
+        estadoPago: esPendiente ? "Pendiente" : "Pagado",
+        abonado: esPendiente ? 0 : total,
+        saldo: esPendiente ? total : 0
     };
 
     historial.push(venta);
     localStorage.setItem("historialVentas", JSON.stringify(historial));
+
+    return venta;
 }
 
 function cargarHistorialVentas() {
@@ -625,3 +653,277 @@ function crearTarjetaHistorial(venta, numeroVenta) {
 
     return tarjeta;
 }
+
+// -------------------------------------
+// CUENTAS PENDIENTES
+// -------------------------------------
+function obtenerCuentasPendientes() {
+    return JSON.parse(localStorage.getItem("cuentasPendientes")) || [];
+}
+
+function guardarCuentaPendiente(venta) {
+    const cuentas = obtenerCuentasPendientes();
+
+    cuentas.push({
+        id: venta.id,
+        cliente: venta.cliente,
+        fecha: venta.fecha,
+        total: Number(venta.total),
+        abonado: 0,
+        saldo: Number(venta.total),
+        saldoFavor: 0,
+        estado: "Pendiente",
+        productos: venta.productos || []
+    });
+
+    localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+}
+
+function cargarPendientesVentas() {
+    const contenedor = document.getElementById("listaPendientesVentas");
+
+    if (!contenedor) return;
+
+    const cuentas = obtenerCuentasPendientes();
+    actualizarResumenPendientes(cuentas);
+    contenedor.innerHTML = "";
+
+    if (cuentas.length === 0) {
+        contenedor.innerHTML = `
+            <div class="mensaje-pendientes">
+                <span>📒</span>
+                <h3>No hay cuentas pendientes</h3>
+                <p>Las ventas registradas como pendientes aparecerán aquí.</p>
+            </div>
+        `;
+        return;
+    }
+
+    cuentas.slice().reverse().forEach(cuenta => {
+        contenedor.appendChild(crearTarjetaPendiente(cuenta));
+    });
+}
+
+function actualizarResumenPendientes(cuentas) {
+    const activas = cuentas.filter(cuenta => Number(cuenta.saldo) > 0);
+    const saldoTotal = activas.reduce(
+        (suma, cuenta) => suma + Number(cuenta.saldo || 0),
+        0
+    );
+    const abonadoTotal = cuentas.reduce(
+        (suma, cuenta) => suma + Number(cuenta.abonado || 0),
+        0
+    );
+
+    const favorTotal = cuentas.reduce(
+        (suma, cuenta) => suma + Number(cuenta.saldoFavor || 0),
+        0
+    );
+
+    const cantidad = document.getElementById("totalCuentasPendientes");
+    const saldo = document.getElementById("saldoPendienteTotal");
+    const abonado = document.getElementById("totalAbonadoPendientes");
+    const favor = document.getElementById("saldoFavorTotal");
+
+    if (cantidad) cantidad.textContent = activas.length;
+    if (saldo) saldo.textContent = `$${saldoTotal.toFixed(2)}`;
+    if (abonado) abonado.textContent = `$${abonadoTotal.toFixed(2)}`;
+    if (favor) favor.textContent = `$${favorTotal.toFixed(2)}`;
+}
+
+function crearTarjetaPendiente(cuenta) {
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "pendiente-venta";
+
+    const total = Number(cuenta.total || 0);
+    const abonado = Number(cuenta.abonado || 0);
+    const saldo = Number(cuenta.saldo || 0);
+    const saldoFavor = Number(cuenta.saldoFavor || 0);
+    const pagada = saldo <= 0 && saldoFavor <= 0;
+    const tieneFavor = saldoFavor > 0;
+
+    tarjeta.innerHTML = `
+        <div class="pendiente-venta-info">
+            <div class="pendiente-venta-cabecera">
+                <div>
+                    <h3>📒 ${cuenta.cliente || "Cliente sin nombre"}</h3>
+                    <p>Venta #${obtenerNumeroVentaPendiente(cuenta.id)}</p>
+                </div>
+                <span class="estado-pendiente ${pagada ? "pagado" : ""} ${tieneFavor ? "favor" : ""}">
+                    ${tieneFavor ? "Saldo a favor" : pagada ? "Pagado" : "Pendiente"}
+                </span>
+            </div>
+
+            <p>📅 ${cuenta.fecha}</p>
+            <p>🧾 Total: <strong>$${total.toFixed(2)}</strong></p>
+            <p>💵 Abonado: <strong>$${abonado.toFixed(2)}</strong></p>
+            ${saldo > 0 ? `<p class="saldo-pendiente">💰 Saldo: <strong>$${saldo.toFixed(2)}</strong></p>` : ""}
+            ${tieneFavor ? `<p class="saldo-favor-pendiente">🟢 A favor: <strong>$${saldoFavor.toFixed(2)}</strong></p>` : ""}
+        </div>
+
+        <div class="pendiente-venta-acciones">
+            ${
+                tieneFavor
+                    ? `<span class="pendiente-liquidada">✓ Cuenta liquidada · A favor $${saldoFavor.toFixed(2)}</span>`
+                    : pagada
+                        ? `<span class="pendiente-liquidada">✓ Cuenta liquidada</span>`
+                        : `<button type="button" class="btn-abonar-pendiente">💵 Registrar abono</button>`
+            }
+        </div>
+    `;
+
+    const btnAbonar = tarjeta.querySelector(".btn-abonar-pendiente");
+    if (btnAbonar) {
+        btnAbonar.addEventListener("click", () => registrarAbonoPendiente(cuenta.id));
+    }
+
+    return tarjeta;
+}
+
+function obtenerNumeroVentaPendiente(idVenta) {
+    const historial =
+        JSON.parse(localStorage.getItem("historialVentas")) || [];
+    const indice = historial.findIndex(venta => venta.id === idVenta);
+    return indice >= 0 ? indice + 1 : "—";
+}
+
+function registrarAbonoPendiente(idCuenta) {
+    const cuentas = obtenerCuentasPendientes();
+    const cuenta = cuentas.find(item => item.id === idCuenta);
+
+    if (!cuenta) return;
+
+    const saldoActual = Number(cuenta.saldo || 0);
+    const saldoFavorActual = Number(cuenta.saldoFavor || 0);
+
+    if (saldoActual <= 0) {
+        alert(
+            saldoFavorActual > 0
+                ? `Esta cuenta ya está liquidada y tiene $${saldoFavorActual.toFixed(2)} a favor.`
+                : "Esta cuenta ya está liquidada."
+        );
+        return;
+    }
+
+    const entrada = prompt(
+        `Saldo pendiente: $${saldoActual.toFixed(2)}\n\nIngresa el monto del abono:`
+    );
+
+    if (entrada === null) return;
+
+    const monto = Number(entrada);
+
+    if (!Number.isFinite(monto) || monto <= 0) {
+        alert("⚠️ Ingresa un monto válido mayor a cero.");
+        return;
+    }
+
+    const nuevoSaldo = Math.max(0, saldoActual - monto);
+    const excedente = Math.max(0, monto - saldoActual);
+
+    cuenta.abonado = Number(cuenta.abonado || 0) + monto;
+    cuenta.saldo = nuevoSaldo;
+    cuenta.saldoFavor = saldoFavorActual + excedente;
+    cuenta.estado = nuevoSaldo > 0 ? "Pendiente" : "Pagado";
+
+    localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+    actualizarVentaHistorialConAbono(cuenta);
+    cargarPendientesVentas();
+    actualizarAvisoCliente();
+
+    if (excedente > 0) {
+        alert(
+            `✅ Abono registrado. La cuenta quedó liquidada y el cliente tiene $${cuenta.saldoFavor.toFixed(2)} a favor.`
+        );
+    } else if (cuenta.saldo === 0) {
+        alert("✅ Cuenta liquidada correctamente.");
+    } else {
+        alert(
+            `✅ Abono registrado. Saldo restante: $${cuenta.saldo.toFixed(2)}`
+        );
+    }
+}
+
+function actualizarVentaHistorialConAbono(cuenta) {
+    const historial =
+        JSON.parse(localStorage.getItem("historialVentas")) || [];
+    const venta = historial.find(item => item.id === cuenta.id);
+
+    if (!venta) return;
+
+    venta.abonado = Number(cuenta.abonado);
+    venta.saldo = Number(cuenta.saldo);
+    venta.saldoFavor = Number(cuenta.saldoFavor || 0);
+    venta.estadoPago = cuenta.saldoFavor > 0 ? "Saldo a favor" : cuenta.estado;
+
+    localStorage.setItem("historialVentas", JSON.stringify(historial));
+}
+
+// -------------------------------------
+// ESTADO DEL CLIENTE
+// -------------------------------------
+function obtenerResumenCliente(nombre) {
+    const clienteNormalizado = normalizarTexto(nombre);
+
+    if (!clienteNormalizado) {
+        return { deuda: 0, favor: 0 };
+    }
+
+    const cuentas = obtenerCuentasPendientes();
+
+    return cuentas
+        .filter(cuenta => normalizarTexto(cuenta.cliente) === clienteNormalizado)
+        .reduce(
+            (resumen, cuenta) => {
+                resumen.deuda += Math.max(0, Number(cuenta.saldo || 0));
+                resumen.favor += Math.max(0, Number(cuenta.saldoFavor || 0));
+                return resumen;
+            },
+            { deuda: 0, favor: 0 }
+        );
+}
+
+function actualizarAvisoCliente() {
+    const campoCliente = document.getElementById("clienteVenta");
+    const aviso = document.getElementById("estadoClienteVenta");
+
+    if (!campoCliente || !aviso) return;
+
+    const nombre = campoCliente.value.trim();
+
+    if (!nombre) {
+        aviso.style.display = "none";
+        aviso.textContent = "";
+        aviso.className = "estado-cliente-venta";
+        return;
+    }
+
+    const resumen = obtenerResumenCliente(nombre);
+    const deuda = resumen.deuda;
+    const favor = resumen.favor;
+
+    aviso.style.display = "block";
+
+    if (deuda > 0 && favor > 0) {
+        aviso.className = "estado-cliente-venta aviso-mixto";
+        aviso.textContent = `⚠️ Debe $${deuda.toFixed(2)} · 🟢 Tiene $${favor.toFixed(2)} a favor`;
+        return;
+    }
+
+    if (deuda > 0) {
+        aviso.className = "estado-cliente-venta aviso-deuda";
+        aviso.textContent = `⚠️ Cliente con saldo pendiente: $${deuda.toFixed(2)}`;
+        return;
+    }
+
+    if (favor > 0) {
+        aviso.className = "estado-cliente-venta aviso-favor";
+        aviso.textContent = `🟢 Cliente con saldo a favor: $${favor.toFixed(2)}`;
+        return;
+    }
+
+    aviso.style.display = "none";
+    aviso.textContent = "";
+    aviso.className = "estado-cliente-venta";
+}
+
