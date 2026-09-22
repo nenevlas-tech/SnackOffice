@@ -168,6 +168,63 @@ function mostrarPantallaVentas(pantalla) {
 }
 
 // -------------------------------------
+// IMÁGENES DE PRODUCTOS
+// -------------------------------------
+// Las imágenes se resuelven por nombre para no depender de que
+// localStorage conserve el código SO-XXX del Excel.
+// Si Inventario ya tiene una imagen manual en producto.imagen,
+// esa imagen tiene prioridad.
+const IMAGENES_PRODUCTOS = {
+    "barra gansito": "img/productos/SO-002.jpg",
+    "barras soft & chewy": "img/productos/SO-003.jpg",
+    "barritas fresa": "img/productos/SO-004.jpg",
+    "barritas moras": "img/productos/SO-005.jpg",
+    "barritas piña": "img/productos/SO-006.jpg",
+    "brownies general mills": "img/productos/SO-007.jpg",
+    "canelitas chicas": "img/productos/SO-008.jpg",
+    "chip’s fuego": "img/productos/SO-014.jpg",
+    "chip’s jalapeño": "img/productos/SO-015.jpg",
+    "chip’s sal": "img/productos/SO-016.jpg",
+    "churrumais limón": "img/productos/SO-020.jpg",
+    "coconut almond bites": "img/productos/SO-021.jpg",
+    "cremax chocolate": "img/productos/SO-022.jpg",
+    "cremax fresa": "img/productos/SO-023.jpg",
+    "cremax vainilla": "img/productos/SO-024.jpg",
+    "doraditas": "img/productos/SO-025.jpg",
+    "doritos nacho": "img/productos/SO-026.jpg",
+    "fritos limón y sal": "img/productos/SO-029.jpg",
+    "gaveti chispi chocs": "img/productos/SO-032.jpg",
+    "mini gansito": "img/productos/SO-034.jpg",
+    "mini mamut": "img/productos/SO-035.jpg",
+    "mini pingüinos": "img/productos/SO-036.jpg",
+    "peanut butter bites": "img/productos/SO-037.jpg",
+    "polvorones chicos": "img/productos/SO-038.jpg",
+    "polvorones grande": "img/productos/SO-039.jpg",
+    "principe chico": "img/productos/SO-040.jpg",
+    "principe grande": "img/productos/SO-041.jpg",
+    "quaker chocolate": "img/productos/SO-043.jpg",
+    "rancheritos original": "img/productos/SO-044.jpg",
+    "rip van wafers": "img/productos/SO-045.jpg",
+    "ruffles queso": "img/productos/SO-046.jpg",
+    "runners chile limón": "img/productos/SO-047.jpg",
+    "sabritas original": "img/productos/SO-049.jpg",
+    "snack bites tajin": "img/productos/SO-051.jpg",
+    "takis fuego": "img/productos/SO-053.jpg",
+    "takis huakamoles": "img/productos/SO-054.jpg",
+    "triki-trakes": "img/productos/SO-060.jpg",
+};
+
+function resolverImagenProducto(producto) {
+    if (producto?.imagen) {
+        return producto.imagen;
+    }
+
+    const clave = normalizarTexto(producto?.nombre);
+
+    return IMAGENES_PRODUCTOS[clave] || "";
+}
+
+// -------------------------------------
 // INVENTARIO Y PRODUCTOS
 // -------------------------------------
 function obtenerProductos() {
@@ -237,8 +294,10 @@ function crearTarjetaProducto(producto) {
     const tarjeta = document.createElement("div");
     tarjeta.className = "producto-venta";
 
-    const imagen = producto.imagen
-        ? `<img src="${producto.imagen}" alt="${producto.nombre}">`
+    const rutaImagen = resolverImagenProducto(producto);
+
+    const imagen = rutaImagen
+        ? `<img src="${rutaImagen}" alt="${producto.nombre}" loading="lazy">`
         : `<span class="producto-icono">🛍️</span>`;
 
     tarjeta.innerHTML = `
