@@ -4,11 +4,11 @@
 //=====================================
 
 import { inicializarCatalogo } from "./catalogo-inicial.js";
+import { inicializarImagenesCatalogo } from "./imagenes-iniciales.js";
 import { iniciarVentas } from "./ventas.js";
 import { iniciarLogin } from "./login.js";
 import { iniciarInventario } from "./inventario.js";
 import { iniciarAdministrador } from "./admin.js";
-import { iniciarCortesReportes } from "./cortes-reportes.js";
 
 //=====================================
 // INICIO DEL SISTEMA
@@ -16,15 +16,12 @@ import { iniciarCortesReportes } from "./cortes-reportes.js";
 
 console.log("Snack Office iniciado");
 
-// Cargar catálogo inicial solo cuando el navegador todavía no tiene productos.
+// Primero aseguramos el catálogo inicial y sus imágenes.
 inicializarCatalogo();
+inicializarImagenesCatalogo();
 
-//=====================================
-// INICIALIZAR MÓDULOS
-//=====================================
-
+// Después iniciamos los módulos.
 iniciarLogin();
 iniciarInventario();
 iniciarVentas();
 iniciarAdministrador();
-iniciarCortesReportes();
