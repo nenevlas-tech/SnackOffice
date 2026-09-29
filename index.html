@@ -79,9 +79,9 @@
         
         <button id="btnComisiones">💰 Comisiones</button>
 
-        <button>📊 Cortes</button>
+        <button id="btnCortes">📊 Cortes</button>
 
-        <button>📈 Reportes</button>
+        <button id="btnReportes">📈 Reportes</button>
 
         <button id="btnCerrarSesionAdmin">🚪 Cerrar sesión</button>
 
@@ -123,6 +123,10 @@
 
             <button id="btnPendientesVentas">
                 📒 Pendientes
+            </button>
+
+            <button id="btnClientesVentas">
+                👥 Clientes
             </button>
 
             <button id="btnCerrarSesionVentas">
@@ -315,6 +319,20 @@
 
     <div id="estadoClienteVenta" class="estado-cliente-venta" aria-live="polite" style="display: none;"></div>
 
+    <div id="saldoFavorVentaBox" class="saldo-favor-venta-box" style="display: none;">
+        <div>
+            <strong>🟢 Saldo a favor disponible</strong>
+            <span id="saldoFavorDisponibleVenta">$0.00</span>
+        </div>
+        <button type="button" id="btnUsarSaldoFavorVenta">Usar saldo a favor</button>
+    </div>
+
+    <div id="resumenPagoVenta" class="resumen-pago-venta" style="display: none;">
+        <div><span>Subtotal de venta</span><strong id="subtotalVentaResumen">$0.00</strong></div>
+        <div><span>Saldo a favor aplicado</span><strong id="saldoFavorAplicadoVenta">$0.00</strong></div>
+        <div class="restante"><span>Restante por pagar</span><strong id="restanteVentaResumen">$0.00</strong></div>
+    </div>
+
 </div>
 
     <!-- TOTAL -->
@@ -421,6 +439,32 @@
         </div>
     </div>
 
+</div>
+
+<!-- =========================================
+     CLIENTES / COMPRADORES
+========================================== -->
+<div id="clientesVentasScreen" style="display: none;">
+    <div class="clientes-header">
+        <div>
+            <h1>👥 Clientes</h1>
+            <p>Consulta compradores, compras y saldos pendientes o a favor.</p>
+        </div>
+    </div>
+
+    <div class="clientes-resumen">
+        <div class="cliente-metrica"><span>👥</span><div><small>Clientes registrados</small><strong id="totalClientesVentas">0</strong></div></div>
+        <div class="cliente-metrica"><span>🛒</span><div><small>Clientes con compras</small><strong id="clientesConComprasVentas">0</strong></div></div>
+        <div class="cliente-metrica"><span>💰</span><div><small>Saldo pendiente</small><strong id="deudaClientesVentas">$0.00</strong></div></div>
+        <div class="cliente-metrica"><span>🟢</span><div><small>Saldo a favor</small><strong id="favorClientesVentas">$0.00</strong></div></div>
+    </div>
+
+    <div class="clientes-toolbar">
+        <input type="search" id="buscarClienteVentas" placeholder="🔎 Buscar cliente..." autocomplete="off">
+        <button type="button" id="btnRefrescarClientes">↻ Actualizar</button>
+    </div>
+
+    <div id="listaClientesVentas" class="lista-clientes-ventas"></div>
 </div>
 
 </div>

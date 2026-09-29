@@ -18,10 +18,7 @@ export function iniciarAdministrador() {
         document.getElementById("btnComisiones");
 
     if (btnComisiones) {
-        btnComisiones.addEventListener(
-            "click",
-            mostrarComisiones
-        );
+        btnComisiones.addEventListener("click", mostrarComisiones);
     }
 
 }
@@ -31,44 +28,39 @@ export function iniciarAdministrador() {
 //=====================================
 
 function obtenerProductos() {
-
     return JSON.parse(
         localStorage.getItem("productos")
     ) || [];
-
 }
 
 function obtenerVentas() {
-
-    return JSON.parse(
+    const actuales = JSON.parse(
         localStorage.getItem("historialVentas")
     ) || [];
 
+    const jornadas = JSON.parse(
+        localStorage.getItem("jornadasArchivadas")
+    ) || [];
+
+    const archivadas = jornadas.flatMap(jornada => jornada.ventas || []);
+
+    return [...archivadas, ...actuales];
 }
 
 function dinero(valor) {
-
     return `$${Number(valor || 0).toFixed(2)}`;
-
 }
 
 // Busca el producto actual para obtener su costo.
-
 function obtenerProductoInventario(nombre) {
 
-    const productos =
-        obtenerProductos();
+    const productos = obtenerProductos();
 
     return productos.find(
         producto =>
-            String(producto.nombre)
-                .trim()
-                .toLowerCase() ===
-            String(nombre)
-                .trim()
-                .toLowerCase()
+            String(producto.nombre).trim().toLowerCase() ===
+            String(nombre).trim().toLowerCase()
     ) || null;
-
 }
 
 //=====================================
@@ -78,9 +70,7 @@ function obtenerProductoInventario(nombre) {
 function calcularComisionProducto(productoVenta) {
 
     const productoInventario =
-        obtenerProductoInventario(
-            productoVenta.nombre
-        );
+        obtenerProductoInventario(productoVenta.nombre);
 
     if (!productoInventario) {
         return 0;
@@ -106,7 +96,6 @@ function calcularComisionProducto(productoVenta) {
     return utilidadUnitaria *
         PORCENTAJE_COMISION *
         (Number(productoVenta.cantidad) || 0);
-
 }
 
 //=====================================
@@ -136,15 +125,10 @@ function mostrarComisiones() {
             </p>
 
             <div class="regla-comision-inventario">
-
                 💼 <strong>Regla de comisión:</strong>
                 ${PORCENTAJE_COMISION * 100}% de la utilidad unitaria.
-
                 <br>
-
-                👤 <strong>Vendedor:</strong>
-                ${VENDEDOR_PRINCIPAL}
-
+                👤 <strong>Vendedor:</strong> ${VENDEDOR_PRINCIPAL}
             </div>
 
             <div class="admin-resumen-comisiones">
@@ -179,12 +163,10 @@ function mostrarComisiones() {
 
                 <label>
                     📅 Fecha
-
                     <input
                         type="date"
                         id="filtroFechaComision"
                     >
-
                 </label>
 
                 <button id="btnLimpiarFiltroComision">
@@ -200,7 +182,6 @@ function mostrarComisiones() {
     `;
 
     configurarEventosAdministrador();
-
     renderizarComisiones();
 
 }
@@ -212,39 +193,28 @@ function mostrarComisiones() {
 function configurarEventosAdministrador() {
 
     const filtro =
-        document.getElementById(
-            "filtroFechaComision"
-        );
+        document.getElementById("filtroFechaComision");
 
     const btnLimpiar =
-        document.getElementById(
-            "btnLimpiarFiltroComision"
-        );
+        document.getElementById("btnLimpiarFiltroComision");
 
     if (filtro) {
-
         filtro.addEventListener(
             "change",
             renderizarComisiones
         );
-
     }
 
     if (btnLimpiar) {
+        btnLimpiar.addEventListener("click", function () {
 
-        btnLimpiar.addEventListener(
-            "click",
-            function () {
-
-                if (filtro) {
-                    filtro.value = "";
-                }
-
-                renderizarComisiones();
-
+            if (filtro) {
+                filtro.value = "";
             }
-        );
 
+            renderizarComisiones();
+
+        });
     }
 
 }
@@ -256,31 +226,19 @@ function configurarEventosAdministrador() {
 function obtenerFechaVenta(venta) {
 
     if (venta.id) {
+        const fechaId = new Date(Number(venta.id));
 
-        const fechaId =
-            new Date(
-                Number(venta.id)
-            );
-
-        if (!Number.isNaN(
-            fechaId.getTime()
-        )) {
-
+        if (!Number.isNaN(fechaId.getTime())) {
             return fechaId;
-
         }
-
     }
 
     const fecha =
         new Date(venta.fecha);
 
-    return Number.isNaN(
-        fecha.getTime()
-    )
+    return Number.isNaN(fecha.getTime())
         ? null
         : fecha;
-
 }
 
 //=====================================
@@ -290,18 +248,14 @@ function obtenerFechaVenta(venta) {
 function renderizarComisiones() {
 
     const contenedor =
-        document.getElementById(
-            "tablaComisionesAdmin"
-        );
+        document.getElementById("tablaComisionesAdmin");
 
     if (!contenedor) {
         return;
     }
 
     const filtro =
-        document.getElementById(
-            "filtroFechaComision"
-        );
+        document.getElementById("filtroFechaComision");
 
     const fechaFiltro =
         filtro ? filtro.value : "";
@@ -309,157 +263,105 @@ function renderizarComisiones() {
     let ventas =
         obtenerVentas();
 
-    //=====================================
-    // FILTRAR POR FECHA
-    //=====================================
-
     if (fechaFiltro) {
 
-        ventas = ventas.filter(
-            function (venta) {
+        ventas = ventas.filter(function (venta) {
 
-                const fecha =
-                    obtenerFechaVenta(venta);
+            const fecha =
+                obtenerFechaVenta(venta);
 
-                if (!fecha) {
-                    return false;
-                }
-
-                const anio =
-                    fecha.getFullYear();
-
-                const mes =
-                    String(
-                        fecha.getMonth() + 1
-                    ).padStart(2, "0");
-
-                const dia =
-                    String(
-                        fecha.getDate()
-                    ).padStart(2, "0");
-
-                return (
-                    `${anio}-${mes}-${dia}` ===
-                    fechaFiltro
-                );
-
+            if (!fecha) {
+                return false;
             }
-        );
+
+            const anio =
+                fecha.getFullYear();
+
+            const mes =
+                String(fecha.getMonth() + 1)
+                    .padStart(2, "0");
+
+            const dia =
+                String(fecha.getDate())
+                    .padStart(2, "0");
+
+            return `${anio}-${mes}-${dia}` ===
+                fechaFiltro;
+
+        });
 
     }
-
-    //=====================================
-    // TOTALES
-    //=====================================
 
     let totalVendido = 0;
     let totalUtilidad = 0;
     let totalComision = 0;
 
-    ventas.forEach(
-        function (venta) {
+    ventas.forEach(function (venta) {
 
-            totalVendido +=
-                Number(venta.total) || 0;
+        totalVendido +=
+            Number(venta.total) || 0;
 
-            (venta.productos || []).forEach(
-                function (productoVenta) {
+        (venta.productos || []).forEach(function (productoVenta) {
 
-                    const productoInventario =
-                        obtenerProductoInventario(
-                            productoVenta.nombre
-                        );
+            const productoInventario =
+                obtenerProductoInventario(productoVenta.nombre);
 
-                    if (!productoInventario) {
-                        return;
-                    }
+            if (!productoInventario) {
+                return;
+            }
 
-                    const precio =
-                        Number(
-                            productoVenta.precio
-                        ) || 0;
+            const precio =
+                Number(productoVenta.precio) || 0;
 
-                    const costo =
-                        Number(
-                            productoInventario.costo
-                        );
+            const costo =
+                Number(productoInventario.costo);
 
-                    const cantidad =
-                        Number(
-                            productoVenta.cantidad
-                        ) || 0;
+            const cantidad =
+                Number(productoVenta.cantidad) || 0;
 
-                    if (!Number.isFinite(costo)) {
-                        return;
-                    }
+            if (!Number.isFinite(costo)) {
+                return;
+            }
 
-                    const utilidadUnitaria =
-                        precio - costo;
+            const utilidadUnitaria =
+                precio - costo;
 
-                    const utilidad =
-                        Math.max(
-                            0,
-                            utilidadUnitaria
-                        ) * cantidad;
+            const utilidad =
+                Math.max(0, utilidadUnitaria) *
+                cantidad;
 
-                    totalUtilidad +=
-                        utilidad;
+            totalUtilidad += utilidad;
 
-                    totalComision +=
-                        utilidad *
-                        PORCENTAJE_COMISION;
+            totalComision +=
+                utilidad *
+                PORCENTAJE_COMISION;
 
-                }
-            );
+        });
 
-        }
-    );
+    });
 
-    //=====================================
-    // ACTUALIZAR RESUMEN
-    //=====================================
+    document.getElementById("adminTotalVentas")
+        .textContent = ventas.length;
 
-    document.getElementById(
-        "adminTotalVentas"
-    ).textContent =
-        ventas.length;
+    document.getElementById("adminTotalVendido")
+        .textContent = dinero(totalVendido);
 
-    document.getElementById(
-        "adminTotalVendido"
-    ).textContent =
-        dinero(totalVendido);
+    document.getElementById("adminTotalUtilidad")
+        .textContent = dinero(totalUtilidad);
 
-    document.getElementById(
-        "adminTotalUtilidad"
-    ).textContent =
-        dinero(totalUtilidad);
-
-    document.getElementById(
-        "adminTotalComision"
-    ).textContent =
-        dinero(totalComision);
-
-    //=====================================
-    // SIN VENTAS
-    //=====================================
+    document.getElementById("adminTotalComision")
+        .textContent = dinero(totalComision);
 
     if (ventas.length === 0) {
 
         contenedor.innerHTML = `
-
             <div class="admin-vacio">
                 📭 No hay ventas para el filtro seleccionado.
             </div>
-
         `;
 
         return;
-
     }
-
-    //=====================================
-    // TABLA
-    //=====================================
 
     let html = `
 
@@ -468,9 +370,7 @@ function renderizarComisiones() {
             <table class="tabla-comisiones-admin">
 
                 <thead>
-
                     <tr>
-
                         <th>Venta</th>
                         <th>Fecha</th>
                         <th>Cliente</th>
@@ -478,116 +378,98 @@ function renderizarComisiones() {
                         <th>Total</th>
                         <th>Utilidad</th>
                         <th>Comisión</th>
-
                     </tr>
-
                 </thead>
 
                 <tbody>
-
     `;
 
     ventas
         .slice()
         .reverse()
-        .forEach(
-            function (venta, indice) {
+        .forEach(function (venta, indice) {
 
-                let utilidadVenta = 0;
-                let comisionVenta = 0;
+            let utilidadVenta = 0;
+            let comisionVenta = 0;
 
-                (venta.productos || []).forEach(
-                    function (productoVenta) {
+            (venta.productos || []).forEach(function (productoVenta) {
 
-                        const productoInventario =
-                            obtenerProductoInventario(
-                                productoVenta.nombre
-                            );
+                const productoInventario =
+                    obtenerProductoInventario(
+                        productoVenta.nombre
+                    );
 
-                        if (!productoInventario) {
-                            return;
-                        }
+                if (!productoInventario) {
+                    return;
+                }
 
-                        const precio =
-                            Number(
-                                productoVenta.precio
-                            ) || 0;
+                const precio =
+                    Number(productoVenta.precio) || 0;
 
-                        const costo =
-                            Number(
-                                productoInventario.costo
-                            );
+                const costo =
+                    Number(productoInventario.costo);
 
-                        const cantidad =
-                            Number(
-                                productoVenta.cantidad
-                            ) || 0;
+                const cantidad =
+                    Number(productoVenta.cantidad) || 0;
 
-                        if (!Number.isFinite(costo)) {
-                            return;
-                        }
+                if (!Number.isFinite(costo)) {
+                    return;
+                }
 
-                        const utilidad =
-                            Math.max(
-                                0,
-                                precio - costo
-                            ) * cantidad;
+                const utilidad =
+                    Math.max(0, precio - costo) *
+                    cantidad;
 
-                        utilidadVenta +=
-                            utilidad;
+                utilidadVenta += utilidad;
 
-                        comisionVenta +=
-                            utilidad *
-                            PORCENTAJE_COMISION;
+                comisionVenta +=
+                    utilidad *
+                    PORCENTAJE_COMISION;
 
-                    }
-                );
+            });
 
-                const numeroVenta =
-                    ventas.length - indice;
+            const numeroVenta =
+                ventas.length - indice;
 
-                html += `
+            html += `
 
-                    <tr>
+                <tr>
 
-                        <td>
-                            <strong>
-                                #${numeroVenta}
-                            </strong>
-                        </td>
+                    <td>
+                        <strong>#${numeroVenta}</strong>
+                    </td>
 
-                        <td>
-                            ${venta.fecha || "Sin fecha"}
-                        </td>
+                    <td>
+                        ${venta.fecha || "Sin fecha"}
+                    </td>
 
-                        <td>
-                            ${venta.cliente || "Cliente general"}
-                        </td>
+                    <td>
+                        ${venta.cliente || "Cliente general"}
+                    </td>
 
-                        <td>
-                            ${venta.metodoPago || "No registrado"}
-                        </td>
+                    <td>
+                        ${venta.metodoPago || "No registrado"}
+                    </td>
 
-                        <td>
-                            <strong>
-                                ${dinero(venta.total)}
-                            </strong>
-                        </td>
+                    <td>
+                        <strong>
+                            ${dinero(venta.total)}
+                        </strong>
+                    </td>
 
-                        <td>
-                            ${dinero(utilidadVenta)}
-                        </td>
+                    <td>
+                        ${dinero(utilidadVenta)}
+                    </td>
 
-                        <td class="comision-destacada">
-                            ${dinero(comisionVenta)}
-                        </td>
+                    <td class="comision-destacada">
+                        ${dinero(comisionVenta)}
+                    </td>
 
-                    </tr>
+                </tr>
 
-                `;
+            `;
 
-            }
-        );
+        });
 
     html += `
 
@@ -598,10 +480,8 @@ function renderizarComisiones() {
         </div>
 
         <div class="nota-comisiones-admin">
-
             ℹ️ La comisión se calcula automáticamente con base en
             el costo unitario y el precio registrado para cada producto.
-
         </div>
 
     `;

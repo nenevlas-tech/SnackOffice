@@ -2,6 +2,8 @@
 // SNACK OFFICE - MÓDULO DE VENTAS
 // =====================================
 
+import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js";
+
 // -------------------------------------
 // ESTADO DEL MÓDULO
 // -------------------------------------
@@ -9,6 +11,8 @@ let carrito = [];
 let categoriaActual = "";
 let metodoPago = "Efectivo";
 let clienteVenta = "";
+let usarSaldoFavorVenta = false;
+let clienteFavorSeleccionado = "";
 
 // -------------------------------------
 // INICIALIZACIÓN
@@ -16,6 +20,8 @@ let clienteVenta = "";
 export function iniciarVentas() {
     console.log("🛒 Módulo de ventas iniciado");
 
+    migrarCuentasPendientes();
+    sincronizarClientes();
     configurarNavegacionVentas();
     configurarNuevaVenta();
     configurarMetodosPago();
@@ -29,6 +35,7 @@ function configurarNavegacionVentas() {
     const btnNuevaVenta = document.getElementById("btnNuevaVenta");
     const btnHistorialVentas = document.getElementById("btnHistorialVentas");
     const btnPendientesVentas = document.getElementById("btnPendientesVentas");
+    const btnClientesVentas = document.getElementById("btnClientesVentas");
     const btnCancelarVenta = document.getElementById("btnCancelarVenta");
 
     if (btnNuevaVenta) {
@@ -49,6 +56,13 @@ function configurarNavegacionVentas() {
         });
     }
 
+    if (btnClientesVentas) {
+        btnClientesVentas.addEventListener("click", () => {
+            mostrarPantallaVentas("clientesVentasScreen");
+            cargarClientesVentas();
+        });
+    }
+
     if (btnCancelarVenta) {
         btnCancelarVenta.addEventListener("click", cancelarVenta);
     }
@@ -59,6 +73,8 @@ function iniciarNuevaVenta() {
     categoriaActual = "";
     clienteVenta = "";
     metodoPago = "Efectivo";
+    usarSaldoFavorVenta = false;
+    clienteFavorSeleccionado = "";
 
     const cliente = document.getElementById("clienteVenta");
     if (cliente) {
@@ -66,6 +82,7 @@ function iniciarNuevaVenta() {
     }
 
     actualizarAvisoCliente();
+    actualizarResumenPagoVenta();
     establecerMetodoPagoActivo("Efectivo");
     renderizarCarrito();
     mostrarPantallaVentas("nuevaVentaScreen");
@@ -94,6 +111,30 @@ function configurarNuevaVenta() {
         campoCliente.addEventListener("input", actualizarAvisoCliente);
         campoCliente.addEventListener("blur", actualizarAvisoCliente);
     }
+
+    const btnUsarSaldoFavor = document.getElementById("btnUsarSaldoFavorVenta");
+    if (btnUsarSaldoFavor) {
+        btnUsarSaldoFavor.addEventListener("click", () => {
+            const nombre = campoCliente?.value.trim() || "";
+            const resumen = obtenerResumenCliente(nombre);
+            if (resumen.favor <= 0) {
+                usarSaldoFavorVenta = false;
+                actualizarAvisoCliente();
+                return;
+            }
+            usarSaldoFavorVenta = !usarSaldoFavorVenta;
+            clienteFavorSeleccionado = normalizarTexto(nombre);
+            actualizarAvisoCliente();
+            actualizarResumenPagoVenta();
+        });
+    }
+
+    const buscarCliente = document.getElementById("buscarClienteVentas");
+    if (buscarCliente) {
+        buscarCliente.addEventListener("input", cargarClientesVentas);
+    }
+
+    document.getElementById("btnRefrescarClientes")?.addEventListener("click", cargarClientesVentas);
 
     categorias.forEach(boton => {
         boton.addEventListener("click", () => {
@@ -151,7 +192,8 @@ function mostrarPantallaVentas(pantalla) {
         "ventasInicio",
         "nuevaVentaScreen",
         "historialVentasScreen",
-        "pendientesVentasScreen"
+        "pendientesVentasScreen",
+        "clientesVentasScreen"
     ];
 
     pantallas.forEach(id => {
@@ -165,63 +207,6 @@ function mostrarPantallaVentas(pantalla) {
     if (pantallaActiva) {
         pantallaActiva.style.display = "block";
     }
-}
-
-// -------------------------------------
-// IMÁGENES DE PRODUCTOS
-// -------------------------------------
-// Las imágenes se resuelven por nombre para no depender de que
-// localStorage conserve el código SO-XXX del Excel.
-// Si Inventario ya tiene una imagen manual en producto.imagen,
-// esa imagen tiene prioridad.
-const IMAGENES_PRODUCTOS = {
-    "barra gansito": "img/productos/SO-002.jpg",
-    "barras soft & chewy": "img/productos/SO-003.jpg",
-    "barritas fresa": "img/productos/SO-004.jpg",
-    "barritas moras": "img/productos/SO-005.jpg",
-    "barritas piña": "img/productos/SO-006.jpg",
-    "brownies general mills": "img/productos/SO-007.jpg",
-    "canelitas chicas": "img/productos/SO-008.jpg",
-    "chip’s fuego": "img/productos/SO-014.jpg",
-    "chip’s jalapeño": "img/productos/SO-015.jpg",
-    "chip’s sal": "img/productos/SO-016.jpg",
-    "churrumais limón": "img/productos/SO-020.jpg",
-    "coconut almond bites": "img/productos/SO-021.jpg",
-    "cremax chocolate": "img/productos/SO-022.jpg",
-    "cremax fresa": "img/productos/SO-023.jpg",
-    "cremax vainilla": "img/productos/SO-024.jpg",
-    "doraditas": "img/productos/SO-025.jpg",
-    "doritos nacho": "img/productos/SO-026.jpg",
-    "fritos limón y sal": "img/productos/SO-029.jpg",
-    "gaveti chispi chocs": "img/productos/SO-032.jpg",
-    "mini gansito": "img/productos/SO-034.jpg",
-    "mini mamut": "img/productos/SO-035.jpg",
-    "mini pingüinos": "img/productos/SO-036.jpg",
-    "peanut butter bites": "img/productos/SO-037.jpg",
-    "polvorones chicos": "img/productos/SO-038.jpg",
-    "polvorones grande": "img/productos/SO-039.jpg",
-    "principe chico": "img/productos/SO-040.jpg",
-    "principe grande": "img/productos/SO-041.jpg",
-    "quaker chocolate": "img/productos/SO-043.jpg",
-    "rancheritos original": "img/productos/SO-044.jpg",
-    "rip van wafers": "img/productos/SO-045.jpg",
-    "ruffles queso": "img/productos/SO-046.jpg",
-    "runners chile limón": "img/productos/SO-047.jpg",
-    "sabritas original": "img/productos/SO-049.jpg",
-    "snack bites tajin": "img/productos/SO-051.jpg",
-    "takis fuego": "img/productos/SO-053.jpg",
-    "takis huakamoles": "img/productos/SO-054.jpg",
-    "triki-trakes": "img/productos/SO-060.jpg",
-};
-
-function resolverImagenProducto(producto) {
-    if (producto?.imagen) {
-        return producto.imagen;
-    }
-
-    const clave = normalizarTexto(producto?.nombre);
-
-    return IMAGENES_PRODUCTOS[clave] || "";
 }
 
 // -------------------------------------
@@ -294,10 +279,8 @@ function crearTarjetaProducto(producto) {
     const tarjeta = document.createElement("div");
     tarjeta.className = "producto-venta";
 
-    const rutaImagen = resolverImagenProducto(producto);
-
-    const imagen = rutaImagen
-        ? `<img src="${rutaImagen}" alt="${producto.nombre}" loading="lazy">`
+    const imagen = producto.imagen
+        ? `<img src="${producto.imagen}" alt="${producto.nombre}">`
         : `<span class="producto-icono">🛍️</span>`;
 
     tarjeta.innerHTML = `
@@ -494,25 +477,49 @@ function cancelarVenta() {
     clienteVenta = "";
     categoriaActual = "";
     metodoPago = "Efectivo";
+    usarSaldoFavorVenta = false;
+    clienteFavorSeleccionado = "";
 
     renderizarCarrito();
     mostrarPantallaVentas("ventasInicio");
 }
 
+function obtenerTotalVenta() {
+    return carrito.reduce(
+        (suma, producto) => suma + Number(producto.precio) * Number(producto.cantidad),
+        0
+    );
+}
+
 function actualizarTotal() {
     const elemento = document.getElementById("totalVenta");
+    if (elemento) elemento.textContent = `$${obtenerTotalVenta().toFixed(2)}`;
+    actualizarResumenPagoVenta();
+}
 
-    if (!elemento) {
+function actualizarResumenPagoVenta() {
+    const caja = document.getElementById("resumenPagoVenta");
+    const subtotal = document.getElementById("subtotalVentaResumen");
+    const aplicado = document.getElementById("saldoFavorAplicadoVenta");
+    const restante = document.getElementById("restanteVentaResumen");
+    if (!caja || !subtotal || !aplicado || !restante) return;
+
+    const total = obtenerTotalVenta();
+    const nombre = document.getElementById("clienteVenta")?.value.trim() || "";
+    const resumen = obtenerResumenCliente(nombre);
+    const usar = usarSaldoFavorVenta && clienteFavorSeleccionado === normalizarTexto(nombre);
+    const montoAplicado = usar ? Math.min(resumen.favor, total) : 0;
+    const montoRestante = Math.max(0, total - montoAplicado);
+
+    if (total <= 0 || (montoAplicado <= 0 && resumen.favor <= 0)) {
+        caja.style.display = "none";
         return;
     }
 
-    const total = carrito.reduce(
-        (suma, producto) =>
-            suma + producto.precio * producto.cantidad,
-        0
-    );
-
-    elemento.textContent = `$${total.toFixed(2)}`;
+    caja.style.display = "grid";
+    subtotal.textContent = `$${total.toFixed(2)}`;
+    aplicado.textContent = `$${montoAplicado.toFixed(2)}`;
+    restante.textContent = `$${montoRestante.toFixed(2)}`;
 }
 
 // -------------------------------------
@@ -526,6 +533,9 @@ function registrarVenta() {
 
     const campoCliente = document.getElementById("clienteVenta");
     const cliente = campoCliente ? campoCliente.value.trim() : "";
+    const resumenCliente = obtenerResumenCliente(cliente);
+    const saldoAplicable = usarSaldoFavorVenta && cliente ? Math.min(resumenCliente.favor, obtenerTotalVenta()) : 0;
+    const restante = Math.max(0, obtenerTotalVenta() - saldoAplicable);
 
     if (metodoPago === "Pendiente" && cliente === "") {
         alert("⚠️ Para una venta pendiente debes ingresar el nombre del cliente.");
@@ -533,29 +543,46 @@ function registrarVenta() {
         return;
     }
 
-    const confirmar = confirm("¿Deseas registrar esta venta?");
-
-    if (!confirmar) {
+    if (restante > 0 && metodoPago === "Pendiente" && cliente === "") {
+        alert("⚠️ Ingresa el cliente para registrar el saldo pendiente.");
+        campoCliente?.focus();
         return;
     }
+
+    const confirmar = confirm(
+        `¿Deseas registrar esta venta?\n\nTotal: $${obtenerTotalVenta().toFixed(2)}\nSaldo a favor aplicado: $${saldoAplicable.toFixed(2)}\nRestante: $${restante.toFixed(2)}`
+    );
+
+    if (!confirmar) return;
 
     const productos = obtenerProductos();
-
-    if (!verificarStockVenta(productos)) {
-        return;
-    }
+    if (!verificarStockVenta(productos)) return;
 
     descontarStockVenta(productos);
     localStorage.setItem("productos", JSON.stringify(productos));
 
-    const ventaRegistrada = guardarVentaHistorial();
+    if (saldoAplicable > 0) {
+        consumirSaldoFavorCliente(cliente, saldoAplicable);
+    }
 
-    if (ventaRegistrada && metodoPago === "Pendiente") {
+    const ventaRegistrada = guardarVentaHistorial({ saldoFavorAplicado: saldoAplicable, restante });
+
+    if (ventaRegistrada && restante > 0 && metodoPago === "Pendiente") {
         guardarCuentaPendiente(ventaRegistrada);
     }
 
+    registrarCliente(cliente, ventaRegistrada);
+
+    if (document.getElementById("clientesVentasScreen")?.style.display !== "none") {
+        cargarClientesVentas();
+    }
+
     carrito = [];
+    usarSaldoFavorVenta = false;
+    clienteFavorSeleccionado = "";
     renderizarCarrito();
+    actualizarAvisoCliente();
+    actualizarResumenPagoVenta();
 }
 
 function verificarStockVenta(productos) {
@@ -596,7 +623,7 @@ function descontarStockVenta(productos) {
 // -------------------------------------
 // HISTORIAL
 // -------------------------------------
-function guardarVentaHistorial() {
+function guardarVentaHistorial(opciones = {}) {
     const historial =
         JSON.parse(localStorage.getItem("historialVentas")) || [];
 
@@ -614,13 +641,23 @@ function guardarVentaHistorial() {
         0
     );
 
-    const esPendiente = pagoRegistrado === "Pendiente";
+    const saldoFavorAplicado = Number(opciones.saldoFavorAplicado || 0);
+    const restante = Number.isFinite(Number(opciones.restante)) ? Number(opciones.restante) : total;
+    const esPendiente = pagoRegistrado === "Pendiente" && restante > 0;
+    const metodoFinal = restante <= 0 && saldoFavorAplicado > 0 ? "Saldo a favor" : pagoRegistrado;
+    const desglosePago = [];
 
-    const venta = {
+    if (saldoFavorAplicado > 0) desglosePago.push({ metodo: "Saldo a favor", importe: saldoFavorAplicado });
+    if (restante > 0) desglosePago.push({ metodo: metodoFinal, importe: restante });
+
+    let venta = {
         id: Date.now(),
         fecha: new Date().toLocaleString("es-MX"),
         cliente: cliente || "Público general",
-        metodoPago: pagoRegistrado,
+        metodoPago: metodoFinal,
+        desglosePago,
+        saldoFavorAplicado,
+        totalCobrado: restante > 0 && !esPendiente ? restante : 0,
         productos: carrito.map(producto => ({
             nombre: producto.nombre,
             precio: producto.precio,
@@ -629,12 +666,25 @@ function guardarVentaHistorial() {
         })),
         total,
         estadoPago: esPendiente ? "Pendiente" : "Pagado",
-        abonado: esPendiente ? 0 : total,
-        saldo: esPendiente ? total : 0
+        abonado: esPendiente ? 0 : restante,
+        saldo: esPendiente ? restante : 0,
+        saldoFavor: 0
     };
 
+    venta = registrarVentaEnJornada(venta);
     historial.push(venta);
     localStorage.setItem("historialVentas", JSON.stringify(historial));
+
+    if (esPendiente) {
+        registrarMovimientoCxC({
+            tipo: "VENTA",
+            cliente: venta.cliente,
+            ventaId: venta.folio || venta.id,
+            importe: Number(venta.saldo || venta.total),
+            metodoPago: "Pendiente",
+            saldoDespues: Number(venta.saldo)
+        });
+    }
 
     return venta;
 }
@@ -720,22 +770,207 @@ function obtenerCuentasPendientes() {
     return JSON.parse(localStorage.getItem("cuentasPendientes")) || [];
 }
 
+function migrarCuentasPendientes() {
+    const cuentas = obtenerCuentasPendientes();
+    let cambio = false;
+
+    cuentas.forEach(cuenta => {
+        if (!Array.isArray(cuenta.movimientos)) {
+            cuenta.movimientos = [
+                {
+                    tipo: "VENTA",
+                    fecha: new Date().toISOString(),
+                    importe: Number(cuenta.total || 0),
+                    metodoPago: "Pendiente"
+                }
+            ];
+
+            const abonado = Number(cuenta.abonado || 0);
+            if (abonado > 0) {
+                cuenta.movimientos.push({
+                    tipo: "ABONO",
+                    fecha: new Date().toISOString(),
+                    importe: abonado,
+                    metodoPago: "No registrado"
+                });
+            }
+
+            cambio = true;
+        }
+    });
+
+    if (cambio) {
+        localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+    }
+}
+
 function guardarCuentaPendiente(venta) {
     const cuentas = obtenerCuentasPendientes();
 
+    const saldoInicial = Number(venta.saldo || Math.max(0, Number(venta.total) - Number(venta.saldoFavorAplicado || 0)));
+
     cuentas.push({
         id: venta.id,
+        ventaId: venta.folio || venta.id,
+        jornadaId: venta.jornadaId || "",
         cliente: venta.cliente,
         fecha: venta.fecha,
         total: Number(venta.total),
         abonado: 0,
-        saldo: Number(venta.total),
+        saldo: saldoInicial,
         saldoFavor: 0,
         estado: "Pendiente",
-        productos: venta.productos || []
+        productos: venta.productos || [],
+        movimientos: [
+            ...(Number(venta.saldoFavorAplicado || 0) > 0 ? [{
+                tipo: "USO_SALDO_FAVOR",
+                fecha: new Date().toISOString(),
+                importe: Number(venta.saldoFavorAplicado),
+                metodoPago: "Saldo a favor"
+            }] : []),
+            {
+                tipo: "VENTA",
+                fecha: new Date().toISOString(),
+                importe: saldoInicial,
+                metodoPago: "Pendiente"
+            }
+        ]
     });
 
     localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+}
+
+function consumirSaldoFavorCliente(nombre, monto) {
+    let restante = Number(monto || 0);
+    if (restante <= 0) return 0;
+
+    const cuentas = obtenerCuentasPendientes();
+    const nombreNormalizado = normalizarTexto(nombre);
+
+    for (const cuenta of cuentas) {
+        if (restante <= 0) break;
+        if (normalizarTexto(cuenta.cliente) !== nombreNormalizado) continue;
+
+        const favor = Number(cuenta.saldoFavor || 0);
+        if (favor <= 0) continue;
+
+        const usado = Math.min(favor, restante);
+        cuenta.saldoFavor = favor - usado;
+        cuenta.estado = Number(cuenta.saldo || 0) > 0 ? "Pendiente" : (cuenta.saldoFavor > 0 ? "Saldo a favor" : "Pagado");
+        cuenta.movimientos = Array.isArray(cuenta.movimientos) ? cuenta.movimientos : [];
+        cuenta.movimientos.push({
+            tipo: "USO_SALDO_FAVOR",
+            fecha: new Date().toISOString(),
+            importe: usado,
+            metodoPago: "Saldo a favor",
+            saldoDespues: Number(cuenta.saldo || 0),
+            saldoFavorDespues: cuenta.saldoFavor
+        });
+
+        registrarMovimientoCxC({
+            tipo: "USO_SALDO_FAVOR",
+            cliente: cuenta.cliente,
+            ventaId: cuenta.ventaId || cuenta.id,
+            importe: usado,
+            metodoPago: "Saldo a favor",
+            saldoDespues: Number(cuenta.saldo || 0),
+            saldoFavorDespues: cuenta.saldoFavor
+        });
+
+        restante -= usado;
+    }
+
+    localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+    return Number(monto || 0) - restante;
+}
+
+function registrarCliente(nombre, venta) {
+    const limpio = String(nombre || "").trim();
+    if (!limpio || !venta || limpio.toLowerCase() === "público general") return;
+
+    const clientes = JSON.parse(localStorage.getItem("clientesSnackOffice")) || [];
+    const clave = normalizarTexto(limpio);
+    let cliente = clientes.find(item => item.clave === clave);
+
+    if (!cliente) {
+        cliente = { clave, nombre: limpio, compras: 0, totalCompras: 0, ultimaCompra: "" };
+        clientes.push(cliente);
+    }
+
+    cliente.nombre = limpio;
+    cliente.compras = Number(cliente.compras || 0) + 1;
+    cliente.totalCompras = Number(cliente.totalCompras || 0) + Number(venta.total || 0);
+    cliente.ultimaCompra = venta.fecha || new Date().toLocaleString("es-MX");
+    localStorage.setItem("clientesSnackOffice", JSON.stringify(clientes));
+}
+
+function sincronizarClientes() {
+    const clientesMap = new Map();
+    const agregarVenta = venta => {
+        const nombre = String(venta.cliente || "").trim();
+        if (!nombre || normalizarTexto(nombre) === "publico general") return;
+        const clave = normalizarTexto(nombre);
+        const actual = clientesMap.get(clave) || { clave, nombre, compras: 0, totalCompras: 0, ultimaCompra: "" };
+        actual.nombre = nombre;
+        actual.compras += 1;
+        actual.totalCompras += Number(venta.total || 0);
+        actual.ultimaCompra = venta.fecha || actual.ultimaCompra;
+        clientesMap.set(clave, actual);
+    };
+
+    (JSON.parse(localStorage.getItem("historialVentas")) || []).forEach(agregarVenta);
+    (JSON.parse(localStorage.getItem("jornadasArchivadas")) || []).forEach(j => (j.ventas || []).forEach(agregarVenta));
+    (JSON.parse(localStorage.getItem("cuentasPendientes")) || []).forEach(c => {
+        const nombre = String(c.cliente || "").trim();
+        if (!nombre) return;
+        const clave = normalizarTexto(nombre);
+        if (!clientesMap.has(clave)) clientesMap.set(clave, { clave, nombre, compras: 0, totalCompras: 0, ultimaCompra: c.fecha || "" });
+    });
+
+    const clientes = Array.from(clientesMap.values());
+    localStorage.setItem("clientesSnackOffice", JSON.stringify(clientes));
+    return clientes;
+}
+
+function cargarClientesVentas() {
+    const contenedor = document.getElementById("listaClientesVentas");
+    if (!contenedor) return;
+
+    const clientes = sincronizarClientes();
+    const filtro = normalizarTexto(document.getElementById("buscarClienteVentas")?.value || "");
+    const cuentas = obtenerCuentasPendientes();
+
+    const datos = clientes.map(cliente => {
+        const relacionadas = cuentas.filter(c => normalizarTexto(c.cliente) === cliente.clave);
+        return {
+            ...cliente,
+            deuda: relacionadas.reduce((s, c) => s + Math.max(0, Number(c.saldo || 0)), 0),
+            favor: relacionadas.reduce((s, c) => s + Math.max(0, Number(c.saldoFavor || 0)), 0)
+        };
+    }).filter(c => !filtro || normalizarTexto(c.nombre).includes(filtro));
+
+    const total = document.getElementById("totalClientesVentas");
+    const compras = document.getElementById("clientesConComprasVentas");
+    const deuda = document.getElementById("deudaClientesVentas");
+    const favor = document.getElementById("favorClientesVentas");
+    if (total) total.textContent = clientes.length;
+    if (compras) compras.textContent = clientes.filter(c => c.compras > 0).length;
+    if (deuda) deuda.textContent = `$${datos.reduce((s,c)=>s+c.deuda,0).toFixed(2)}`;
+    if (favor) favor.textContent = `$${datos.reduce((s,c)=>s+c.favor,0).toFixed(2)}`;
+
+    contenedor.innerHTML = datos.length ? datos.map(c => `
+        <article class="cliente-card-ventas">
+            <div class="cliente-card-principal">
+                <div class="cliente-avatar">👤</div>
+                <div><h3>${c.nombre}</h3><p>${c.compras} compra${c.compras === 1 ? "" : "s"} · Última: ${c.ultimaCompra || "—"}</p></div>
+            </div>
+            <div class="cliente-card-metricas">
+                <div><small>Total comprado</small><strong>$${c.totalCompras.toFixed(2)}</strong></div>
+                <div><small>Pendiente</small><strong class="cliente-deuda">$${c.deuda.toFixed(2)}</strong></div>
+                <div><small>A favor</small><strong class="cliente-favor">$${c.favor.toFixed(2)}</strong></div>
+            </div>
+        </article>
+    `).join("") : `<div class="clientes-vacio">👥<h3>No hay clientes para mostrar</h3><p>Los compradores con nombre aparecerán aquí automáticamente.</p></div>`;
 }
 
 function cargarPendientesVentas() {
@@ -801,6 +1036,17 @@ function crearTarjetaPendiente(cuenta) {
     const pagada = saldo <= 0 && saldoFavor <= 0;
     const tieneFavor = saldoFavor > 0;
 
+    const movimientos = Array.isArray(cuenta.movimientos) ? cuenta.movimientos : [];
+    const movimientosHTML = movimientos.length
+        ? movimientos.map(movimiento => `
+            <div class="movimiento-cxc">
+                <span>${movimiento.tipo === "VENTA" ? "🧾" : "💵"} ${movimiento.tipo || "MOVIMIENTO"}</span>
+                <span>${movimiento.metodoPago || "—"}</span>
+                <strong>${movimiento.tipo === "VENTA" ? "+" : "-"}$${Number(movimiento.importe || 0).toFixed(2)}</strong>
+            </div>
+        `).join("")
+        : `<p class="movimiento-cxc-vacio">Sin movimientos registrados.</p>`;
+
     tarjeta.innerHTML = `
         <div class="pendiente-venta-info">
             <div class="pendiente-venta-cabecera">
@@ -818,6 +1064,11 @@ function crearTarjetaPendiente(cuenta) {
             <p>💵 Abonado: <strong>$${abonado.toFixed(2)}</strong></p>
             ${saldo > 0 ? `<p class="saldo-pendiente">💰 Saldo: <strong>$${saldo.toFixed(2)}</strong></p>` : ""}
             ${tieneFavor ? `<p class="saldo-favor-pendiente">🟢 A favor: <strong>$${saldoFavor.toFixed(2)}</strong></p>` : ""}
+
+            <details class="historial-cxc-detalle">
+                <summary>Ver movimientos</summary>
+                <div class="movimientos-cxc-lista">${movimientosHTML}</div>
+            </details>
         </div>
 
         <div class="pendiente-venta-acciones">
@@ -842,8 +1093,8 @@ function crearTarjetaPendiente(cuenta) {
 function obtenerNumeroVentaPendiente(idVenta) {
     const historial =
         JSON.parse(localStorage.getItem("historialVentas")) || [];
-    const indice = historial.findIndex(venta => venta.id === idVenta);
-    return indice >= 0 ? indice + 1 : "—";
+    const venta = historial.find(item => item.id === idVenta);
+    return venta?.folio || idVenta || "—";
 }
 
 function registrarAbonoPendiente(idCuenta) {
@@ -877,6 +1128,26 @@ function registrarAbonoPendiente(idCuenta) {
         return;
     }
 
+    const metodoAbono = prompt(
+        "Forma de pago del abono:\n\n1 = Efectivo\n2 = Tarjeta\n3 = Transferencia",
+        "1"
+    );
+
+    if (metodoAbono === null) return;
+
+    const mapaMetodos = {
+        "1": "Efectivo",
+        "2": "Tarjeta",
+        "3": "Transferencia"
+    };
+
+    const metodoPagoAbono = mapaMetodos[String(metodoAbono).trim()];
+
+    if (!metodoPagoAbono) {
+        alert("⚠️ Selecciona 1, 2 o 3 para indicar el método de pago.");
+        return;
+    }
+
     const nuevoSaldo = Math.max(0, saldoActual - monto);
     const excedente = Math.max(0, monto - saldoActual);
 
@@ -885,7 +1156,28 @@ function registrarAbonoPendiente(idCuenta) {
     cuenta.saldoFavor = saldoFavorActual + excedente;
     cuenta.estado = nuevoSaldo > 0 ? "Pendiente" : "Pagado";
 
+    cuenta.movimientos = Array.isArray(cuenta.movimientos) ? cuenta.movimientos : [];
+    cuenta.movimientos.push({
+        tipo: "ABONO",
+        fecha: new Date().toISOString(),
+        importe: monto,
+        metodoPago: metodoPagoAbono,
+        saldoDespues: nuevoSaldo,
+        saldoFavorDespues: cuenta.saldoFavor
+    });
+
     localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
+
+    registrarMovimientoCxC({
+        tipo: "ABONO",
+        cliente: cuenta.cliente,
+        ventaId: cuenta.ventaId || cuenta.id,
+        importe: monto,
+        metodoPago: metodoPagoAbono,
+        saldoDespues: nuevoSaldo,
+        saldoFavorDespues: cuenta.saldoFavor
+    });
+
     actualizarVentaHistorialConAbono(cuenta);
     cargarPendientesVentas();
     actualizarAvisoCliente();
@@ -945,15 +1237,26 @@ function obtenerResumenCliente(nombre) {
 function actualizarAvisoCliente() {
     const campoCliente = document.getElementById("clienteVenta");
     const aviso = document.getElementById("estadoClienteVenta");
+    const cajaFavor = document.getElementById("saldoFavorVentaBox");
+    const montoFavor = document.getElementById("saldoFavorDisponibleVenta");
+    const botonFavor = document.getElementById("btnUsarSaldoFavorVenta");
 
     if (!campoCliente || !aviso) return;
 
     const nombre = campoCliente.value.trim();
+    const normalizado = normalizarTexto(nombre);
+
+    if (clienteFavorSeleccionado && clienteFavorSeleccionado !== normalizado) {
+        usarSaldoFavorVenta = false;
+        clienteFavorSeleccionado = "";
+    }
 
     if (!nombre) {
         aviso.style.display = "none";
         aviso.textContent = "";
         aviso.className = "estado-cliente-venta";
+        if (cajaFavor) cajaFavor.style.display = "none";
+        actualizarResumenPagoVenta();
         return;
     }
 
@@ -961,28 +1264,35 @@ function actualizarAvisoCliente() {
     const deuda = resumen.deuda;
     const favor = resumen.favor;
 
-    aviso.style.display = "block";
-
     if (deuda > 0 && favor > 0) {
+        aviso.style.display = "block";
         aviso.className = "estado-cliente-venta aviso-mixto";
         aviso.textContent = `⚠️ Debe $${deuda.toFixed(2)} · 🟢 Tiene $${favor.toFixed(2)} a favor`;
-        return;
-    }
-
-    if (deuda > 0) {
+    } else if (deuda > 0) {
+        aviso.style.display = "block";
         aviso.className = "estado-cliente-venta aviso-deuda";
         aviso.textContent = `⚠️ Cliente con saldo pendiente: $${deuda.toFixed(2)}`;
-        return;
-    }
-
-    if (favor > 0) {
+    } else if (favor > 0) {
+        aviso.style.display = "block";
         aviso.className = "estado-cliente-venta aviso-favor";
         aviso.textContent = `🟢 Cliente con saldo a favor: $${favor.toFixed(2)}`;
-        return;
+    } else {
+        aviso.style.display = "none";
+        aviso.textContent = "";
+        aviso.className = "estado-cliente-venta";
     }
 
-    aviso.style.display = "none";
-    aviso.textContent = "";
-    aviso.className = "estado-cliente-venta";
+    if (cajaFavor && montoFavor && botonFavor) {
+        if (favor > 0) {
+            cajaFavor.style.display = "flex";
+            montoFavor.textContent = `$${favor.toFixed(2)}`;
+            botonFavor.textContent = usarSaldoFavorVenta ? "No usar saldo a favor" : "Usar saldo a favor";
+            botonFavor.classList.toggle("activo", usarSaldoFavorVenta);
+        } else {
+            cajaFavor.style.display = "none";
+        }
+    }
+
+    actualizarResumenPagoVenta();
 }
 
