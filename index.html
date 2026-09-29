@@ -7,6 +7,27 @@
     <title>Snack Office</title>
 
     <link rel="stylesheet" href="css/styles.css">
+
+<style>
+.modal-abono-cxc{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(7,26,65,.52);backdrop-filter:blur(3px)}
+.modal-abono-contenido{position:relative;width:min(440px,100%);padding:28px;border-radius:20px;background:#fff;box-shadow:0 25px 70px rgba(7,26,65,.25);box-sizing:border-box}
+.modal-abono-cerrar{position:absolute;top:12px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:#f1f5f9;color:#475569;font-size:24px;cursor:pointer}
+.modal-abono-icono{width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;border-radius:15px;background:#fff1eb;font-size:25px}
+.modal-abono-contenido h2{margin:0;color:#071a41;font-size:25px}
+.modal-abono-cliente{margin:5px 0 18px;color:#64748b;font-weight:700}
+.modal-abono-saldo{margin-bottom:18px;padding:14px 16px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed}
+.modal-abono-saldo small{display:block;color:#9a3412;font-size:12px;font-weight:700}
+.modal-abono-saldo strong{display:block;margin-top:3px;color:#ea580c;font-size:24px}
+.modal-abono-contenido label{display:block;margin:13px 0 6px;color:#334155;font-size:13px;font-weight:800}
+.modal-abono-contenido input,.modal-abono-contenido select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px;background:#fff;color:#1e293b;font:inherit;box-sizing:border-box}
+.modal-abono-contenido input:focus,.modal-abono-contenido select:focus{border-color:#ff5a16;outline:none;box-shadow:0 0 0 3px rgba(255,90,22,.12)}
+.modal-abono-ayuda{margin:12px 0 0;color:#64748b;font-size:12px;line-height:1.45}
+.modal-abono-acciones{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.modal-abono-acciones button{min-height:42px;padding:10px 15px;border:0;border-radius:10px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+#btnCancelarAbonoCxc{background:#eef2f7;color:#475569}
+#btnConfirmarAbonoCxc{background:#ff5a16;color:#fff}
+</style>
+
 </head>
 
 <body>
@@ -123,6 +144,10 @@
 
             <button id="btnPendientesVentas">
                 📒 Pendientes
+            </button>
+
+            <button id="btnClientesVentas">
+                👥 Clientes
             </button>
 
             <button id="btnCerrarSesionVentas">
@@ -348,6 +373,105 @@
 </div>
 
     <!-- =========================================
+     CLIENTES
+========================================== -->
+
+<div id="clientesVentasScreen" style="display: none;">
+
+    <div class="clientes-header">
+        <div>
+            <h1>👥 Clientes</h1>
+            <p>Consulta el historial y el estado de cuenta de tus clientes.</p>
+        </div>
+    </div>
+
+    <div class="clientes-resumen">
+        <div class="resumen-pendiente">
+            <span>👥</span>
+            <div>
+                <small>Total de clientes</small>
+                <strong id="totalClientesVentas">0</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>🛒</span>
+            <div>
+                <small>Con compras</small>
+                <strong id="clientesConComprasVentas">0</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>💰</span>
+            <div>
+                <small>Saldo pendiente</small>
+                <strong id="deudaClientesVentas">$0.00</strong>
+            </div>
+        </div>
+
+        <div class="resumen-pendiente">
+            <span>🟢</span>
+            <div>
+                <small>Saldo a favor</small>
+                <strong id="favorClientesVentas">$0.00</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="clientes-toolbar">
+        <input
+            type="text"
+            id="buscarClienteVentas"
+            placeholder="🔎 Buscar cliente...">
+        <button type="button" id="btnRefrescarClientes">🔄 Actualizar</button>
+    </div>
+
+    <div id="listaClientesVentas">
+        <div class="clientes-vacio">
+            👥
+            <h3>Cargando clientes...</h3>
+        </div>
+    </div>
+
+</div>
+
+    <!-- =========================================
+     ESTADO DE CUENTA DEL CLIENTE
+========================================== -->
+
+<div id="estadoCuentaClienteScreen" style="display: none;">
+
+    <section class="estado-cuenta-header">
+        <div>
+            <button type="button" id="btnVolverClientes" class="btn-volver-categorias">
+                ← Clientes
+            </button>
+            <h1>📄 Estado de cuenta</h1>
+            <p id="nombreEstadoCuentaCliente">Cliente</p>
+        </div>
+    </section>
+
+    <div class="estado-cuenta-resumen">
+        <div>
+            <small>Total comprado</small>
+            <strong id="estadoCuentaTotalComprado">$0.00</strong>
+        </div>
+        <div>
+            <small>Saldo pendiente</small>
+            <strong id="estadoCuentaDeuda" class="cliente-deuda">$0.00</strong>
+        </div>
+        <div>
+            <small>Saldo a favor</small>
+            <strong id="estadoCuentaFavor" class="cliente-favor">$0.00</strong>
+        </div>
+    </div>
+
+    <div id="detalleEstadoCuentaCliente"></div>
+
+</div>
+
+    <!-- =========================================
      HISTORIAL DE VENTAS
 ========================================== -->
 
@@ -447,6 +571,34 @@
     inicializarImagenesCatalogo();
 </script>
 <script type="module" src="js/app.js"></script>    
+
+
+<!-- MODAL REGISTRAR ABONO CxC -->
+<div id="modalAbonoCxc" class="modal-abono-cxc" style="display:none;">
+    <div class="modal-abono-contenido">
+        <button type="button" id="btnCerrarModalAbono" class="modal-abono-cerrar">×</button>
+        <div class="modal-abono-icono">💵</div>
+        <h2>Registrar abono</h2>
+        <p id="modalAbonoCliente" class="modal-abono-cliente">Cliente</p>
+        <div class="modal-abono-saldo">
+            <small>Saldo pendiente</small>
+            <strong id="modalAbonoSaldo">$0.00</strong>
+        </div>
+        <label for="montoAbonoCxc">Monto del abono</label>
+        <input type="number" id="montoAbonoCxc" min="0.01" step="0.01" placeholder="0.00">
+        <label for="metodoAbonoCxc">Forma de pago</label>
+        <select id="metodoAbonoCxc">
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Tarjeta">💳 Tarjeta</option>
+            <option value="Transferencia">🔄 Transferencia</option>
+        </select>
+        <p class="modal-abono-ayuda">Si el abono supera el saldo, el excedente se conservará como saldo a favor.</p>
+        <div class="modal-abono-acciones">
+            <button type="button" id="btnCancelarAbonoCxc">Cancelar</button>
+            <button type="button" id="btnConfirmarAbonoCxc">💵 Registrar abono</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

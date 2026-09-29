@@ -3766,73 +3766,722 @@ PANEL ADMINISTRADOR
 }
 
 /* =========================================================
-   AJUSTE DE IMAGENES DE PRODUCTOS
-   Las imagenes reales deben ocupar un espacio fijo para
-   conservar la proporcion de la tarjeta.
+   CxC FULL — DISEÑO VISUAL
+   Clientes · Estado de cuenta · Pendientes
+   Solo estilos; no modifica lógica JavaScript.
    ========================================================= */
 
-.producto-imagen {
+/* ---------- BASE COMPARTIDA ---------- */
+#clientesVentasScreen,
+#estadoCuentaClienteScreen,
+#pendientesVentasScreen {
     width: 100%;
-    height: 125px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: #f8fafc;
-    border-radius: 10px;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 12px 8px 42px;
 }
 
-.producto-imagen img {
+#clientesVentasScreen h1,
+#estadoCuentaClienteScreen h1,
+#pendientesVentasScreen h1 {
+    color: var(--azul-corporativo);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    margin: 0 0 6px;
+}
+
+#clientesVentasScreen > .clientes-header p,
+#estadoCuentaClienteScreen .estado-cuenta-header p,
+#pendientesVentasScreen .pendientes-header p {
+    color: #66758a;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ---------- TARJETAS DE RESUMEN ---------- */
+.clientes-resumen,
+.pendientes-resumen,
+.estado-cuenta-resumen {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.estado-cuenta-resumen {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.clientes-resumen .resumen-pendiente,
+.pendientes-resumen .resumen-pendiente,
+.estado-cuenta-resumen > div {
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .055);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.clientes-resumen .resumen-pendiente:hover,
+.pendientes-resumen .resumen-pendiente:hover,
+.estado-cuenta-resumen > div:hover {
+    transform: translateY(-2px);
+    border-color: #d5dce7;
+    box-shadow: 0 9px 24px rgba(7, 26, 65, .09);
+}
+
+.clientes-resumen .resumen-pendiente > span,
+.pendientes-resumen .resumen-pendiente > span {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #f3f6fa;
+    font-size: 21px;
+}
+
+.clientes-resumen .resumen-pendiente small,
+.pendientes-resumen .resumen-pendiente small,
+.estado-cuenta-resumen small {
     display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
+    color: #718096;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
 }
 
-.producto-imagen .producto-icono {
-    width: 100%;
-    height: 100%;
+.clientes-resumen .resumen-pendiente strong,
+.pendientes-resumen .resumen-pendiente strong,
+.estado-cuenta-resumen strong {
+    display: block;
+    color: var(--azul-corporativo);
+    font-size: 23px;
+    font-weight: 800;
+}
+
+#deudaClientesVentas,
+#saldoPendienteTotal,
+.estado-cuenta-resumen .cliente-deuda {
+    color: #c45a00 !important;
+}
+
+#favorClientesVentas,
+#saldoFavorTotal,
+.estado-cuenta-resumen .cliente-favor {
+    color: #13804e !important;
+}
+
+/* ---------- TOOLBAR CLIENTES ---------- */
+.clientes-toolbar {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 12px;
+    margin: 4px 0 20px;
 }
 
-@media (max-width: 850px) {
-    .producto-imagen {
-        height: 120px;
+.clientes-toolbar input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 15px;
+    border: 1px solid #d8e0e9;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--azul-corporativo);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.clientes-toolbar input:focus {
+    border-color: var(--naranja-principal);
+    box-shadow: 0 0 0 3px rgba(254, 83, 11, .10);
+}
+
+.clientes-toolbar button,
+.btn-ver-estado-cuenta,
+.btn-abonar-estado {
+    border: 0;
+    border-radius: 10px;
+    min-height: 42px;
+    padding: 10px 16px;
+    background: var(--naranja-principal);
+    color: #fff;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.clientes-toolbar button:hover,
+.btn-ver-estado-cuenta:hover,
+.btn-abonar-estado:hover {
+    background: #e94b09;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(254, 83, 11, .18);
+}
+
+/* ---------- LISTA / TARJETAS DE CLIENTES ---------- */
+#listaClientesVentas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.cliente-card-ventas {
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 17px;
+    padding: 19px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .055);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.cliente-card-ventas:hover {
+    transform: translateY(-2px);
+    border-color: #d3dce8;
+    box-shadow: 0 10px 26px rgba(7, 26, 65, .09);
+}
+
+.cliente-card-principal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.cliente-avatar {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eef3fa;
+    font-size: 23px;
+}
+
+.cliente-card-principal h3 {
+    margin: 0 0 4px;
+    color: var(--azul-corporativo);
+    font-size: 18px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.cliente-card-principal p {
+    margin: 0;
+    color: #758398;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.cliente-card-metricas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 17px 0;
+}
+
+.cliente-card-metricas > div {
+    min-width: 0;
+    background: #f7f9fc;
+    border-radius: 11px;
+    padding: 10px 11px;
+}
+
+.cliente-card-metricas small {
+    display: block;
+    color: #7b8799;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.cliente-card-metricas strong {
+    color: var(--azul-corporativo);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.cliente-card-metricas .cliente-deuda {
+    color: #c45a00;
+}
+
+.cliente-card-metricas .cliente-favor {
+    color: #13804e;
+}
+
+.cliente-card-acciones {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-ver-estado-cuenta {
+    width: 100%;
+}
+
+.clientes-vacio,
+.movimiento-cxc-vacio {
+    grid-column: 1 / -1;
+    background: #fff;
+    border: 1px dashed #ccd6e4;
+    border-radius: 16px;
+    padding: 42px 20px;
+    text-align: center;
+    color: #718096;
+}
+
+.clientes-vacio span {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.clientes-vacio h3 {
+    color: var(--azul-corporativo);
+    margin-bottom: 5px;
+}
+
+/* ---------- ESTADO DE CUENTA ---------- */
+.estado-cuenta-header {
+    margin-bottom: 4px;
+}
+
+.estado-cuenta-header > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.estado-cuenta-header .btn-volver-categorias {
+    margin-bottom: 16px;
+}
+
+.estado-cuenta-resumen > div {
+    display: block;
+}
+
+.estado-cuenta-resumen strong {
+    font-size: 25px;
+}
+
+#detalleEstadoCuentaCliente {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.estado-cuenta-resumen-cuentas,
+.estado-cuenta-movimientos {
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 17px;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .055);
+}
+
+.estado-cuenta-resumen-cuentas h2,
+.estado-cuenta-movimientos h2 {
+    margin: 0 0 16px;
+    color: var(--azul-corporativo);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.estado-cuenta-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.estado-cuenta-card:last-child {
+    border-bottom: 0;
+    padding-bottom: 2px;
+}
+
+.estado-cuenta-card h3 {
+    color: var(--azul-corporativo);
+    font-size: 16px;
+    margin: 0 0 7px;
+}
+
+.estado-cuenta-card p {
+    color: #66758a;
+    font-size: 13px;
+    margin: 4px 0;
+}
+
+.estado-cuenta-card p strong {
+    color: #27364f;
+}
+
+.estado-cuenta-card .saldo-pendiente strong {
+    color: #c45a00;
+}
+
+.estado-cuenta-card .saldo-favor-pendiente strong {
+    color: #13804e;
+}
+
+.estado-cuenta-acciones {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.estado-cuenta-acciones > span {
+    color: #13804e;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.btn-abonar-estado {
+    white-space: nowrap;
+}
+
+/* ---------- MOVIMIENTOS ---------- */
+.movimientos-cxc-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.movimiento-cxc {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) minmax(135px, auto) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 13px;
+    background: #f7f9fc;
+    border: 1px solid #edf0f4;
+    border-radius: 11px;
+    font-size: 12px;
+}
+
+.movimiento-cxc span:first-child {
+    color: var(--azul-corporativo);
+    font-weight: 800;
+}
+
+.movimiento-cxc span:nth-child(2),
+.movimiento-cxc span:nth-child(3) {
+    color: #718096;
+}
+
+.movimiento-cxc strong {
+    color: #c45a00;
+    font-size: 13px;
+    text-align: right;
+}
+
+.movimiento-cxc:has(strong) strong {
+    font-weight: 800;
+}
+
+/* ---------- PENDIENTES: CLASES REALES DEL HTML/JS ---------- */
+#pendientesVentasScreen .pendientes-header {
+    margin-bottom: 2px;
+}
+
+#pendientesVentasScreen .pendientes-resumen {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+#pendientesVentasScreen .resumen-pendiente {
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .055);
+}
+
+#pendientesVentasScreen .resumen-pendiente > span {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #f3f6fa;
+    font-size: 21px;
+}
+
+#pendientesVentasScreen .resumen-pendiente small {
+    display: block;
+    color: #718096;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+#pendientesVentasScreen .resumen-pendiente strong {
+    color: var(--azul-corporativo);
+    font-size: 22px;
+}
+
+#listaPendientesVentas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.pendiente-venta {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 17px;
+    padding: 19px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .055);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.pendiente-venta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(7, 26, 65, .09);
+}
+
+.pendiente-venta-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.pendiente-venta-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 9px;
+}
+
+.pendiente-venta-cabecera h3 {
+    color: var(--azul-corporativo);
+    font-size: 17px;
+    margin: 0 0 3px;
+}
+
+.pendiente-venta-cabecera p,
+.pendiente-venta-info > p {
+    color: #718096;
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.pendiente-venta-info .saldo-pendiente {
+    color: #c45a00;
+    font-size: 14px;
+}
+
+.estado-pendiente {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #fff4e8;
+    border: 1px solid #ffd8b8;
+    color: #b65300;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.estado-pendiente.pagado {
+    background: #ecfdf3;
+    border-color: #b7e8ca;
+    color: #167244;
+}
+
+.estado-pendiente.favor {
+    background: #ecfdf3;
+    border-color: #b7e8ca;
+    color: #167244;
+}
+
+.pendiente-venta-acciones {
+    display: flex;
+    align-items: flex-end;
+    flex: 0 0 auto;
+}
+
+.btn-abonar-pendiente {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: var(--naranja-principal);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-abonar-pendiente:hover {
+    background: #e94b09;
+}
+
+.pendiente-liquidada {
+    color: #13804e;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.historial-cxc-detalle {
+    margin-top: 14px;
+    border-top: 1px solid #edf0f4;
+    padding-top: 11px;
+}
+
+.historial-cxc-detalle summary {
+    cursor: pointer;
+    color: #596a80;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.historial-cxc-detalle .movimientos-cxc-lista {
+    margin-top: 10px;
+}
+
+/* ---------- RESPONSIVE CxC ---------- */
+@media (max-width: 1050px) {
+    .clientes-resumen,
+    #pendientesVentasScreen .pendientes-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #listaClientesVentas,
+    #listaPendientesVentas {
+        grid-template-columns: 1fr;
+    }
+
+    #detalleEstadoCuentaCliente {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 550px) {
-    .producto-imagen {
-        height: 140px;
+@media (max-width: 700px) {
+    #clientesVentasScreen,
+    #estadoCuentaClienteScreen,
+    #pendientesVentasScreen {
+        padding: 8px 0 30px;
+    }
+
+    #clientesVentasScreen h1,
+    #estadoCuentaClienteScreen h1,
+    #pendientesVentasScreen h1 {
+        font-size: 26px;
+    }
+
+    .clientes-resumen,
+    #pendientesVentasScreen .pendientes-resumen,
+    .estado-cuenta-resumen {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .clientes-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .clientes-toolbar button {
+        width: 100%;
+    }
+
+    .cliente-card-metricas {
+        grid-template-columns: 1fr;
+    }
+
+    .cliente-card-acciones {
+        display: block;
+    }
+
+    .estado-cuenta-card,
+    .pendiente-venta {
+        flex-direction: column;
+    }
+
+    .estado-cuenta-acciones,
+    .pendiente-venta-acciones {
+        align-items: stretch;
+    }
+
+    .btn-abonar-estado,
+    .btn-abonar-pendiente {
+        width: 100%;
+    }
+
+    .movimiento-cxc {
+        grid-template-columns: 1fr auto;
+    }
+
+    .movimiento-cxc span:nth-child(2),
+    .movimiento-cxc span:nth-child(3) {
+        font-size: 11px;
+    }
+
+    .movimiento-cxc strong {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .cliente-card-ventas,
+    .estado-cuenta-resumen-cuentas,
+    .estado-cuenta-movimientos,
+    .pendiente-venta {
+        padding: 15px;
+    }
+
+    .cliente-card-principal h3 {
+        font-size: 16px;
+    }
+
+    .estado-cuenta-resumen > div,
+    .clientes-resumen .resumen-pendiente,
+    #pendientesVentasScreen .resumen-pendiente {
+        padding: 14px 15px;
     }
 }
 
 /* =========================================================
-   AJUSTE FINAL - IMÁGENES DE PRODUCTOS EN VENTAS
+   SNACK OFFICE — CONSOLIDACIÓN FINAL
+   Imágenes de productos + Cortes + Reportes
    ========================================================= */
 
+/* ---------- IMÁGENES DE PRODUCTOS ---------- */
 .producto-venta .producto-info {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
     padding: 0;
-    min-width: 0;
 }
 
 .producto-venta .producto-imagen {
     width: 100%;
-    height: 145px;
-    min-height: 145px;
+    height: 155px;
+    flex: 0 0 155px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: #f8fafc;
-    flex: 0 0 145px;
+    background: #fff;
+    border-bottom: 1px solid #edf0f4;
 }
 
 .producto-venta .producto-imagen img {
@@ -3842,37 +4491,536 @@ PANEL ADMINISTRADOR
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    padding: 10px;
-    box-sizing: border-box;
+    object-position: center;
 }
 
-.producto-venta h3,
-.producto-venta .producto-precio,
-.producto-venta .producto-stock {
+.producto-venta .producto-info > h3,
+.producto-venta .producto-info > .producto-precio,
+.producto-venta .producto-info > .producto-stock {
     margin-left: 14px;
     margin-right: 14px;
 }
 
-.producto-venta h3 {
+.producto-venta .producto-info > h3 {
     margin-top: 12px;
 }
 
-.producto-venta .producto-stock {
-    margin-bottom: 14px;
+.producto-venta .producto-info > .producto-stock {
+    margin-bottom: 12px;
 }
 
-@media (max-width: 850px) {
-    .producto-venta .producto-imagen {
-        height: 130px;
-        min-height: 130px;
-        flex-basis: 130px;
+.producto-venta {
+    min-height: 275px;
+}
+
+/* ---------- SALDO A FAVOR EN NUEVA VENTA ---------- */
+.saldo-favor-venta-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 13px;
+    margin-top: 10px;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    background: #f0fdf4;
+}
+
+.saldo-favor-venta-box small {
+    display: block;
+    color: #166534;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.saldo-favor-venta-box strong {
+    display: block;
+    margin-top: 2px;
+    color: #15803d;
+    font-size: 17px;
+}
+
+.saldo-favor-venta-box button {
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 9px;
+    padding: 9px 11px;
+    background: #15803d;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.saldo-favor-venta-box button.activo {
+    background: #166534;
+}
+
+/* ---------- CORTES Y REPORTES ---------- */
+#adminScreen .content {
+    align-items: flex-start;
+    padding: 32px 40px;
+    overflow-y: auto;
+}
+
+#adminScreen #contentArea {
+    width: min(1380px, 100%);
+    margin: 0 auto;
+}
+
+.so-admin-modulo {
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fff;
+    border: 1px solid #e7ebf2;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(7, 26, 65, .08);
+    box-sizing: border-box;
+}
+
+.so-modulo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.so-modulo-header h1 {
+    margin: 0;
+    color: #071a41;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 800;
+}
+
+.so-modulo-header p {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.so-estado-jornada {
+    flex-shrink: 0;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.so-jornada-barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    background: #f6f8fc;
+    border: 1px solid #e5eaf2;
+    border-radius: 12px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.so-jornada-barra strong {
+    color: #071a41;
+}
+
+.so-jornada-barra span {
+    color: #64748b;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+}
+
+.so-metricas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.so-metricas > div {
+    min-width: 0;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #e6eaf0;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    align-items: center;
+}
+
+.so-metricas > div > span {
+    grid-row: 1 / 3;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #fff1eb;
+    font-size: 23px;
+}
+
+.so-metricas small {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.so-metricas strong {
+    color: #071a41;
+    font-size: 24px;
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+.so-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.so-panel {
+    margin-bottom: 18px;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #e5eaf2;
+    border-radius: 17px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, .045);
+    box-sizing: border-box;
+}
+
+.so-grid-2 .so-panel {
+    margin-bottom: 0;
+}
+
+.so-panel h2 {
+    margin: 0 0 16px;
+    color: #071a41;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.so-linea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 11px 0;
+    border-bottom: 1px solid #edf0f4;
+    color: #475569;
+    font-size: 14px;
+}
+
+.so-linea:last-child {
+    border-bottom: 0;
+}
+
+.so-linea strong {
+    color: #071a41;
+    font-size: 15px;
+}
+
+.so-linea.destacado {
+    margin: 6px -8px -4px;
+    padding: 12px 8px;
+    border-radius: 10px;
+    background: #fff5ef;
+    border-bottom: 0;
+}
+
+.so-linea.destacado strong {
+    color: #e94d0b;
+}
+
+.so-cxc-resumen {
+    margin-bottom: 20px;
+}
+
+.so-cxc-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.so-cxc-cards > div {
+    padding: 16px;
+    border-radius: 13px;
+    background: #f8fafc;
+    border: 1px solid #e6eaf0;
+}
+
+.so-cxc-cards small {
+    display: block;
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.so-cxc-cards strong {
+    color: #071a41;
+    font-size: 21px;
+}
+
+.so-acciones-corte {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.so-acciones-corte button,
+.so-btn-ver-reporte,
+.so-btn-secundario {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 17px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+.so-acciones-corte button:hover,
+.so-btn-ver-reporte:hover,
+.so-btn-secundario:hover {
+    transform: translateY(-1px);
+    filter: brightness(.98);
+}
+
+.so-btn-cerrar {
+    background: #ff5a16;
+    color: #fff;
+    box-shadow: 0 6px 15px rgba(255, 90, 22, .20);
+}
+
+.so-btn-reset {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #dce3ec !important;
+}
+
+.so-btn-secundario {
+    margin-bottom: 16px;
+    background: #eef2f7;
+    color: #334155;
+    border: 1px solid #dce3ec;
+}
+
+.so-reportes-lista {
+    display: grid;
+    gap: 12px;
+}
+
+.so-reporte-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 19px 20px;
+    background: #fff;
+    border: 1px solid #e4e9f0;
+    border-radius: 15px;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.so-reporte-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 22px rgba(7, 26, 65, .07);
+    transform: translateY(-1px);
+}
+
+.so-reporte-card h3 {
+    margin: 0 0 5px;
+    color: #071a41;
+    font-size: 17px;
+}
+
+.so-reporte-card p {
+    margin: 0 0 3px;
+    color: #475569;
+    font-size: 13px;
+}
+
+.so-reporte-card small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.so-reporte-datos {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.so-reporte-datos > span {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.so-reporte-datos > strong {
+    color: #071a41;
+    font-size: 18px;
+}
+
+.so-btn-ver-reporte {
+    background: #071a41;
+    color: #fff;
+}
+
+.so-tabla-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e5eaf2;
+    border-radius: 12px;
+}
+
+.so-tabla {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.so-tabla th {
+    padding: 12px 13px;
+    background: #071a41;
+    color: #fff;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: 800;
+}
+
+.so-tabla td {
+    padding: 12px 13px;
+    color: #334155;
+    border-bottom: 1px solid #edf0f4;
+    white-space: nowrap;
+}
+
+.so-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.so-tabla tbody tr:hover {
+    background: #f8fafc;
+}
+
+.so-tabla td:last-child {
+    font-weight: 700;
+}
+
+.so-panel-ayuda {
+    margin: -7px 0 14px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.so-vacio {
+    padding: 45px 20px;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 15px;
+    font-size: 15px;
+}
+
+@media (max-width: 1050px) {
+    #adminScreen .content {
+        padding: 25px;
+    }
+
+    .so-metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 550px) {
-    .producto-venta .producto-imagen {
-        height: 150px;
-        min-height: 150px;
-        flex-basis: 150px;
+@media (max-width: 760px) {
+    #adminScreen .content {
+        padding: 18px 14px;
+    }
+
+    .so-admin-modulo {
+        padding: 20px;
+        border-radius: 17px;
+    }
+
+    .so-modulo-header {
+        flex-direction: column;
+    }
+
+    .so-modulo-header h1 {
+        font-size: 27px;
+    }
+
+    .so-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .so-cxc-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .so-reporte-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .so-reporte-datos {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .so-btn-ver-reporte {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .so-metricas {
+        grid-template-columns: 1fr;
+    }
+
+    .so-metricas strong {
+        font-size: 22px;
+    }
+
+    .so-acciones-corte {
+        flex-direction: column;
+    }
+
+    .so-acciones-corte button {
+        width: 100%;
+    }
+
+    .so-jornada-barra {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .saldo-favor-venta-box {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .saldo-favor-venta-box button {
+        width: 100%;
     }
 }

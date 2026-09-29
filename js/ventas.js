@@ -25,7 +25,27 @@ export function iniciarVentas() {
     configurarNavegacionVentas();
     configurarNuevaVenta();
     configurarMetodosPago();
+    configurarEventosCxc();
     actualizarContadorCarrito();
+}
+
+// -------------------------------------
+// EVENTOS CxC
+// -------------------------------------
+function configurarEventosCxc() {
+    if (window.__snackOfficeCxcEventos) return;
+
+    window.__snackOfficeCxcEventos = true;
+
+    document.addEventListener("click", evento => {
+        const boton = evento.target.closest(".btn-abonar-estado");
+        if (!boton) return;
+
+        evento.preventDefault();
+        evento.stopPropagation();
+
+        registrarAbonoPendiente(boton.dataset.cuenta || "");
+    });
 }
 
 // -------------------------------------
@@ -136,6 +156,18 @@ function configurarNuevaVenta() {
 
     document.getElementById("btnRefrescarClientes")?.addEventListener("click", cargarClientesVentas);
 
+    document.getElementById("btnCerrarModalAbono")?.addEventListener("click", cerrarModalAbono);
+    document.getElementById("btnCancelarAbonoCxc")?.addEventListener("click", cerrarModalAbono);
+    document.getElementById("btnConfirmarAbonoCxc")?.addEventListener("click", confirmarAbonoCxc);
+    document.getElementById("modalAbonoCxc")?.addEventListener("click", evento => {
+        if (evento.target.id === "modalAbonoCxc") cerrarModalAbono();
+    });
+
+    document.getElementById("btnVolverClientes")?.addEventListener("click", () => {
+        mostrarPantallaVentas("clientesVentasScreen");
+        cargarClientesVentas();
+    });
+
     categorias.forEach(boton => {
         boton.addEventListener("click", () => {
             categoriaActual = boton.dataset.categoria || "";
@@ -193,7 +225,8 @@ function mostrarPantallaVentas(pantalla) {
         "nuevaVentaScreen",
         "historialVentasScreen",
         "pendientesVentasScreen",
-        "clientesVentasScreen"
+        "clientesVentasScreen",
+        "estadoCuentaClienteScreen"
     ];
 
     pantallas.forEach(id => {
@@ -969,8 +1002,153 @@ function cargarClientesVentas() {
                 <div><small>Pendiente</small><strong class="cliente-deuda">$${c.deuda.toFixed(2)}</strong></div>
                 <div><small>A favor</small><strong class="cliente-favor">$${c.favor.toFixed(2)}</strong></div>
             </div>
+
+            <div class="cliente-card-acciones">
+                <button
+                    type="button"
+                    class="btn-ver-estado-cuenta"
+                    data-cliente="${c.clave}">
+                    📄 Ver estado de cuenta
+                </button>
+            </div>
         </article>
     `).join("") : `<div class="clientes-vacio">👥<h3>No hay clientes para mostrar</h3><p>Los compradores con nombre aparecerán aquí automáticamente.</p></div>`;
+
+    contenedor.querySelectorAll(".btn-ver-estado-cuenta").forEach(boton => {
+        boton.addEventListener("click", () => {
+            mostrarPantallaVentas("estadoCuentaClienteScreen");
+            cargarEstadoCuentaCliente(boton.dataset.cliente || "");
+        });
+    });
+}
+
+function cargarEstadoCuentaCliente(claveCliente) {
+    const contenedor = document.getElementById("detalleEstadoCuentaCliente");
+    const titulo = document.getElementById("nombreEstadoCuentaCliente");
+
+    if (!contenedor) return;
+
+    const clientes = sincronizarClientes();
+    const cliente = clientes.find(c => c.clave === claveCliente);
+
+    if (!cliente) {
+        contenedor.innerHTML = `
+            <div class="clientes-vacio">
+                👤
+                <h3>Cliente no encontrado</h3>
+                <p>No fue posible recuperar la información del cliente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    if (titulo) {
+        titulo.textContent = cliente.nombre;
+    }
+
+    const cuentas = obtenerCuentasPendientes()
+        .filter(c => normalizarTexto(c.cliente) === cliente.clave);
+
+    const deuda = cuentas.reduce((s, c) => s + Math.max(0, Number(c.saldo || 0)), 0);
+    const favor = cuentas.reduce((s, c) => s + Math.max(0, Number(c.saldoFavor || 0)), 0);
+
+    const resumenTotal = document.getElementById("estadoCuentaTotalComprado");
+    const resumenDeuda = document.getElementById("estadoCuentaDeuda");
+    const resumenFavor = document.getElementById("estadoCuentaFavor");
+
+    if (resumenTotal) resumenTotal.textContent = `$${Number(cliente.totalCompras || 0).toFixed(2)}`;
+    if (resumenDeuda) resumenDeuda.textContent = `$${deuda.toFixed(2)}`;
+    if (resumenFavor) resumenFavor.textContent = `$${favor.toFixed(2)}`;
+
+    const cuentasHTML = cuentas.length
+        ? cuentas.map(cuenta => {
+            const total = Number(cuenta.total || 0);
+            const abonado = Number(cuenta.abonado || 0);
+            const saldo = Math.max(0, Number(cuenta.saldo || 0));
+            const saldoFavor = Math.max(0, Number(cuenta.saldoFavor || 0));
+            const pagada = saldo <= 0;
+            const movimientos = Array.isArray(cuenta.movimientos) ? cuenta.movimientos : [];
+
+            const movimientosHTML = movimientos.length
+                ? movimientos.map(m => `
+                    <div class="movimiento-cxc">
+                        <span>${m.tipo === "VENTA" ? "🧾" : "💵"} ${m.tipo || "MOVIMIENTO"}</span>
+                        <span>${m.metodoPago || "—"}</span>
+                        <strong>${m.tipo === "VENTA" ? "+" : "-"}$${Number(m.importe || 0).toFixed(2)}</strong>
+                    </div>
+                `).join("")
+                : `<p class="movimiento-cxc-vacio">Sin movimientos registrados.</p>`;
+
+            return `
+                <article class="estado-cuenta-card">
+                    <div>
+                        <h3>📒 Venta #${obtenerNumeroVentaPendiente(cuenta.id)}</h3>
+                        <p>📅 ${cuenta.fecha || "—"}</p>
+                        <p>🧾 Total: <strong>$${total.toFixed(2)}</strong></p>
+                        <p>💵 Abonado: <strong>$${abonado.toFixed(2)}</strong></p>
+                        <p class="saldo-pendiente">💰 Saldo: <strong>$${saldo.toFixed(2)}</strong></p>
+                        ${saldoFavor > 0 ? `<p class="saldo-favor-pendiente">🟢 A favor: <strong>$${saldoFavor.toFixed(2)}</strong></p>` : ""}
+
+                        <details class="historial-cxc-detalle">
+                            <summary>Ver movimientos</summary>
+                            <div class="movimientos-cxc-lista">${movimientosHTML}</div>
+                        </details>
+                    </div>
+
+                    <div class="estado-cuenta-acciones">
+                        ${
+                            !pagada
+                                ? `<button type="button" class="btn-abonar-estado" data-cuenta="${cuenta.id}">💵 Registrar abono</button>`
+                                : saldoFavor > 0
+                                    ? `<span>✓ Liquidada · A favor $${saldoFavor.toFixed(2)}</span>`
+                                    : `<span>✓ Cuenta liquidada</span>`
+                        }
+                    </div>
+                </article>
+            `;
+        }).join("")
+        : `
+            <div class="clientes-vacio">
+                📄
+                <h3>Sin cuentas a crédito</h3>
+                <p>Este cliente no tiene cuentas pendientes registradas.</p>
+            </div>
+        `;
+
+    contenedor.innerHTML = `
+        <div class="estado-cuenta-resumen-cuentas">
+            <h2>📒 Cuentas del cliente</h2>
+            ${cuentasHTML}
+        </div>
+
+        <div class="estado-cuenta-movimientos">
+            <h2>📌 Resumen</h2>
+            <div class="movimientos-cxc-lista">
+                <div class="movimiento-cxc">
+                    <span>🛒 Compras</span>
+                    <span>${cliente.compras || 0}</span>
+                    <strong>$${Number(cliente.totalCompras || 0).toFixed(2)}</strong>
+                </div>
+                <div class="movimiento-cxc">
+                    <span>💰 Deuda actual</span>
+                    <span>Saldo</span>
+                    <strong>$${deuda.toFixed(2)}</strong>
+                </div>
+                <div class="movimiento-cxc">
+                    <span>🟢 Saldo a favor</span>
+                    <span>Disponible</span>
+                    <strong>$${favor.toFixed(2)}</strong>
+                </div>
+            </div>
+        </div>
+    `;
+
+    contenedor.querySelectorAll(".btn-abonar-estado").forEach(boton => {
+        boton.addEventListener("click", () => {
+            registrarAbonoPendiente(boton.dataset.cuenta);
+            cargarEstadoCuentaCliente(claveCliente);
+        });
+    });
 }
 
 function cargarPendientesVentas() {
@@ -1099,64 +1277,179 @@ function obtenerNumeroVentaPendiente(idVenta) {
 
 function registrarAbonoPendiente(idCuenta) {
     const cuentas = obtenerCuentasPendientes();
-    const cuenta = cuentas.find(item => item.id === idCuenta);
-
+    const cuenta = cuentas.find(item => String(item.id) === String(idCuenta));
     if (!cuenta) return;
 
     const saldoActual = Number(cuenta.saldo || 0);
     const saldoFavorActual = Number(cuenta.saldoFavor || 0);
 
     if (saldoActual <= 0) {
-        alert(
-            saldoFavorActual > 0
-                ? `Esta cuenta ya está liquidada y tiene $${saldoFavorActual.toFixed(2)} a favor.`
-                : "Esta cuenta ya está liquidada."
-        );
+        alert(saldoFavorActual > 0
+            ? `Esta cuenta ya está liquidada y tiene $${saldoFavorActual.toFixed(2)} a favor.`
+            : "Esta cuenta ya está liquidada.");
         return;
     }
 
-    const entrada = prompt(
-        `Saldo pendiente: $${saldoActual.toFixed(2)}\n\nIngresa el monto del abono:`
-    );
+    abrirModalAbono(cuenta);
+}
 
-    if (entrada === null) return;
+function abrirModalAbono(cuenta) {
+    const modal = document.getElementById("modalAbonoCxc");
+    const nombre = document.getElementById("modalAbonoCliente");
+    const saldo = document.getElementById("modalAbonoSaldo");
+    const monto = document.getElementById("montoAbonoCxc");
+    const metodo = document.getElementById("metodoAbonoCxc");
+    if (!modal || !monto || !metodo) {
+        crearModalAbonoCxc();
+    }
 
-    const monto = Number(entrada);
+    const modalReal = document.getElementById("modalAbonoCxc");
+    const montoReal = document.getElementById("montoAbonoCxc");
+    const metodoReal = document.getElementById("metodoAbonoCxc");
+
+    if (!modalReal || !montoReal || !metodoReal) {
+        alert("⚠️ No se pudo abrir el registro de abono. Actualiza Snack Office con Ctrl + Shift + R.");
+        return;
+    }
+
+    const nombreReal = document.getElementById("modalAbonoCliente");
+    const saldoReal = document.getElementById("modalAbonoSaldo");
+
+    if (nombreReal) nombreReal.textContent = cuenta.cliente || "Cliente sin nombre";
+    if (saldoReal) saldoReal.textContent = `$${Number(cuenta.saldo || 0).toFixed(2)}`;
+    modalReal.dataset.cuentaId = cuenta.id;
+    montoReal.value = "";
+    metodoReal.value = "Efectivo";
+    modalReal.style.display = "flex";
+    setTimeout(() => montoReal.focus(), 50);
+}
+
+function crearModalAbonoCxc() {
+    if (document.getElementById("modalAbonoCxc")) return;
+
+    const modal = document.createElement("div");
+    modal.id = "modalAbonoCxc";
+    modal.className = "modal-abono-cxc";
+    modal.style.cssText = [
+        "position:fixed",
+        "inset:0",
+        "z-index:99999",
+        "display:flex",
+        "align-items:center",
+        "justify-content:center",
+        "padding:20px",
+        "background:rgba(7,26,65,.52)"
+    ].join(";");
+
+    modal.innerHTML = `
+        <div style="
+            position:relative;
+            width:min(440px,100%);
+            padding:28px;
+            border-radius:20px;
+            background:#fff;
+            box-shadow:0 25px 70px rgba(7,26,65,.25);
+            box-sizing:border-box;
+            font-family:inherit;
+        ">
+            <button type="button" id="btnCerrarModalAbono" style="
+                position:absolute;top:12px;right:14px;width:34px;height:34px;
+                border:0;border-radius:50%;background:#f1f5f9;color:#475569;
+                font-size:24px;cursor:pointer;
+            ">×</button>
+
+            <div style="font-size:27px;margin-bottom:10px;">💵</div>
+            <h2 style="margin:0;color:#071a41;">Registrar abono</h2>
+            <p id="modalAbonoCliente" style="color:#64748b;font-weight:700;">Cliente</p>
+
+            <div style="
+                margin:16px 0;padding:14px 16px;border:1px solid #fed7aa;
+                border-radius:12px;background:#fff7ed;
+            ">
+                <small style="display:block;color:#9a3412;font-weight:700;">Saldo pendiente</small>
+                <strong id="modalAbonoSaldo" style="display:block;color:#ea580c;font-size:24px;">$0.00</strong>
+            </div>
+
+            <label style="display:block;margin:12px 0 6px;font-weight:800;color:#334155;">
+                Monto del abono
+            </label>
+            <input type="number" id="montoAbonoCxc" min="0.01" step="0.01" placeholder="0.00"
+                style="width:100%;min-height:44px;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px;box-sizing:border-box;">
+
+            <label style="display:block;margin:12px 0 6px;font-weight:800;color:#334155;">
+                Forma de pago
+            </label>
+            <select id="metodoAbonoCxc"
+                style="width:100%;min-height:44px;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px;box-sizing:border-box;">
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Tarjeta">💳 Tarjeta</option>
+                <option value="Transferencia">🔄 Transferencia</option>
+            </select>
+
+            <p style="color:#64748b;font-size:12px;line-height:1.45;">
+                Si el abono supera el saldo, el excedente se conservará como saldo a favor.
+            </p>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+                <button type="button" id="btnCancelarAbonoCxc"
+                    style="padding:10px 15px;border:0;border-radius:10px;background:#eef2f7;color:#475569;font-weight:800;cursor:pointer;">
+                    Cancelar
+                </button>
+                <button type="button" id="btnConfirmarAbonoCxc"
+                    style="padding:10px 15px;border:0;border-radius:10px;background:#ff5a16;color:#fff;font-weight:800;cursor:pointer;">
+                    💵 Registrar abono
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById("btnCerrarModalAbono")?.addEventListener("click", cerrarModalAbono);
+    document.getElementById("btnCancelarAbonoCxc")?.addEventListener("click", cerrarModalAbono);
+    document.getElementById("btnConfirmarAbonoCxc")?.addEventListener("click", confirmarAbonoCxc);
+}
+
+function cerrarModalAbono() {
+    const modal = document.getElementById("modalAbonoCxc");
+    if (modal) {
+        modal.style.display = "none";
+        modal.dataset.cuentaId = "";
+    }
+}
+
+function confirmarAbonoCxc() {
+    const modal = document.getElementById("modalAbonoCxc");
+    const montoInput = document.getElementById("montoAbonoCxc");
+    const metodoInput = document.getElementById("metodoAbonoCxc");
+    if (!modal || !montoInput || !metodoInput) return;
+
+    const cuentas = obtenerCuentasPendientes();
+    const cuenta = cuentas.find(item => String(item.id) === String(modal.dataset.cuentaId));
+    if (!cuenta) {
+        cerrarModalAbono();
+        return;
+    }
+
+    const monto = Number(montoInput.value);
+    const metodoPagoAbono = metodoInput.value;
 
     if (!Number.isFinite(monto) || monto <= 0) {
         alert("⚠️ Ingresa un monto válido mayor a cero.");
+        montoInput.focus();
         return;
     }
 
-    const metodoAbono = prompt(
-        "Forma de pago del abono:\n\n1 = Efectivo\n2 = Tarjeta\n3 = Transferencia",
-        "1"
-    );
-
-    if (metodoAbono === null) return;
-
-    const mapaMetodos = {
-        "1": "Efectivo",
-        "2": "Tarjeta",
-        "3": "Transferencia"
-    };
-
-    const metodoPagoAbono = mapaMetodos[String(metodoAbono).trim()];
-
-    if (!metodoPagoAbono) {
-        alert("⚠️ Selecciona 1, 2 o 3 para indicar el método de pago.");
-        return;
-    }
-
+    const saldoActual = Number(cuenta.saldo || 0);
     const nuevoSaldo = Math.max(0, saldoActual - monto);
     const excedente = Math.max(0, monto - saldoActual);
 
     cuenta.abonado = Number(cuenta.abonado || 0) + monto;
     cuenta.saldo = nuevoSaldo;
-    cuenta.saldoFavor = saldoFavorActual + excedente;
+    cuenta.saldoFavor = Number(cuenta.saldoFavor || 0) + excedente;
     cuenta.estado = nuevoSaldo > 0 ? "Pendiente" : "Pagado";
-
     cuenta.movimientos = Array.isArray(cuenta.movimientos) ? cuenta.movimientos : [];
+
     cuenta.movimientos.push({
         tipo: "ABONO",
         fecha: new Date().toISOString(),
@@ -1179,21 +1472,24 @@ function registrarAbonoPendiente(idCuenta) {
     });
 
     actualizarVentaHistorialConAbono(cuenta);
+    cerrarModalAbono();
     cargarPendientesVentas();
     actualizarAvisoCliente();
 
+    const estado = document.getElementById("estadoCuentaClienteScreen");
+    if (estado && estado.style.display !== "none") {
+        cargarEstadoCuentaCliente(normalizarTexto(cuenta.cliente || ""));
+    }
+
     if (excedente > 0) {
-        alert(
-            `✅ Abono registrado. La cuenta quedó liquidada y el cliente tiene $${cuenta.saldoFavor.toFixed(2)} a favor.`
-        );
-    } else if (cuenta.saldo === 0) {
+        alert(`✅ Abono registrado. La cuenta quedó liquidada y el cliente tiene $${cuenta.saldoFavor.toFixed(2)} a favor.`);
+    } else if (nuevoSaldo === 0) {
         alert("✅ Cuenta liquidada correctamente.");
     } else {
-        alert(
-            `✅ Abono registrado. Saldo restante: $${cuenta.saldo.toFixed(2)}`
-        );
+        alert(`✅ Abono registrado. Saldo restante: $${nuevoSaldo.toFixed(2)}`);
     }
 }
+
 
 function actualizarVentaHistorialConAbono(cuenta) {
     const historial =

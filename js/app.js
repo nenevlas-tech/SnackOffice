@@ -9,6 +9,7 @@ import { iniciarVentas } from "./ventas.js";
 import { iniciarLogin } from "./login.js";
 import { iniciarInventario } from "./inventario.js";
 import { iniciarAdministrador } from "./admin.js";
+import { iniciarCortesReportes } from "./cortes-reportes.js";
 
 console.log("Snack Office iniciado");
 
@@ -19,3 +20,4 @@ iniciarLogin();
 iniciarInventario();
 iniciarVentas();
 iniciarAdministrador();
+iniciarCortesReportes();
