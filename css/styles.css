@@ -3469,568 +3469,210 @@ PANEL ADMINISTRADOR
         font-size: 12px;
     }
 }
-
 /* =========================================================
-   JORNADAS / CORTES / REPORTES
-   ========================================================= */
-.so-admin-modulo {
-    width: 100%;
-    max-width: 1250px;
-    margin: 0 auto;
-    padding: 8px 4px 40px;
-    box-sizing: border-box;
-}
-
-.so-modulo-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.so-modulo-header h1 {
-    margin: 0 0 5px;
-    color: #071a41;
-}
-
-.so-modulo-header p {
-    margin: 0;
-    color: #68768b;
-}
-
-.so-estado-jornada {
-    padding: 8px 13px;
-    border-radius: 999px;
-    background: #eaf9f1;
-    color: #187448;
-    font-size: 13px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.so-jornada-barra {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
-    padding: 13px 16px;
-    margin-bottom: 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #fff;
-    color: #263956;
-}
-
-.so-jornada-barra span {
-    color: #7a8799;
-    font-size: 12px;
-}
-
-.so-metricas {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 15px;
-    margin-bottom: 18px;
-}
-
-.so-metricas > div {
-    background: #fff;
-    border: 1px solid #e3e8f0;
-    border-radius: 15px;
-    padding: 18px;
-    box-shadow: 0 5px 18px rgba(7,26,65,.05);
-}
-
-.so-metricas span {
-    display: block;
-    font-size: 22px;
-    margin-bottom: 8px;
-}
-
-.so-metricas small {
-    display: block;
-    color: #718096;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.so-metricas strong {
-    color: #071a41;
-    font-size: 23px;
-}
-
-.so-grid-2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-    margin-bottom: 18px;
-}
-
-.so-panel {
-    background: #fff;
-    border: 1px solid #e3e8f0;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 18px;
-    box-shadow: 0 5px 18px rgba(7,26,65,.05);
-}
-
-.so-panel h2 {
-    margin: 0 0 15px;
-    color: #071a41;
-    font-size: 18px;
-}
-
-.so-linea {
-    display: flex;
-    justify-content: space-between;
-    padding: 11px 0;
-    border-bottom: 1px solid #edf0f5;
-    color: #526177;
-}
-
-.so-linea:last-child { border-bottom: 0; }
-.so-linea strong { color: #071a41; }
-.so-linea.destacado { font-weight: 800; }
-
-.so-cxc-cards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.so-cxc-cards > div {
-    padding: 14px;
-    border-radius: 11px;
-    background: #f6f8fb;
-}
-
-.so-cxc-cards small {
-    display: block;
-    color: #718096;
-    margin-bottom: 4px;
-}
-
-.so-cxc-cards strong { color: #071a41; font-size: 20px; }
-
-.so-acciones-corte {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-
-.so-btn-cerrar,
-.so-btn-ver-reporte,
-.so-btn-secundario {
-    border: 0;
-    border-radius: 10px;
-    padding: 11px 16px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.so-btn-cerrar { background: #ff5a14; color: #fff; }
-.so-btn-cerrar:hover { background: #e94d0b; }
-.so-btn-ver-reporte { background: #071a41; color: #fff; }
-.so-btn-secundario { background: #eef2f7; color: #172744; margin-bottom: 18px; }
-
-.so-reportes-lista { display: grid; gap: 14px; }
-
-.so-reporte-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    background: #fff;
-    border: 1px solid #e3e8f0;
-    border-radius: 15px;
-    padding: 17px 19px;
-}
-
-.so-reporte-card h3 { margin: 0 0 3px; color: #071a41; }
-.so-reporte-card p { margin: 0 0 3px; color: #53627a; }
-.so-reporte-card small { color: #8994a5; }
-.so-reporte-datos { display: flex; align-items: center; gap: 15px; }
-.so-reporte-datos span { color: #66758b; font-size: 13px; }
-.so-reporte-datos strong { color: #071a41; font-size: 18px; }
-
-.so-vacio {
-    padding: 50px 20px;
-    text-align: center;
-    border: 1px dashed #ccd5e3;
-    border-radius: 15px;
-    background: #fff;
-    color: #68768b;
-}
-
-.so-tabla-wrap { overflow-x: auto; }
-.so-tabla { width: 100%; border-collapse: collapse; min-width: 680px; }
-.so-tabla th,
-.so-tabla td { padding: 11px 10px; border-bottom: 1px solid #edf0f5; text-align: left; font-size: 13px; }
-.so-tabla th { color: #647188; background: #f8fafc; font-weight: 800; }
-.so-tabla td { color: #33425a; }
-
-.historial-cxc-detalle {
-    margin-top: 14px;
-    border-top: 1px solid #edf0f5;
-    padding-top: 10px;
-}
-
-.historial-cxc-detalle summary {
-    cursor: pointer;
-    color: #071a41;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.movimientos-cxc-lista {
-    margin-top: 9px;
-    display: grid;
-    gap: 6px;
-}
-
-.movimiento-cxc {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: #f7f9fc;
-    font-size: 12px;
-}
-
-.movimiento-cxc strong { color: #071a41; }
-.movimiento-cxc-vacio { color: #7a8799; font-size: 12px; }
-
-@media (max-width: 900px) {
-    .so-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .so-grid-2 { grid-template-columns: 1fr; }
-    .so-reporte-card { align-items: flex-start; flex-direction: column; }
-}
-
-@media (max-width: 600px) {
-    .so-modulo-header { flex-direction: column; }
-    .so-metricas { grid-template-columns: 1fr; }
-    .so-cxc-cards { grid-template-columns: 1fr; }
-    .so-reporte-datos { flex-wrap: wrap; }
-    .so-acciones-corte { justify-content: stretch; }
-    .so-btn-cerrar { width: 100%; }
-    .movimiento-cxc { grid-template-columns: 1fr; gap: 3px; }
-}
-
-/* =========================================================
-   CxC — DISEÑO FINAL DE CUENTAS PENDIENTES
+   CUENTAS PENDIENTES / CxC - DISEÑO
    ========================================================= */
 
 #pendientesVentasScreen {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1250px;
     margin: 0 auto;
-    padding: 4px 8px 42px;
+    padding: 10px 5px 40px;
     box-sizing: border-box;
 }
 
-#pendientesVentasScreen .pendientes-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding: 4px 0;
-}
-
-#pendientesVentasScreen .pendientes-header h1 {
-    margin: 0 0 6px;
+/* Encabezado */
+#pendientesVentasScreen h2 {
+    margin: 0 0 4px;
     color: #071a41;
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 800;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.5px;
 }
 
-#pendientesVentasScreen .pendientes-header p {
-    margin: 0;
-    color: #66758d;
+#pendientesVentasScreen > p {
+    margin: 0 0 24px;
+    color: #5d6b82;
     font-size: 15px;
 }
 
-/* Resumen */
-#pendientesVentasScreen .pendientes-resumen {
+/* =========================================================
+   RESUMEN SUPERIOR
+   ========================================================= */
+
+.pendientes-resumen {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 28px;
 }
 
-#pendientesVentasScreen .resumen-pendiente {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-height: 88px;
-    padding: 18px 20px;
+.pendiente-resumen-card {
     background: #ffffff;
     border: 1px solid #e4e9f1;
     border-radius: 16px;
-    box-shadow: 0 7px 22px rgba(7, 26, 65, 0.06);
-    box-sizing: border-box;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    padding: 18px 20px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#pendientesVentasScreen .resumen-pendiente:hover {
+.pendiente-resumen-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 11px 28px rgba(7, 26, 65, 0.10);
+    box-shadow: 0 8px 22px rgba(7, 26, 65, 0.10);
 }
 
-#pendientesVentasScreen .resumen-pendiente > span {
-    display: grid;
-    place-items: center;
-    width: 45px;
-    height: 45px;
-    flex: 0 0 45px;
-    border-radius: 13px;
-    background: #fff3eb;
+.pendiente-resumen-card .icono {
     font-size: 22px;
+    margin-bottom: 8px;
 }
 
-#pendientesVentasScreen .resumen-pendiente:nth-child(2) > span {
-    background: #fff4e8;
-}
-
-#pendientesVentasScreen .resumen-pendiente:nth-child(3) > span {
-    background: #eaf8f2;
-}
-
-#pendientesVentasScreen .resumen-pendiente:nth-child(4) > span {
-    background: #e9f8f5;
-}
-
-#pendientesVentasScreen .resumen-pendiente small {
+.pendiente-resumen-card span {
     display: block;
-    margin-bottom: 4px;
-    color: #718096;
-    font-size: 12px;
-    font-weight: 700;
+    color: #69778c;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
 }
 
-#pendientesVentasScreen .resumen-pendiente strong {
+.pendiente-resumen-card strong {
     display: block;
     color: #071a41;
-    font-size: 22px;
-    line-height: 1.1;
+    font-size: 23px;
     font-weight: 800;
 }
 
-#pendientesVentasScreen #saldoPendienteTotal {
+/* Colores especiales del resumen */
+#saldoPendienteTotal {
     color: #d35400;
 }
 
-#pendientesVentasScreen #totalAbonadoPendientes {
+#totalAbonado {
     color: #16834d;
 }
 
-#pendientesVentasScreen #saldoFavorTotal {
-    color: #087f72;
+#saldoFavorTotal {
+    color: #087f8c;
 }
 
-/* Lista de cuentas */
-#pendientesVentasScreen #listaPendientesVentas {
+/* =========================================================
+   LISTA DE CUENTAS
+   ========================================================= */
+
+#listaPendientes {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
-    align-items: start;
 }
 
-#pendientesVentasScreen .pendiente-venta {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-width: 0;
+/* Tarjeta individual */
+.cuenta-pendiente {
     background: #ffffff;
-    border: 1px solid #e1e7ef;
+    border: 1px solid #e2e7ef;
     border-radius: 18px;
-    box-shadow: 0 7px 24px rgba(7, 26, 65, 0.065);
-    overflow: hidden;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(7, 26, 65, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#pendientesVentasScreen .pendiente-venta:hover {
+.cuenta-pendiente:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(7, 26, 65, 0.11);
+    box-shadow: 0 9px 25px rgba(7, 26, 65, 0.10);
 }
 
-#pendientesVentasScreen .pendiente-venta-info {
-    padding: 21px 22px 17px;
-}
-
-#pendientesVentasScreen .pendiente-venta-cabecera {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 14px;
-}
-
-#pendientesVentasScreen .pendiente-venta-cabecera h3 {
+/* Cliente */
+.cuenta-pendiente h3 {
     margin: 0 0 4px;
     color: #071a41;
     font-size: 19px;
     font-weight: 800;
 }
 
-#pendientesVentasScreen .pendiente-venta-cabecera p {
-    margin: 0;
-    color: #7a879a;
-    font-size: 12px;
-    font-weight: 600;
+.cuenta-pendiente h3::first-letter {
+    font-size: 20px;
 }
 
-#pendientesVentasScreen .pendiente-venta-info > p {
-    margin: 8px 0;
-    color: #5e6d83;
+/* Venta */
+.cuenta-pendiente .venta-info {
+    color: #68768b;
     font-size: 13px;
+    margin-bottom: 16px;
 }
 
-#pendientesVentasScreen .pendiente-venta-info > p strong {
-    color: #172744;
-}
+/* =========================================================
+   ESTADO DE LA CUENTA
+   ========================================================= */
 
-/* Estados */
-#pendientesVentasScreen .estado-pendiente {
+.estado-pendiente {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    padding: 6px 10px;
+    gap: 6px;
+    padding: 6px 11px;
     border-radius: 999px;
-    background: #fff2e8;
+    background: #fff4e8;
     color: #c45100;
-    border: 1px solid #ffd5b5;
-    font-size: 11px;
-    line-height: 1;
+    font-size: 12px;
     font-weight: 800;
-    white-space: nowrap;
+    margin-bottom: 15px;
 }
 
-#pendientesVentasScreen .estado-pendiente.pagado {
-    background: #eaf8f1;
-    color: #16834d;
-    border-color: #bce5cf;
-}
-
-#pendientesVentasScreen .estado-pendiente.favor {
+.estado-pendiente.favor {
     background: #e8f8f5;
     color: #087f72;
-    border-color: #b8e5dc;
 }
 
-#pendientesVentasScreen .saldo-pendiente {
-    margin-top: 12px !important;
-    padding: 10px 12px;
-    background: #fff7ef;
-    border: 1px solid #ffe0c2;
-    border-radius: 10px;
-}
+/* =========================================================
+   DATOS FINANCIEROS
+   ========================================================= */
 
-#pendientesVentasScreen .saldo-pendiente strong {
-    color: #d35400;
-}
-
-#pendientesVentasScreen .saldo-favor-pendiente {
-    margin-top: 12px !important;
-    padding: 10px 12px;
-    background: #eaf9f6;
-    border: 1px solid #bce7df;
-    border-radius: 10px;
-    color: #087f72;
-}
-
-#pendientesVentasScreen .saldo-favor-pendiente strong {
-    color: #087f72;
-}
-
-/* Movimientos */
-#pendientesVentasScreen .historial-cxc-detalle {
-    margin-top: 16px;
-    border-top: 1px solid #edf0f5;
-    padding-top: 12px;
-}
-
-#pendientesVentasScreen .historial-cxc-detalle summary {
-    cursor: pointer;
-    color: #31527e;
-    font-size: 13px;
-    font-weight: 800;
-    list-style: none;
-}
-
-#pendientesVentasScreen .historial-cxc-detalle summary::-webkit-details-marker {
-    display: none;
-}
-
-#pendientesVentasScreen .historial-cxc-detalle summary::before {
-    content: "▸";
-    display: inline-block;
-    margin-right: 7px;
-    transition: transform 0.18s ease;
-}
-
-#pendientesVentasScreen .historial-cxc-detalle[open] summary::before {
-    transform: rotate(90deg);
-}
-
-#pendientesVentasScreen .movimientos-cxc-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    margin-top: 11px;
-}
-
-#pendientesVentasScreen .movimiento-cxc {
+.cuenta-detalles {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    align-items: center;
-    padding: 9px 11px;
-    background: #f7f9fc;
-    border: 1px solid #e9edf3;
-    border-radius: 9px;
-    font-size: 12px;
+    margin-bottom: 16px;
 }
 
-#pendientesVentasScreen .movimiento-cxc span:first-child {
-    color: #243653;
-    font-weight: 800;
+.cuenta-detalle {
+    background: #f6f8fb;
+    border-radius: 11px;
+    padding: 11px 13px;
 }
 
-#pendientesVentasScreen .movimiento-cxc span:nth-child(2) {
-    color: #718096;
+.cuenta-detalle span {
+    display: block;
+    color: #738096;
+    font-size: 11px;
     font-weight: 600;
+    margin-bottom: 3px;
 }
 
-#pendientesVentasScreen .movimiento-cxc strong {
+.cuenta-detalle strong {
+    color: #172744;
+    font-size: 15px;
+}
+
+.cuenta-detalle.saldo {
+    background: #fff5eb;
+}
+
+.cuenta-detalle.saldo strong {
     color: #d35400;
-    white-space: nowrap;
 }
 
-#pendientesVentasScreen .movimiento-cxc-vacio {
-    margin: 10px 0 0 !important;
-    color: #8994a5 !important;
-    font-size: 12px !important;
+.cuenta-detalle.favor {
+    background: #eaf9f6;
 }
 
-/* Pie / acciones */
-#pendientesVentasScreen .pendiente-venta-acciones {
-    display: flex;
-    align-items: center;
-    min-height: 60px;
-    padding: 12px 22px;
-    background: #fafbfd;
-    border-top: 1px solid #edf0f5;
+.cuenta-detalle.favor strong {
+    color: #087f72;
 }
 
-#pendientesVentasScreen .btn-abonar-pendiente {
+/* =========================================================
+   BOTÓN ABONO
+   ========================================================= */
+
+.cuenta-pendiente button {
     width: 100%;
-    border: 0;
+    border: none;
     border-radius: 10px;
     padding: 11px 15px;
     background: #ff5a14;
@@ -4038,276 +3680,199 @@ PANEL ADMINISTRADOR
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 5px 12px rgba(255, 90, 20, 0.18);
-    transition: background 0.18s ease, transform 0.15s ease;
+    transition: background 0.2s ease, transform 0.15s ease;
 }
 
-#pendientesVentasScreen .btn-abonar-pendiente:hover {
+.cuenta-pendiente button:hover {
     background: #e94d0b;
     transform: translateY(-1px);
 }
 
-#pendientesVentasScreen .btn-abonar-pendiente:active {
+.cuenta-pendiente button:active {
     transform: translateY(0);
 }
 
-#pendientesVentasScreen .pendiente-liquidada {
-    width: 100%;
-    padding: 10px 12px;
+/* =========================================================
+   SALDO A FAVOR
+   ========================================================= */
+
+.saldo-favor-pendiente {
+    margin-top: 12px;
+    padding: 10px 13px;
     border-radius: 10px;
-    background: #eaf8f1;
-    color: #16834d;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 800;
-    box-sizing: border-box;
-}
-
-/* Estado vacío */
-#pendientesVentasScreen .mensaje-pendientes {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 240px;
-    padding: 30px;
-    background: #ffffff;
-    border: 1px dashed #cbd5e1;
-    border-radius: 18px;
-    color: #64748b;
-    text-align: center;
-    box-sizing: border-box;
-}
-
-#pendientesVentasScreen .mensaje-pendientes span {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-
-#pendientesVentasScreen .mensaje-pendientes h3 {
-    margin: 0 0 6px;
-    color: #172744;
-    font-size: 18px;
-}
-
-#pendientesVentasScreen .mensaje-pendientes p {
-    margin: 0;
+    background: #eaf9f6;
+    color: #087f72;
     font-size: 13px;
+    font-weight: 700;
 }
 
-/* Responsive */
-@media (max-width: 1050px) {
-    #pendientesVentasScreen .pendientes-resumen {
+/* =========================================================
+   ESTADO VACÍO
+   ========================================================= */
+
+#listaPendientes:empty::before {
+    content: "🎉 No hay cuentas pendientes";
+    grid-column: 1 / -1;
+    display: block;
+    text-align: center;
+    background: #ffffff;
+    border: 1px dashed #ccd5e3;
+    border-radius: 16px;
+    padding: 45px 20px;
+    color: #65738a;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+    .pendientes-resumen {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    #pendientesVentasScreen #listaPendientesVentas {
+    #listaPendientes {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 600px) {
     #pendientesVentasScreen {
-        padding: 0 2px 30px;
+        padding: 5px 0 30px;
     }
 
-    #pendientesVentasScreen .pendientes-header h1 {
-        font-size: 27px;
+    #pendientesVentasScreen h2 {
+        font-size: 24px;
     }
 
-    #pendientesVentasScreen .pendientes-resumen {
+    .pendientes-resumen {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    #pendientesVentasScreen .resumen-pendiente {
-        min-height: 76px;
-        padding: 14px 16px;
+    .pendiente-resumen-card {
+        padding: 15px;
     }
 
-    #pendientesVentasScreen .pendiente-venta-info {
-        padding: 18px 16px 15px;
+    .cuenta-pendiente {
+        padding: 16px;
     }
 
-    #pendientesVentasScreen .pendiente-venta-cabecera {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #pendientesVentasScreen .pendiente-venta-acciones {
-        padding: 11px 16px;
-    }
-
-    #pendientesVentasScreen .movimiento-cxc {
-        grid-template-columns: 1fr auto;
-    }
-
-    #pendientesVentasScreen .movimiento-cxc strong {
-        grid-column: 2;
-        grid-row: 1;
+    .cuenta-detalles {
+        grid-template-columns: 1fr;
     }
 }
 
 /* =========================================================
-   CLIENTES / COMPRADORES
+   AJUSTE DE IMAGENES DE PRODUCTOS
+   Las imagenes reales deben ocupar un espacio fijo para
+   conservar la proporcion de la tarjeta.
    ========================================================= */
-.clientes-header {
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:20px;
-    margin-bottom:24px;
+
+.producto-imagen {
+    width: 100%;
+    height: 125px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8fafc;
+    border-radius: 10px;
 }
-.clientes-header h1 { margin:0 0 6px; color:#071a41; font-size:30px; }
-.clientes-header p { margin:0; color:#65738a; }
-.clientes-resumen {
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:16px;
-    margin-bottom:20px;
+
+.producto-imagen img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
 }
-.cliente-metrica {
-    background:#fff;
-    border:1px solid #e3e8f0;
-    border-radius:16px;
-    padding:17px 18px;
-    display:flex;
-    align-items:center;
-    gap:13px;
-    box-shadow:0 6px 18px rgba(7,26,65,.06);
+
+.producto-imagen .producto-icono {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.cliente-metrica > span { font-size:24px; }
-.cliente-metrica small { display:block; color:#738096; font-size:12px; font-weight:700; margin-bottom:4px; }
-.cliente-metrica strong { color:#071a41; font-size:21px; }
-.clientes-toolbar {
-    display:flex;
-    gap:12px;
-    margin-bottom:18px;
+
+@media (max-width: 850px) {
+    .producto-imagen {
+        height: 120px;
+    }
 }
-.clientes-toolbar input {
-    flex:1;
-    border:1px solid #d9e0ea;
-    border-radius:11px;
-    padding:12px 14px;
-    font-size:14px;
-    outline:none;
-    background:#fff;
+
+@media (max-width: 550px) {
+    .producto-imagen {
+        height: 140px;
+    }
 }
-.clientes-toolbar input:focus { border-color:#ff5a14; box-shadow:0 0 0 3px rgba(255,90,20,.10); }
-.clientes-toolbar button {
-    border:0;
-    border-radius:11px;
-    padding:0 17px;
-    background:#071a41;
-    color:#fff;
-    font-weight:800;
-    cursor:pointer;
-}
-.lista-clientes-ventas {
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px;
-}
-.cliente-card-ventas {
-    background:#fff;
-    border:1px solid #e1e7ef;
-    border-radius:17px;
-    padding:18px;
-    box-shadow:0 5px 18px rgba(7,26,65,.06);
-}
-.cliente-card-principal { display:flex; align-items:center; gap:12px; margin-bottom:17px; }
-.cliente-avatar {
-    width:44px; height:44px; border-radius:50%;
-    display:grid; place-items:center;
-    background:#fff1e9; font-size:22px;
-}
-.cliente-card-principal h3 { margin:0 0 3px; color:#071a41; font-size:18px; }
-.cliente-card-principal p { margin:0; color:#738096; font-size:12px; }
-.cliente-card-metricas { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.cliente-card-metricas > div { background:#f7f9fc; border-radius:11px; padding:10px 11px; }
-.cliente-card-metricas small { display:block; color:#748096; font-size:10px; font-weight:700; margin-bottom:3px; }
-.cliente-card-metricas strong { font-size:14px; color:#172744; }
-.cliente-card-metricas .cliente-deuda { color:#c45100; }
-.cliente-card-metricas .cliente-favor { color:#087f72; }
-.clientes-vacio {
-    grid-column:1/-1; text-align:center; background:#fff; border:1px dashed #cbd5e2;
-    border-radius:16px; padding:48px 20px; color:#65738a;
-}
-.clientes-vacio:first-letter { font-size:30px; }
 
 /* =========================================================
-   SALDO A FAVOR DURANTE LA VENTA
+   AJUSTE FINAL - IMÁGENES DE PRODUCTOS EN VENTAS
    ========================================================= */
-.saldo-favor-venta-box {
-    margin-top:10px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:11px 12px;
-    border:1px solid #a7e7c0;
-    background:#ecfdf3;
-    border-radius:10px;
-}
-.saldo-favor-venta-box strong { display:block; color:#167244; font-size:12px; }
-.saldo-favor-venta-box span { color:#087f72; font-weight:800; font-size:14px; }
-.saldo-favor-venta-box button {
-    border:0; border-radius:9px; padding:8px 11px; background:#087f72; color:#fff;
-    font-size:12px; font-weight:800; cursor:pointer;
-}
-.saldo-favor-venta-box button.activo { background:#ff5a14; }
-.resumen-pago-venta {
-    margin-top:10px;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
-    padding:10px;
-    background:#f6f8fb;
-    border:1px solid #e1e7ef;
-    border-radius:11px;
-}
-.resumen-pago-venta div { padding:7px 9px; }
-.resumen-pago-venta span { display:block; color:#748096; font-size:10px; font-weight:700; margin-bottom:3px; }
-.resumen-pago-venta strong { color:#172744; font-size:14px; }
-.resumen-pago-venta .restante { background:#fff; border-radius:8px; }
-.resumen-pago-venta .restante strong { color:#ff5a14; }
 
-/* =========================================================
-   REINICIO DE PRUEBAS
-   ========================================================= */
-.so-acciones-corte { display:flex; gap:12px; flex-wrap:wrap; }
-.so-btn-reset {
-    border:1px solid #d8dee8;
-    background:#fff;
-    color:#66738a;
-    border-radius:10px;
-    padding:11px 16px;
-    font-weight:800;
-    cursor:pointer;
-}
-.so-btn-reset:hover { border-color:#ff5a14; color:#c45100; background:#fff8f3; }
-
-@media (max-width:900px) {
-    .clientes-resumen { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .lista-clientes-ventas { grid-template-columns:1fr; }
-}
-@media (max-width:600px) {
-    .clientes-resumen { grid-template-columns:1fr; }
-    .clientes-toolbar { flex-direction:column; }
-    .clientes-toolbar button { min-height:42px; }
-    .cliente-card-metricas { grid-template-columns:1fr; }
-    .saldo-favor-venta-box { align-items:stretch; flex-direction:column; }
-    .saldo-favor-venta-box button { width:100%; }
-    .resumen-pago-venta { grid-template-columns:1fr; }
+.producto-venta .producto-info {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    min-width: 0;
 }
 
-/* =====================================
-   REPORTE CXC - CLARIDAD CONTABLE
-===================================== */
-.so-panel-ayuda {
-    margin: -8px 0 16px;
-    color: #64748b;
-    font-size: 0.9rem;
-    line-height: 1.5;
+.producto-venta .producto-imagen {
+    width: 100%;
+    height: 145px;
+    min-height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8fafc;
+    flex: 0 0 145px;
+}
+
+.producto-venta .producto-imagen img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.producto-venta h3,
+.producto-venta .producto-precio,
+.producto-venta .producto-stock {
+    margin-left: 14px;
+    margin-right: 14px;
+}
+
+.producto-venta h3 {
+    margin-top: 12px;
+}
+
+.producto-venta .producto-stock {
+    margin-bottom: 14px;
+}
+
+@media (max-width: 850px) {
+    .producto-venta .producto-imagen {
+        height: 130px;
+        min-height: 130px;
+        flex-basis: 130px;
+    }
+}
+
+@media (max-width: 550px) {
+    .producto-venta .producto-imagen {
+        height: 150px;
+        min-height: 150px;
+        flex-basis: 150px;
+    }
 }

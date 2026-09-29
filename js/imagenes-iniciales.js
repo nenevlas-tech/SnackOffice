@@ -45,9 +45,73 @@ const IMAGENES_CATALOGO = {
     "SO-060": "img/productos/SO-060.jpg"
 };
 
+// Los productos del Local pueden tener IDs como PROD-XXXXXXXX.
+// Por eso también relacionamos las imágenes con el NOMBRE del producto.
+const CODIGOS_POR_NOMBRE = {
+    "barritas pina": "SO-006",
+    "chip’s sal": "SO-016",
+    "runners chile limon": "SO-047",
+    "chip’s jalapeño": "SO-015",
+    "canelitas grande": "SO-008",
+    "churrumais limon": "SO-020",
+    "fritos limon y sal": "SO-029",
+    "mini pinguinos": "SO-036",
+    "chip’s fuego": "SO-014",
+    "barras soft & chewy": "SO-003",
+    "barrita gansito": "SO-002",
+    "barra gansito": "SO-002",
+    "barritas fresa": "SO-004",
+    "barritas moras": "SO-005",
+    "barritas pina": "SO-006",
+    "brownies general mills": "SO-007",
+    "canelitas chicas": "SO-008",
+    "snack bites tajin": "SO-051",
+    "peanut butter bites": "SO-037",
+    "snackers chicharron de cerdo": "SO-052",
+    "pringles": "SO-042",
+    "quaker chocolate": "SO-043",
+    "coconut almond bites": "SO-021",
+    "principe chico": "SO-040",
+    "fritos limon y sal": "SO-029",
+    "rancheritos original": "SO-044",
+    "churrumais limon": "SO-020",
+    "takis fuego": "SO-053",
+    "polvorones chicos": "SO-038",
+    "polvorones grande": "SO-039",
+    "runners chile limon": "SO-047",
+    "sabritas original": "SO-049",
+    "doritos nacho": "SO-026",
+    "ruffles queso": "SO-046",
+    "chip's sal": "SO-016",
+    "chip's fuego": "SO-014",
+    "takis huakamoles": "SO-054",
+    "principe grande": "SO-041",
+    "triki-trakes": "SO-060",
+    "mini pinguinos": "SO-036",
+    "mini gansito": "SO-034",
+    "mini mamut": "SO-035",
+    "chip's jalapeno": "SO-015",
+    "cremax vainilla": "SO-024",
+    "cremax chocolate": "SO-022",
+    "doraditas": "SO-025",
+    "cremax fresa": "SO-023",
+    "rip van wafers": "SO-045",
+    "gaveti chispi chocs": "SO-032"
+};
+
+function normalizarNombre(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+}
+
 /**
  * Agrega las rutas de imagen al catálogo guardado en localStorage.
- * No reemplaza ni elimina productos; solo completa la propiedad imagen.
+ * Funciona tanto con productos cuyo id es SO-XXX como con productos
+ * importados anteriormente cuyo id tiene formato PROD-XXXXXXXX.
  */
 export function inicializarImagenesCatalogo() {
     const guardados = localStorage.getItem("productos");
@@ -61,7 +125,10 @@ export function inicializarImagenesCatalogo() {
     try {
         productos = JSON.parse(guardados);
     } catch (error) {
-        console.warn("⚠️ No se pudieron leer los productos para asignar imágenes.", error);
+        console.warn(
+            "⚠️ No se pudieron leer los productos para asignar imágenes.",
+            error
+        );
         return;
     }
 
@@ -72,17 +139,25 @@ export function inicializarImagenesCatalogo() {
     let cambios = 0;
 
     productos = productos.map((producto) => {
-        const codigo =
-            producto.id ||
-            producto.codigo ||
-            producto.codigoCatalogo ||
-            producto.codigo_catalogo;
+        const id = String(producto.id || "").trim();
+
+        // 1. Primero intenta usar directamente un código SO-XXX.
+        let codigo = IMAGENES_CATALOGO[id] ? id : null;
+
+        // 2. Si el ID es PROD-XXXXXXXX, busca el código por nombre.
+        if (!codigo) {
+            const nombre = normalizarNombre(producto.nombre);
+            codigo = CODIGOS_POR_NOMBRE[nombre] || null;
+        }
 
         const imagen = codigo ? IMAGENES_CATALOGO[codigo] : null;
 
         if (imagen && producto.imagen !== imagen) {
             cambios++;
-            return { ...producto, imagen };
+            return {
+                ...producto,
+                imagen
+            };
         }
 
         return producto;
@@ -91,5 +166,7 @@ export function inicializarImagenesCatalogo() {
     if (cambios > 0) {
         localStorage.setItem("productos", JSON.stringify(productos));
         console.log(`🖼️ Imágenes de catálogo asignadas: ${cambios}`);
+    } else {
+        console.log("🖼️ No hubo cambios en las imágenes del catálogo.");
     }
 }
