@@ -6,7 +6,6 @@
 // Regla fija tomada del catálogo maestro:
 // Comisión = 25% de la utilidad unitaria.
 const PORCENTAJE_COMISION = 0.25;
-const VENDEDOR_PRINCIPAL = "Daniela";
 
 //=====================================
 // INICIAR MÓDULO
@@ -127,8 +126,6 @@ function mostrarComisiones() {
             <div class="regla-comision-inventario">
                 💼 <strong>Regla de comisión:</strong>
                 ${PORCENTAJE_COMISION * 100}% de la utilidad unitaria.
-                <br>
-                👤 <strong>Vendedor:</strong> ${VENDEDOR_PRINCIPAL}
             </div>
 
             <div class="admin-resumen-comisiones">
@@ -154,7 +151,7 @@ function mostrarComisiones() {
                 <div class="admin-metrica">
                     <span>💰</span>
                     <strong id="adminTotalComision">$0.00</strong>
-                    <small>Comisión ${VENDEDOR_PRINCIPAL}</small>
+                    <small>Comisión generada</small>
                 </div>
 
             </div>

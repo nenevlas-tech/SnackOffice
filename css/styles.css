@@ -2432,52 +2432,20 @@ PANEL ADMINISTRADOR
 }
 
 
-#loginScreen .login-header h1 {
-
-    margin: 0;
-
-    color: #071a41;
-
-    font-size: 36px;
-    font-weight: 900;
-
-    letter-spacing: -1px;
+#loginScreen .login-header {
+    text-align: center;
+    margin-bottom: 24px;
 }
 
 
-#loginScreen .login-header h1::before {
-    content: "🍪";
+#loginScreen .login-logo {
     display: block;
-
-    width: 64px;
-    height: 64px;
-
-    margin: 0 auto 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #fff1e8;
-
-    border-radius: 18px;
-
-    font-size: 34px;
-
-    box-shadow:
-        0 8px 20px rgba(255, 90, 31, .12);
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin: 0 auto;
 }
 
-
-#loginScreen .login-header p {
-
-    margin: 7px 0 0;
-
-    color: #64748b;
-
-    font-size: 14px;
-    font-weight: 500;
-}
 
 
 /* =========================================================
