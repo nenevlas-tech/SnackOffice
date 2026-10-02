@@ -2,14 +2,136 @@
 // SNACK OFFICE
 // MÓDULO: INVENTARIO
 //=====================================
+
+import { supabase } from "./supabase.js";
 //=====================================
 // PRODUCTOS
 //=====================================
 
-let productos =
-    JSON.parse(localStorage.getItem("productos")) || [];
+let productos = [];
 
 let indiceEditar = -1;
+
+//=====================================
+// SUPABASE: INVENTARIO CENTRAL
+//=====================================
+
+function normalizarProductoSupabase(producto) {
+    return {
+        id: String(producto.id),
+        nombre: String(producto.nombre || ""),
+        categoria: String(producto.categoria || ""),
+        precio: Number(producto.precio) || 0,
+        costo: Number(producto.costo) || 0,
+        stock: Number(producto.stock) || 0,
+        imagen: producto.imagen || "",
+        fecha_caducidad: producto.fecha_caducidad || null
+    };
+}
+
+async function cargarProductosDesdeSupabase() {
+    const { data, error } = await supabase
+        .from("productos")
+        .select("id,nombre,categoria,precio,costo,stock,imagen,fecha_caducidad")
+        .order("id", { ascending: true });
+
+    if (error) {
+        console.error("❌ Error cargando inventario desde Supabase:", error);
+        alert("❌ No se pudo cargar el inventario central.\n\nRevisa la conexión con Supabase.");
+        return false;
+    }
+
+    const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
+    const imagenesLocales = new Map(
+        productosLocales
+            .filter(p => p && p.id && p.imagen)
+            .map(p => [p.id, p.imagen])
+    );
+
+    productos = (data || []).map(normalizarProductoSupabase);
+
+    productos.forEach(producto => {
+        if (!producto.imagen && imagenesLocales.has(producto.id)) {
+            producto.imagen = imagenesLocales.get(producto.id);
+        }
+    });
+
+    localStorage.setItem("productos", JSON.stringify(productos));
+    console.log(`☁️ Inventario cargado desde Supabase: ${productos.length} productos.`);
+    return true;
+}
+
+async function guardarProductoEnSupabase(producto) {
+    const imagenCentral =
+        typeof producto.imagen === "string" && !producto.imagen.startsWith("data:")
+            ? producto.imagen
+            : null;
+
+    const registro = {
+        id: producto.id,
+        nombre: producto.nombre,
+        categoria: producto.categoria,
+        precio: Number(producto.precio) || 0,
+        costo: Number(producto.costo) || 0,
+        stock: Number(producto.stock) || 0,
+        imagen: imagenCentral,
+        fecha_caducidad: producto.fecha_caducidad || null
+    };
+
+    const { error } = await supabase
+        .from("productos")
+        .upsert(registro, { onConflict: "id" });
+
+    if (error) {
+        console.error("❌ Error guardando producto en Supabase:", error);
+        alert(`❌ No se pudo guardar el producto en la base central.\n\n${error.message}`);
+        return false;
+    }
+
+    return true;
+}
+
+async function eliminarProductoDeSupabase(id) {
+    const { error } = await supabase
+        .from("productos")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error("❌ Error eliminando producto de Supabase:", error);
+        alert(`❌ No se pudo eliminar el producto de la base central.\n\n${error.message}`);
+        return false;
+    }
+
+    return true;
+}
+
+async function sincronizarProductosConSupabase() {
+    const registros = productos.map(producto => ({
+        id: producto.id,
+        nombre: producto.nombre,
+        categoria: producto.categoria,
+        precio: Number(producto.precio) || 0,
+        costo: Number(producto.costo) || 0,
+        stock: Number(producto.stock) || 0,
+        imagen: null,
+        fecha_caducidad: producto.fecha_caducidad || null
+    }));
+
+    if (registros.length === 0) return true;
+
+    const { error } = await supabase
+        .from("productos")
+        .upsert(registros, { onConflict: "id" });
+
+    if (error) {
+        console.error("❌ Error sincronizando inventario:", error);
+        alert(`❌ No se pudo sincronizar el inventario.\n\n${error.message}`);
+        return false;
+    }
+
+    return true;
+}
 
 
 //=====================================
@@ -27,19 +149,6 @@ function generarIdProducto() {
 // ASIGNAR ID A PRODUCTOS EXISTENTES
 //=====================================
 
-productos = productos.map(function(producto) {
-
-    if (!producto.id) {
-        producto.id = generarIdProducto();
-    }
-
-    return producto;
-});
-
-localStorage.setItem(
-    "productos",
-    JSON.stringify(productos)
-);
 function iniciarInventario() {
 
     const btnInventario = document.getElementById("btnInventario");
@@ -53,7 +162,7 @@ function iniciarInventario() {
 // MOSTRAR INVENTARIO
 //=====================================
 
-function mostrarInventario() {
+async function mostrarInventario() {
 
     const contentArea = document.getElementById("contentArea");
 
@@ -86,6 +195,10 @@ function mostrarInventario() {
 
                 <button id="btnExportarExcel">
                     📤 Exportar Excel
+                </button>
+
+                <button id="btnActualizarInventario">
+                    🔄 Actualizar inventario
                 </button>
 
                 <button id="btnRecuperarCategorias">
@@ -128,13 +241,14 @@ function mostrarInventario() {
 
                 <select id="categoriaProducto">
                     <option value="">Selecciona una categoría</option>
-                    <option value="Botanas">🥨 Botanas</option>
+                    <option value="Balance">⚖️ Balance</option>
+                    <option value="Frituras">🥨 Frituras</option>
                     <option value="Galletas">🍪 Galletas</option>
-                    <option value="Dulces y chocolates">🍫 Dulces y chocolates</option>
-                    <option value="Barras y snacks">🥜 Barras y snacks</option>
+                    <option value="Pastelitos">🧁 Pastelitos</option>
+                    <option value="Premium">⭐ Premium</option>
                     <option value="Chicles">🧊 Chicles</option>
-                    <option value="Postres">🍰 Postres</option>
-                    </select>
+                    <option value="Chocolates">🍫 Chocolates</option>
+                </select>
                 
 
                 <input
@@ -218,10 +332,13 @@ function mostrarInventario() {
     `;
 
 
-    // Inicializar eventos del módulo
+    const cargado = await cargarProductosDesdeSupabase();
+
+    if (!cargado) {
+        return;
+    }
 
     configurarEventosInventario();
-
     mostrarProductos();
 
 }
@@ -427,7 +544,9 @@ const producto = {
 
     categoria: categoria,
 
-    imagen: imagen
+    imagen: imagen,
+
+    fecha_caducidad: productoAnterior?.fecha_caducidad || null
 
 };
 
@@ -435,22 +554,32 @@ const producto = {
     // AGREGAR O EDITAR
     //==============================
 
-    if (indiceEditar === -1) {
+    const indiceOriginal = indiceEditar;
+    const esNuevo = indiceOriginal === -1;
 
+    if (esNuevo) {
         productos.push(producto);
-
     } else {
-
-        productos[indiceEditar] = producto;
-
-        indiceEditar = -1;
-
+        productos[indiceOriginal] = producto;
     }
 
 
     //==============================
-    // GUARDAR
+    // GUARDAR EN SUPABASE + LOCAL
     //==============================
+
+    const guardado = await guardarProductoEnSupabase(producto);
+
+    if (!guardado) {
+        if (esNuevo) {
+            productos.pop();
+        } else if (productoAnterior) {
+            productos[indiceOriginal] = productoAnterior;
+        }
+        return;
+    }
+
+    indiceEditar = -1;
 
     localStorage.setItem(
         "productos",
@@ -585,7 +714,7 @@ function editarProducto(index) {
 // ELIMINAR PRODUCTO
 //=====================================
 
-function eliminarProducto(index) {
+async function eliminarProducto(index) {
 
     const producto = productos[index];
 
@@ -598,6 +727,12 @@ function eliminarProducto(index) {
     );
 
     if (!confirmar) {
+        return;
+    }
+
+    const eliminado = await eliminarProductoDeSupabase(producto.id);
+
+    if (!eliminado) {
         return;
     }
 
@@ -919,7 +1054,7 @@ function recuperarCostosDesdeMaestro(archivo) {
 // IMPORTAR PRODUCTOS DESDE EXCEL
 // ========================================
 
-function importarProductosExcel(filas) {
+async function importarProductosExcel(filas) {
 
     if (!Array.isArray(filas) || filas.length === 0) {
 
@@ -1095,6 +1230,12 @@ function importarProductosExcel(filas) {
 
 productos = productosActualizados;
 
+    const sincronizado = await sincronizarProductosConSupabase();
+
+    if (!sincronizado) {
+        return;
+    }
+
 localStorage.setItem(
     "productos",
     JSON.stringify(productos)
@@ -1123,6 +1264,7 @@ function configurarEventosInventario() {
     const btnImportar = document.getElementById("btnImportarExcel");
     const inputExcel = document.getElementById("inputExcel");
     const btnExportar = document.getElementById("btnExportarExcel");
+    const btnActualizar = document.getElementById("btnActualizarInventario");
     const btnPlantilla = document.getElementById("btnPlantillaExcel");
     const btnGuardar = document.getElementById("btnGuardarProducto");
     const buscador = document.getElementById("buscarProducto");
@@ -1578,6 +1720,27 @@ function configurarEventosInventario() {
         inputExcel.value = "";
 
     });
+
+//=================================
+// ACTUALIZAR INVENTARIO DESDE SUPABASE
+//=================================
+
+if (btnActualizar) {
+    btnActualizar.addEventListener("click", async function () {
+        btnActualizar.disabled = true;
+        btnActualizar.textContent = "⏳ Actualizando...";
+
+        const cargado = await cargarProductosDesdeSupabase();
+
+        btnActualizar.disabled = false;
+        btnActualizar.textContent = "🔄 Actualizar inventario";
+
+        if (cargado) {
+            mostrarProductos();
+            alert("✅ Inventario actualizado desde la base central.");
+        }
+    });
+}
 
 //=================================
 // EXPORTAR EXCEL

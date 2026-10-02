@@ -3,6 +3,7 @@
 // ARCHIVO PRINCIPAL
 //=====================================
 
+import { supabase } from "./supabase.js";
 import { inicializarCatalogo } from "./catalogo-inicial.js";
 import { inicializarImagenesCatalogo } from "./imagenes-iniciales.js";
 import { iniciarVentas } from "./ventas.js";
@@ -12,6 +13,7 @@ import { iniciarAdministrador } from "./admin.js";
 import { iniciarCortesReportes } from "./cortes-reportes.js";
 
 console.log("Snack Office iniciado");
+
 
 inicializarCatalogo();
 inicializarImagenesCatalogo();
