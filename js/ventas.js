@@ -46,6 +46,7 @@ export async function iniciarVentas() {
 
     await actualizarInventarioVentasDesdeSupabase();
 
+    await cargarCxCDesdeSupabase();
     migrarCuentasPendientes();
     sincronizarClientes();
     configurarNavegacionVentas();
@@ -98,9 +99,9 @@ function configurarNavegacionVentas() {
     }
 
     if (btnPendientesVentas) {
-        btnPendientesVentas.addEventListener("click", () => {
+        btnPendientesVentas.addEventListener("click", async () => {
             mostrarPantallaVentas("pendientesVentasScreen");
-            cargarPendientesVentas();
+            await cargarPendientesVentas();
         });
     }
 
@@ -784,7 +785,8 @@ async function registrarVenta() {
         consumirSaldoFavorCliente(cliente, saldoAplicable);
     }
 
-    const ventaRegistrada = guardarVentaHistorial({ saldoFavorAplicado: saldoAplicable, restante });
+    const ventaRegistrada = await guardarVentaHistorial({ saldoFavorAplicado: saldoAplicable, restante });
+    if (!ventaRegistrada) return;
 
     if (ventaRegistrada && restante > 0 && metodoPago === "Pendiente") {
         guardarCuentaPendiente(ventaRegistrada);
@@ -842,7 +844,7 @@ function descontarStockVenta(productos) {
 // -------------------------------------
 // HISTORIAL
 // -------------------------------------
-function guardarVentaHistorial(opciones = {}) {
+async function guardarVentaHistorial(opciones = {}) {
     const historial =
         JSON.parse(localStorage.getItem("historialVentas")) || [];
 
@@ -872,6 +874,7 @@ function guardarVentaHistorial(opciones = {}) {
     let venta = {
         id: Date.now(),
         fecha: new Date().toLocaleString("es-MX"),
+        fechaISO: new Date().toISOString(),
         cliente: cliente || "Público general",
         metodoPago: metodoFinal,
         desglosePago,
@@ -891,18 +894,27 @@ function guardarVentaHistorial(opciones = {}) {
     };
 
     venta = registrarVentaEnJornada(venta);
+
+    const centralGuardada = await guardarVentaEnSupabase(venta);
+    if (!centralGuardada) return null;
+
     historial.push(venta);
     localStorage.setItem("historialVentas", JSON.stringify(historial));
 
     if (esPendiente) {
-        registrarMovimientoCxC({
+        const movimiento = {
             tipo: "VENTA",
             cliente: venta.cliente,
-            ventaId: venta.folio || venta.id,
+            ventaId: venta.id,
             importe: Number(venta.saldo || venta.total),
             metodoPago: "Pendiente",
-            saldoDespues: Number(venta.saldo)
-        });
+            saldoDespues: Number(venta.saldo),
+            fecha: new Date().toISOString()
+        };
+
+        registrarMovimientoCxC(movimiento);
+        const movimientoCentral = await guardarMovimientoCxCSupabase(movimiento);
+        if (!movimientoCentral) return null;
     }
 
     return venta;
@@ -987,6 +999,157 @@ function crearTarjetaHistorial(venta, numeroVenta) {
 // -------------------------------------
 function obtenerCuentasPendientes() {
     return JSON.parse(localStorage.getItem("cuentasPendientes")) || [];
+}
+
+// -------------------------------------
+// CxC CENTRALIZADO EN SUPABASE
+// -------------------------------------
+async function guardarVentaEnSupabase(venta) {
+    const registro = {
+        id: Number(venta.id),
+        folio: venta.folio || String(venta.id),
+        fecha: new Date(venta.fechaISO || Date.now()).toISOString(),
+        cliente: venta.cliente || "Público general",
+        metodo_pago: venta.metodoPago || "Efectivo",
+        desglose_pago: venta.desglosePago || [],
+        saldo_favor_aplicado: Number(venta.saldoFavorAplicado || 0),
+        total_cobrado: Number(venta.totalCobrado || 0),
+        total: Number(venta.total || 0),
+        estado_pago: venta.estadoPago || "Pagado",
+        abonado: Number(venta.abonado || 0),
+        saldo: Number(venta.saldo || 0),
+        saldo_favor: Number(venta.saldoFavor || 0),
+        productos: venta.productos || [],
+        jornada_id: venta.jornadaId ? String(venta.jornadaId) : null
+    };
+
+    const { error } = await supabase.from("ventas").upsert(registro, { onConflict: "id" });
+
+    if (error) {
+        console.error("❌ Error guardando venta en Supabase:", error);
+        alert(`❌ La venta se guardó localmente, pero no pudo sincronizarse con Supabase.\n\n${error.message}`);
+        return false;
+    }
+
+    return true;
+}
+
+async function guardarMovimientoCxCSupabase(movimiento) {
+    const registro = {
+        venta_id: Number(movimiento.ventaId),
+        cliente: movimiento.cliente || "Cliente sin nombre",
+        tipo: movimiento.tipo || "MOVIMIENTO",
+        fecha: new Date(movimiento.fecha || Date.now()).toISOString(),
+        importe: Number(movimiento.importe || 0),
+        metodo_pago: movimiento.metodoPago || null,
+        saldo_despues: Number(movimiento.saldoDespues || 0),
+        saldo_favor_despues: Number(movimiento.saldoFavorDespues || 0)
+    };
+
+    const { error } = await supabase.from("movimientos_cxc").insert(registro);
+
+    if (error) {
+        console.error("❌ Error guardando movimiento CxC en Supabase:", error);
+        alert(`⚠️ El movimiento quedó localmente, pero no pudo sincronizarse con Supabase.\n\n${error.message}`);
+        return false;
+    }
+
+    return true;
+}
+
+async function cargarCxCDesdeSupabase() {
+    const { data: ventasCentral, error: ventasError } = await supabase
+        .from("ventas")
+        .select("id,folio,fecha,cliente,metodo_pago,desglose_pago,saldo_favor_aplicado,total_cobrado,total,estado_pago,abonado,saldo,saldo_favor,productos,jornada_id")
+        .order("fecha", { ascending: true });
+
+    if (ventasError) {
+        console.error("❌ Error cargando ventas centrales:", ventasError);
+        return false;
+    }
+
+    if (!ventasCentral || ventasCentral.length === 0) {
+        return true;
+    }
+
+    const idsCxc = ventasCentral
+        .filter(v => Number(v.saldo || 0) > 0 || Number(v.saldo_favor || 0) > 0 || v.estado_pago === "Pendiente")
+        .map(v => Number(v.id));
+
+    let movimientos = [];
+    if (idsCxc.length) {
+        const { data: movimientosCentral, error: movimientosError } = await supabase
+            .from("movimientos_cxc")
+            .select("id,venta_id,cliente,tipo,fecha,importe,metodo_pago,saldo_despues,saldo_favor_despues")
+            .in("venta_id", idsCxc)
+            .order("fecha", { ascending: true });
+
+        if (movimientosError) {
+            console.error("❌ Error cargando movimientos CxC:", movimientosError);
+            return false;
+        }
+
+        movimientos = movimientosCentral || [];
+    }
+
+    const cuentas = ventasCentral
+        .filter(v => Number(v.saldo || 0) > 0 || Number(v.saldo_favor || 0) > 0 || v.estado_pago === "Pendiente")
+        .map(v => ({
+            id: Number(v.id),
+            ventaId: v.folio || v.id,
+            jornadaId: v.jornada_id || "",
+            cliente: v.cliente || "Cliente sin nombre",
+            fecha: v.fecha ? new Date(v.fecha).toLocaleString("es-MX") : "",
+            fechaISO: v.fecha || "",
+            total: Number(v.total || 0),
+            abonado: Number(v.abonado || 0),
+            saldo: Number(v.saldo || 0),
+            saldoFavor: Number(v.saldo_favor || 0),
+            estado: v.saldo_favor > 0 && Number(v.saldo || 0) <= 0 ? "Saldo a favor" : (Number(v.saldo || 0) > 0 ? "Pendiente" : "Pagado"),
+            productos: v.productos || [],
+            movimientos: movimientos
+                .filter(m => Number(m.venta_id) === Number(v.id))
+                .map(m => ({
+                    tipo: m.tipo,
+                    fecha: m.fecha,
+                    importe: Number(m.importe || 0),
+                    metodoPago: m.metodo_pago || "",
+                    saldoDespues: Number(m.saldo_despues || 0),
+                    saldoFavorDespues: Number(m.saldo_favor_despues || 0)
+                }))
+        }));
+
+    const cuentasLocales = obtenerCuentasPendientes();
+    const cuentasMap = new Map(cuentasLocales.map(c => [String(c.id), c]));
+    cuentas.forEach(cuenta => cuentasMap.set(String(cuenta.id), cuenta));
+    localStorage.setItem("cuentasPendientes", JSON.stringify(Array.from(cuentasMap.values())));
+
+    // Las ventas centrales se mezclan con el historial local existente.
+    // Así no borramos datos históricos mientras terminamos la migración.
+    const historial = ventasCentral.map(v => ({
+        id: Number(v.id),
+        folio: v.folio || v.id,
+        fecha: v.fecha ? new Date(v.fecha).toLocaleString("es-MX") : "",
+        fechaISO: v.fecha || "",
+        cliente: v.cliente || "Público general",
+        metodoPago: v.metodo_pago || "Efectivo",
+        desglosePago: v.desglose_pago || [],
+        saldoFavorAplicado: Number(v.saldo_favor_aplicado || 0),
+        totalCobrado: Number(v.total_cobrado || 0),
+        total: Number(v.total || 0),
+        estadoPago: v.estado_pago || "Pagado",
+        abonado: Number(v.abonado || 0),
+        saldo: Number(v.saldo || 0),
+        saldoFavor: Number(v.saldo_favor || 0),
+        productos: v.productos || [],
+        jornadaId: v.jornada_id || ""
+    }));
+
+    const historialLocal = JSON.parse(localStorage.getItem("historialVentas")) || [];
+    const historialMap = new Map(historialLocal.map(v => [String(v.id), v]));
+    historial.forEach(venta => historialMap.set(String(venta.id), venta));
+    localStorage.setItem("historialVentas", JSON.stringify(Array.from(historialMap.values())));
+    return true;
 }
 
 function migrarCuentasPendientes() {
@@ -1337,11 +1500,12 @@ function cargarEstadoCuentaCliente(claveCliente) {
     });
 }
 
-function cargarPendientesVentas() {
+async function cargarPendientesVentas() {
     const contenedor = document.getElementById("listaPendientesVentas");
 
     if (!contenedor) return;
 
+    await cargarCxCDesdeSupabase();
     const cuentas = obtenerCuentasPendientes();
     actualizarResumenPendientes(cuentas);
     contenedor.innerHTML = "";
@@ -1461,7 +1625,8 @@ function obtenerNumeroVentaPendiente(idVenta) {
     return venta?.folio || idVenta || "—";
 }
 
-function registrarAbonoPendiente(idCuenta) {
+async function registrarAbonoPendiente(idCuenta) {
+    await cargarCxCDesdeSupabase();
     const cuentas = obtenerCuentasPendientes();
     const cuenta = cuentas.find(item => String(item.id) === String(idCuenta));
     if (!cuenta) return;
@@ -1604,7 +1769,7 @@ function cerrarModalAbono() {
     }
 }
 
-function confirmarAbonoCxc() {
+async function confirmarAbonoCxc() {
     const modal = document.getElementById("modalAbonoCxc");
     const montoInput = document.getElementById("montoAbonoCxc");
     const metodoInput = document.getElementById("metodoAbonoCxc");
@@ -1644,6 +1809,35 @@ function confirmarAbonoCxc() {
         saldoDespues: nuevoSaldo,
         saldoFavorDespues: cuenta.saldoFavor
     });
+
+    const { error: ventaUpdateError } = await supabase
+        .from("ventas")
+        .update({
+            abonado: Number(cuenta.abonado),
+            saldo: Number(cuenta.saldo),
+            saldo_favor: Number(cuenta.saldoFavor),
+            estado_pago: cuenta.saldoFavor > 0 ? "Saldo a favor" : cuenta.estado
+        })
+        .eq("id", Number(cuenta.id));
+
+    if (ventaUpdateError) {
+        console.error("❌ Error actualizando cuenta en Supabase:", ventaUpdateError);
+        alert(`❌ No se pudo actualizar la cuenta central. El abono no se aplicó.\n\n${ventaUpdateError.message}`);
+        return;
+    }
+
+    const movimientoCentral = await guardarMovimientoCxCSupabase({
+        tipo: "ABONO",
+        cliente: cuenta.cliente,
+        ventaId: cuenta.id,
+        importe: monto,
+        metodoPago: metodoPagoAbono,
+        saldoDespues: nuevoSaldo,
+        saldoFavorDespues: cuenta.saldoFavor,
+        fecha: new Date().toISOString()
+    });
+
+    if (!movimientoCentral) return;
 
     localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
 
