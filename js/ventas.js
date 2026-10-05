@@ -3,6 +3,30 @@
 // =====================================
 
 import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js";
+import { supabase } from "./supabase.js";
+
+// -------------------------------------
+// CATEGORÍAS DE VENTA
+// -------------------------------------
+const ORDEN_CATEGORIAS_VENTA = [
+    "Balance",
+    "Frituras",
+    "Galletas",
+    "Pastelitos",
+    "Premium",
+    "Chicles",
+    "Chocolates"
+];
+
+const ICONOS_CATEGORIA_VENTA = {
+    "Balance": "🥤",
+    "Frituras": "🥨",
+    "Galletas": "🍪",
+    "Pastelitos": "🍰",
+    "Premium": "⭐",
+    "Chicles": "🫧",
+    "Chocolates": "🍫"
+};
 
 // -------------------------------------
 // ESTADO DEL MÓDULO
@@ -17,8 +41,10 @@ let clienteFavorSeleccionado = "";
 // -------------------------------------
 // INICIALIZACIÓN
 // -------------------------------------
-export function iniciarVentas() {
+export async function iniciarVentas() {
     console.log("🛒 Módulo de ventas iniciado");
+
+    await actualizarInventarioVentasDesdeSupabase();
 
     migrarCuentasPendientes();
     sincronizarClientes();
@@ -59,7 +85,9 @@ function configurarNavegacionVentas() {
     const btnCancelarVenta = document.getElementById("btnCancelarVenta");
 
     if (btnNuevaVenta) {
-        btnNuevaVenta.addEventListener("click", iniciarNuevaVenta);
+        btnNuevaVenta.addEventListener("click", async () => {
+            await iniciarNuevaVenta();
+        });
     }
 
     if (btnHistorialVentas) {
@@ -88,7 +116,10 @@ function configurarNavegacionVentas() {
     }
 }
 
-function iniciarNuevaVenta() {
+async function iniciarNuevaVenta() {
+    const inventarioActualizado = await actualizarInventarioVentasDesdeSupabase();
+    if (!inventarioActualizado) return;
+
     carrito = [];
     categoriaActual = "";
     clienteVenta = "";
@@ -106,13 +137,14 @@ function iniciarNuevaVenta() {
     establecerMetodoPagoActivo("Efectivo");
     renderizarCarrito();
     mostrarPantallaVentas("nuevaVentaScreen");
+    renderizarCategoriasVenta();
     cargarProductosVenta();
 }
 
 function configurarNuevaVenta() {
     const btnRegistrarVenta = document.getElementById("btnRegistrarVenta");
     const buscador = document.getElementById("buscarProductoVenta");
-    const categorias = document.querySelectorAll(".categoria-venta");
+    const contenedorCategorias = document.getElementById("categoriasVenta");
     const btnVolver = document.getElementById("btnVolverCategorias");
 
     if (btnRegistrarVenta) {
@@ -168,8 +200,13 @@ function configurarNuevaVenta() {
         cargarClientesVentas();
     });
 
-    categorias.forEach(boton => {
-        boton.addEventListener("click", () => {
+    if (contenedorCategorias && !contenedorCategorias.dataset.eventoConfigurado) {
+        contenedorCategorias.dataset.eventoConfigurado = "true";
+
+        contenedorCategorias.addEventListener("click", evento => {
+            const boton = evento.target.closest(".categoria-venta");
+            if (!boton) return;
+
             categoriaActual = boton.dataset.categoria || "";
 
             if (buscador) {
@@ -178,7 +215,7 @@ function configurarNuevaVenta() {
 
             cargarProductosVenta();
         });
-    });
+    }
 
     if (btnVolver) {
         btnVolver.addEventListener("click", () => {
@@ -247,6 +284,151 @@ function mostrarPantallaVentas(pantalla) {
 // -------------------------------------
 function obtenerProductos() {
     return JSON.parse(localStorage.getItem("productos")) || [];
+}
+
+async function actualizarInventarioVentasDesdeSupabase() {
+    const { data, error } = await supabase
+        .from("productos")
+        .select("id,nombre,categoria,precio,costo,stock,imagen,fecha_caducidad")
+        .order("id", { ascending: true });
+
+    if (error) {
+        console.error("❌ Error actualizando inventario para ventas:", error);
+        alert("❌ No se pudo actualizar el inventario desde Supabase.\n\nRevisa la conexión con la base central.");
+        return false;
+    }
+
+    const productosLocales = obtenerProductos();
+    const imagenesLocales = new Map(
+        productosLocales
+            .filter(p => p && p.id && p.imagen)
+            .map(p => [p.id, p.imagen])
+    );
+
+    const productosActualizados = (data || []).map(producto => ({
+        id: String(producto.id),
+        nombre: String(producto.nombre || ""),
+        categoria: String(producto.categoria || ""),
+        precio: Number(producto.precio) || 0,
+        costo: Number(producto.costo) || 0,
+        stock: Number(producto.stock) || 0,
+        imagen: producto.imagen || imagenesLocales.get(String(producto.id)) || "",
+        fecha_caducidad: producto.fecha_caducidad || null
+    }));
+
+    localStorage.setItem("productos", JSON.stringify(productosActualizados));
+    renderizarCategoriasVenta();
+    console.log(`☁️ Inventario de ventas actualizado: ${productosActualizados.length} productos.`);
+    return true;
+}
+
+function renderizarCategoriasVenta() {
+    const contenedor = document.getElementById("categoriasVenta");
+
+    if (!contenedor) return;
+
+    const productos = obtenerProductos();
+    const conteo = new Map();
+
+    productos.forEach(producto => {
+        const categoria = String(producto?.categoria || "").trim();
+        if (!categoria) return;
+
+        conteo.set(categoria, (conteo.get(categoria) || 0) + 1);
+    });
+
+    const categorias = [...conteo.keys()].sort((a, b) => {
+        const ia = ORDEN_CATEGORIAS_VENTA.indexOf(a);
+        const ib = ORDEN_CATEGORIAS_VENTA.indexOf(b);
+
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+        return a.localeCompare(b, "es", { sensitivity: "base" });
+    });
+
+    contenedor.innerHTML = categorias.map(categoria => {
+        const cantidad = conteo.get(categoria) || 0;
+        const icono = ICONOS_CATEGORIA_VENTA[categoria] || "🛍️";
+        const textoProductos = cantidad === 1 ? "producto" : "productos";
+
+        return `
+            <button type="button" class="categoria-venta" data-categoria="${categoria}">
+                <span>${icono}</span>
+                <strong>${categoria}</strong>
+                <small>${cantidad} ${textoProductos}</small>
+            </button>
+        `;
+    }).join("");
+
+    console.log("📂 Categorías de ventas actualizadas:", categorias);
+}
+
+async function actualizarStockVentaEnSupabase() {
+    const ids = [...new Set(carrito.map(producto => producto.id).filter(Boolean))];
+
+    if (ids.length !== carrito.length) {
+        alert("⚠️ No se pudo identificar uno de los productos de la venta. Actualiza el inventario e inténtalo nuevamente.");
+        return false;
+    }
+
+    const { data, error } = await supabase
+        .from("productos")
+        .select("id,nombre,stock")
+        .in("id", ids);
+
+    if (error) {
+        console.error("❌ Error consultando stock central:", error);
+        alert("❌ No se pudo verificar el stock central. La venta no se registró.");
+        return false;
+    }
+
+    const registrosActualizados = [];
+
+    for (const productoCarrito of carrito) {
+        const productoCentral = (data || []).find(
+            producto => String(producto.id) === String(productoCarrito.id)
+        );
+
+        if (!productoCentral) {
+            alert(`⚠️ No se encontró \"${productoCarrito.nombre}\" en Supabase. La venta no se registró.`);
+            return false;
+        }
+
+        const stockActual = Number(productoCentral.stock);
+        const cantidad = Number(productoCarrito.cantidad);
+
+        if (!Number.isFinite(stockActual) || stockActual < cantidad) {
+            alert(`⚠️ No hay suficiente stock de \"${productoCentral.nombre}\". Stock actual: ${stockActual}.`);
+            return false;
+        }
+
+        registrosActualizados.push({
+            id: productoCentral.id,
+            stock: stockActual - cantidad
+        });
+    }
+
+    const { error: updateError } = await supabase
+        .from("productos")
+        .upsert(registrosActualizados, { onConflict: "id" });
+
+    if (updateError) {
+        console.error("❌ Error actualizando stock en Supabase:", updateError);
+        alert(`❌ No se pudo actualizar el stock central. La venta no se registró.\n\n${updateError.message}`);
+        return false;
+    }
+
+    const productosLocales = obtenerProductos();
+    registrosActualizados.forEach(actualizado => {
+        const local = productosLocales.find(
+            producto => String(producto.id) === String(actualizado.id)
+        );
+        if (local) local.stock = actualizado.stock;
+    });
+    localStorage.setItem("productos", JSON.stringify(productosLocales));
+
+    return true;
 }
 
 function cargarProductosVenta(textoBusqueda = "") {
@@ -376,6 +558,7 @@ function agregarAlCarrito(producto) {
         productoEnCarrito.cantidad++;
     } else {
         carrito.push({
+            id: producto.id,
             nombre: producto.nombre,
             precio: Number(producto.precio),
             stock: Number(producto.stock),
@@ -558,7 +741,7 @@ function actualizarResumenPagoVenta() {
 // -------------------------------------
 // REGISTRO DE VENTA
 // -------------------------------------
-function registrarVenta() {
+async function registrarVenta() {
     if (carrito.length === 0) {
         alert("⚠️ No hay productos en el carrito.");
         return;
@@ -588,11 +771,14 @@ function registrarVenta() {
 
     if (!confirmar) return;
 
+    const inventarioActualizado = await actualizarInventarioVentasDesdeSupabase();
+    if (!inventarioActualizado) return;
+
     const productos = obtenerProductos();
     if (!verificarStockVenta(productos)) return;
 
-    descontarStockVenta(productos);
-    localStorage.setItem("productos", JSON.stringify(productos));
+    const stockActualizado = await actualizarStockVentaEnSupabase();
+    if (!stockActualizado) return;
 
     if (saldoAplicable > 0) {
         consumirSaldoFavorCliente(cliente, saldoAplicable);
