@@ -11,3 +11,4 @@ export const supabase = createClient(
 );
 
 console.log("☁️ Conexión con Supabase preparada");
+

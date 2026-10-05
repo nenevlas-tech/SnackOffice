@@ -2,8 +2,8 @@
 // SNACK OFFICE - MÓDULO DE VENTAS
 // =====================================
 
-import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js";
-import { supabase } from "./supabase.js";
+import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js?v=20261005-2";
+import { supabase } from "./supabase.js?v=20261005-2";
 
 // -------------------------------------
 // CATEGORÍAS DE VENTA
