@@ -108,43 +108,39 @@ async function cargarProductosDesdeSupabase() {
         return false;
     }
 
-    // IMPORTANTE: capturamos las imágenes locales ANTES de reemplazar
-    // localStorage con la versión central de Supabase.
-    // Así no perdemos las imágenes antiguas que todavía existen en este dispositivo.
     const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
     const imagenesLocales = new Map(
         productosLocales
             .filter(p => p && p.id && p.imagen)
-            .map(p => [String(p.id), p.imagen])
+            .map(p => [p.id, p.imagen])
     );
 
     productos = (data || []).map(normalizarProductoSupabase);
 
-    // Si Supabase todavía no tiene imagen, conservamos temporalmente la local
-    // para que pueda migrarse a Storage. Si ya existe una URL central,
-    // esa siempre tiene prioridad.
     productos.forEach(producto => {
-        if (!producto.imagen && imagenesLocales.has(String(producto.id))) {
-            producto.imagen = imagenesLocales.get(String(producto.id));
+        if (!producto.imagen && imagenesLocales.has(producto.id)) {
+            producto.imagen = imagenesLocales.get(producto.id);
         }
     });
 
-    // Migra las imágenes antiguas guardadas como data URLs hacia Storage.
-    // La migración usa el snapshot capturado antes de sobrescribir localStorage.
-    await migrarImagenesLocalesASupabase(imagenesLocales);
-
     localStorage.setItem("productos", JSON.stringify(productos));
+
+    // Migra automáticamente imágenes antiguas guardadas como data URLs
+    // en este dispositivo hacia Supabase Storage.
+    await migrarImagenesLocalesASupabase();
 
     console.log(`☁️ Inventario cargado desde Supabase: ${productos.length} productos.`);
     return true;
 }
 
-async function migrarImagenesLocalesASupabase(imagenesLocales) {
-    if (!(imagenesLocales instanceof Map) || imagenesLocales.size === 0) return;
+async function migrarImagenesLocalesASupabase() {
+    const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
+    if (!Array.isArray(productosLocales) || productosLocales.length === 0) return;
 
     const imagenesPendientes = new Map(
-        [...imagenesLocales.entries()]
-            .filter(([id, imagen]) => id && esDataUrlImagen(imagen))
+        productosLocales
+            .filter(p => p && p.id && esDataUrlImagen(p.imagen))
+            .map(p => [String(p.id), p.imagen])
     );
 
     if (imagenesPendientes.size === 0) return;
@@ -153,11 +149,7 @@ async function migrarImagenesLocalesASupabase(imagenesLocales) {
 
     for (const producto of productos) {
         const imagenLocal = imagenesPendientes.get(String(producto.id));
-        if (!imagenLocal) continue;
-
-        // Si ya existe una URL central en Supabase, no la reemplazamos.
-        // Si la imagen actual sigue siendo una data URL local, sí debemos migrarla.
-        if (producto.imagen && !esDataUrlImagen(producto.imagen)) continue;
+        if (!imagenLocal || producto.imagen) continue;
 
         const imagenCentral = await subirImagenASupabase(imagenLocal, producto.id);
         if (!imagenCentral) continue;
@@ -283,6 +275,51 @@ function iniciarInventario() {
 
 
 //=====================================
+// ESTADO DE CADUCIDAD
+//=====================================
+
+const DIAS_AVISO_CADUCIDAD = 7;
+
+function obtenerFechaLocalISO() {
+    const hoy = new Date();
+    return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+}
+
+function evaluarCaducidad(fechaCaducidad) {
+    if (!fechaCaducidad) {
+        return { clase: "sin-fecha", texto: "⚪ Sin fecha", dias: null };
+    }
+
+    const hoyISO = obtenerFechaLocalISO();
+    const hoy = new Date(`${hoyISO}T00:00:00`);
+    const fecha = new Date(`${fechaCaducidad}T00:00:00`);
+
+    if (Number.isNaN(fecha.getTime())) {
+        return { clase: "sin-fecha", texto: "⚪ Sin fecha", dias: null };
+    }
+
+    const dias = Math.ceil((fecha - hoy) / 86400000);
+
+    if (dias < 0) {
+        return { clase: "caducado", texto: "🔴 Caducado", dias };
+    }
+
+    if (dias <= DIAS_AVISO_CADUCIDAD) {
+        return { clase: "proximo", texto: "🟡 Próximo a caducar", dias };
+    }
+
+    return { clase: "vigente", texto: "🟢 Vigente", dias };
+}
+
+function obtenerResumenCaducidades() {
+    return productos.reduce((resumen, producto) => {
+        const estado = evaluarCaducidad(producto.fecha_caducidad);
+        resumen[estado.clase]++;
+        return resumen;
+    }, { caducado: 0, proximo: 0, vigente: 0, "sin-fecha": 0 });
+}
+
+//=====================================
 // MOSTRAR INVENTARIO
 //=====================================
 
@@ -399,6 +436,12 @@ async function mostrarInventario() {
                 >
 
                 <input
+                    type="date"
+                    id="fechaCaducidad"
+                    title="Fecha de caducidad (opcional)"
+                >
+
+                <input
                     type="file"
                     id="imagenProducto"
                     accept="image/*"
@@ -422,6 +465,8 @@ async function mostrarInventario() {
                 class="buscador-inventario"
             >
 
+            <div id="resumenCaducidades" class="resumen-caducidades"></div>
+
 
             <!-- ============================= -->
             <!-- TABLA -->
@@ -438,6 +483,8 @@ async function mostrarInventario() {
                         <th>Precio</th>
 
                         <th>Stock</th>
+
+                        <th>Caducidad</th>
 
                         <th>Acciones</th>
 
@@ -584,6 +631,9 @@ async function guardarProducto() {
         document.getElementById("stock").value
     );
 
+    const fechaCaducidad =
+        document.getElementById("fechaCaducidad").value || null;
+
     const archivoImagen =
     document.getElementById("imagenProducto").files[0];
 
@@ -670,7 +720,7 @@ const producto = {
 
     imagen: imagen,
 
-    fecha_caducidad: productoAnterior?.fecha_caducidad || null
+    fecha_caducidad: fechaCaducidad
 
 };
 
@@ -752,6 +802,8 @@ const producto = {
 
     document.getElementById("stock").value = "";
 
+    document.getElementById("fechaCaducidad").value = "";
+
     document.getElementById("imagenProducto").value = "";
 
     document.getElementById("categoriaProducto").value = "";
@@ -771,9 +823,27 @@ function mostrarProductos() {
         .toLowerCase()
         .trim();
 
-
     cuerpo.innerHTML = "";
 
+    const resumen = obtenerResumenCaducidades();
+    const resumenElemento = document.getElementById("resumenCaducidades");
+
+    if (resumenElemento) {
+        resumenElemento.innerHTML = `
+            <div class="resumen-caducidad-item resumen-caducidad-alerta">
+                🔴 <strong>${resumen.caducado}</strong> caducados
+            </div>
+            <div class="resumen-caducidad-item resumen-caducidad-alerta">
+                🟡 <strong>${resumen.proximo}</strong> próximos a caducar
+            </div>
+            <div class="resumen-caducidad-item">
+                🟢 <strong>${resumen.vigente}</strong> vigentes
+            </div>
+            <div class="resumen-caducidad-item">
+                ⚪ <strong>${resumen["sin-fecha"]}</strong> sin fecha
+            </div>
+        `;
+    }
 
     productos.forEach(function(producto, index) {
 
@@ -782,11 +852,13 @@ function mostrarProductos() {
                 .toLowerCase()
                 .includes(buscador)
         ) {
-
             return;
-
         }
 
+        const estado = evaluarCaducidad(producto.fecha_caducidad);
+        const fechaTexto = producto.fecha_caducidad
+            ? new Date(`${producto.fecha_caducidad}T00:00:00`).toLocaleDateString("es-MX")
+            : "Sin fecha";
 
         cuerpo.innerHTML += `
 
@@ -802,6 +874,13 @@ function mostrarProductos() {
 
                 <td>
                     ${producto.stock}
+                </td>
+
+                <td>
+                    <div>${fechaTexto}</div>
+                    <small class="estado-caducidad estado-${estado.clase}">
+                        ${estado.texto}
+                    </small>
                 </td>
 
                 <td>
@@ -828,7 +907,6 @@ function mostrarProductos() {
         `;
 
     });
- 
 
 }
 
@@ -849,6 +927,7 @@ function editarProducto(index) {
     document.getElementById("costo").value = producto.costo;
     document.getElementById("stock").value = producto.stock;
     document.getElementById("categoriaProducto").value = producto.categoria;
+    document.getElementById("fechaCaducidad").value = producto.fecha_caducidad || "";
 
     indiceEditar = index;
 
@@ -969,7 +1048,9 @@ function recuperarCategoriasExcel(filas) {
 
                 categoria: categoria,
 
-                imagen: ""
+                imagen: "",
+
+                fecha_caducidad: null
 
             });
 
