@@ -2,8 +2,8 @@
 // SNACK OFFICE - MÓDULO DE VENTAS
 // =====================================
 
-import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js?v=20261005-2";
-import { supabase } from "./supabase.js?v=20261005-2";
+import { registrarVentaEnJornada, registrarMovimientoCxC } from "./cortes-reportes.js?v=20261007-1";
+import { supabase } from "./supabase.js?v=20261007-1";
 
 // -------------------------------------
 // CATEGORÍAS DE VENTA
@@ -798,12 +798,9 @@ async function registrarVenta() {
         cargarClientesVentas();
     }
 
-    carrito = [];
-    usarSaldoFavorVenta = false;
-    clienteFavorSeleccionado = "";
-    renderizarCarrito();
-    actualizarAvisoCliente();
-    actualizarResumenPagoVenta();
+    // Después de registrar la venta, reiniciamos la pantalla de Nueva venta
+    // para dejar el carrito, cliente y método de pago listos para una nueva operación.
+    await iniciarNuevaVenta();
 }
 
 function verificarStockVenta(productos) {
@@ -893,7 +890,8 @@ async function guardarVentaHistorial(opciones = {}) {
         saldoFavor: 0
     };
 
-    venta = registrarVentaEnJornada(venta);
+    venta = await registrarVentaEnJornada(venta);
+    if (!venta) return null;
 
     const centralGuardada = await guardarVentaEnSupabase(venta);
     if (!centralGuardada) return null;

@@ -1,3 +1,5 @@
+import { supabase } from "./supabase.js?v=20261007-1";
+
 // =====================================
 // SNACK OFFICE - JORNADAS, CORTES Y REPORTES
 // =====================================
@@ -69,11 +71,31 @@ export function obtenerFolioVenta() {
     return siguiente;
 }
 
-export function registrarVentaEnJornada(venta) {
-    const jornada = obtenerJornadaActual();
+export async function registrarVentaEnJornada(venta) {
+    // La jornada y el folio se obtienen desde Supabase para que
+    // todos los dispositivos compartan el mismo contador por jornada.
+    const { data: jornada, error: jornadaError } = await supabase.rpc("obtener_jornada_actual");
+
+    if (jornadaError || !jornada?.id) {
+        console.error("❌ No se pudo obtener la jornada central:", jornadaError);
+        alert("❌ No se pudo obtener la jornada central. La venta no se registró.");
+        return null;
+    }
+
+    const { data: folio, error: folioError } = await supabase.rpc(
+        "obtener_siguiente_folio_jornada",
+        { p_jornada_id: jornada.id }
+    );
+
+    if (folioError || folio === null || folio === undefined) {
+        console.error("❌ No se pudo obtener el folio central:", folioError);
+        alert("❌ No se pudo obtener un folio para esta jornada. La venta no se registró.");
+        return null;
+    }
+
     venta.jornadaId = jornada.id;
     venta.jornadaFecha = jornada.fecha;
-    venta.folio = obtenerFolioVenta();
+    venta.folio = Number(folio);
     venta.hora = new Date().toLocaleTimeString("es-MX", {
         hour: "2-digit",
         minute: "2-digit"
