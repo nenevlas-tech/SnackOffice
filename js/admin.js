@@ -3,7 +3,7 @@
 // MÓDULO: ADMINISTRADOR / COMISIONES
 //=====================================
 
-import { supabase } from "./supabase.js";
+import { supabase } from "./supabase.js?v=20261007-4";
 
 const PORCENTAJE_COMISION = 0.25;
 const VENDEDOR_PRINCIPAL = "Vendedor";
