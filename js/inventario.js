@@ -3,7 +3,74 @@
 // MÓDULO: INVENTARIO
 //=====================================
 
-import { supabase } from "./supabase.js?v=20261005-2";
+import { supabase } from "./supabase.js?v=20261007-2";
+
+const STORAGE_BUCKET_IMAGENES = "producto-imagenes";
+
+function esDataUrlImagen(valor) {
+    return typeof valor === "string" && valor.startsWith("data:image/");
+}
+
+async function subirImagenASupabase(dataUrl, productoId) {
+    if (!esDataUrlImagen(dataUrl)) return dataUrl || "";
+
+    try {
+        const respuesta = await fetch(dataUrl);
+        const blob = await respuesta.blob();
+        const ruta = `${String(productoId)}/${Date.now()}.jpg`;
+
+        const { error: uploadError } = await supabase.storage
+            .from(STORAGE_BUCKET_IMAGENES)
+            .upload(ruta, blob, {
+                contentType: "image/jpeg",
+                cacheControl: "3600",
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error("❌ Error subiendo imagen a Supabase Storage:", uploadError);
+            alert(`❌ No se pudo subir la imagen a Supabase.\n\n${uploadError.message}`);
+            return null;
+        }
+
+        const { data } = supabase.storage
+            .from(STORAGE_BUCKET_IMAGENES)
+            .getPublicUrl(ruta);
+
+        if (!data?.publicUrl) {
+            alert("❌ La imagen se subió, pero no se pudo obtener su URL.");
+            return null;
+        }
+
+        return data.publicUrl;
+    } catch (error) {
+        console.error("❌ Error procesando imagen para Supabase:", error);
+        alert(`❌ No se pudo procesar la imagen.\n\n${error.message || error}`);
+        return null;
+    }
+}
+
+function obtenerRutaImagenStorage(url) {
+    const marcador = `/storage/v1/object/public/${STORAGE_BUCKET_IMAGENES}/`;
+    if (typeof url !== "string" || !url.includes(marcador)) return null;
+    return url.split(marcador)[1] || null;
+}
+
+async function eliminarImagenDeStorage(url) {
+    const ruta = obtenerRutaImagenStorage(url);
+    if (!ruta) return true;
+
+    const { error } = await supabase.storage
+        .from(STORAGE_BUCKET_IMAGENES)
+        .remove([ruta]);
+
+    if (error) {
+        console.warn("⚠️ No se pudo eliminar la imagen anterior de Storage:", error);
+        return false;
+    }
+
+    return true;
+}
 //=====================================
 // PRODUCTOS
 //=====================================
@@ -57,8 +124,54 @@ async function cargarProductosDesdeSupabase() {
     });
 
     localStorage.setItem("productos", JSON.stringify(productos));
+
+    // Migra automáticamente imágenes antiguas guardadas como data URLs
+    // en este dispositivo hacia Supabase Storage.
+    await migrarImagenesLocalesASupabase();
+
     console.log(`☁️ Inventario cargado desde Supabase: ${productos.length} productos.`);
     return true;
+}
+
+async function migrarImagenesLocalesASupabase() {
+    const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
+    if (!Array.isArray(productosLocales) || productosLocales.length === 0) return;
+
+    const imagenesPendientes = new Map(
+        productosLocales
+            .filter(p => p && p.id && esDataUrlImagen(p.imagen))
+            .map(p => [String(p.id), p.imagen])
+    );
+
+    if (imagenesPendientes.size === 0) return;
+
+    let migradas = 0;
+
+    for (const producto of productos) {
+        const imagenLocal = imagenesPendientes.get(String(producto.id));
+        if (!imagenLocal || producto.imagen) continue;
+
+        const imagenCentral = await subirImagenASupabase(imagenLocal, producto.id);
+        if (!imagenCentral) continue;
+
+        const { error } = await supabase
+            .from("productos")
+            .update({ imagen: imagenCentral })
+            .eq("id", producto.id);
+
+        if (error) {
+            console.error(`❌ No se pudo asociar la imagen migrada a ${producto.id}:`, error);
+            continue;
+        }
+
+        producto.imagen = imagenCentral;
+        migradas++;
+    }
+
+    if (migradas > 0) {
+        localStorage.setItem("productos", JSON.stringify(productos));
+        console.log(`🖼️ Imágenes locales migradas a Supabase: ${migradas}`);
+    }
 }
 
 async function guardarProductoEnSupabase(producto) {
@@ -114,7 +227,10 @@ async function sincronizarProductosConSupabase() {
         precio: Number(producto.precio) || 0,
         costo: Number(producto.costo) || 0,
         stock: Number(producto.stock) || 0,
-        imagen: null,
+        imagen:
+            typeof producto.imagen === "string" && !producto.imagen.startsWith("data:")
+                ? producto.imagen
+                : null,
         fecha_caducidad: producto.fecha_caducidad || null
     }));
 
@@ -551,6 +667,28 @@ const producto = {
 };
 
     //==============================
+    // SUBIR IMAGEN A SUPABASE STORAGE
+    //==============================
+    if (archivoImagen) {
+        const imagenAnterior = productoAnterior?.imagen || "";
+        const imagenCentral = await subirImagenASupabase(imagen, producto.id);
+
+        if (!imagenCentral) {
+            return;
+        }
+
+        producto.imagen = imagenCentral;
+
+        if (
+            imagenAnterior &&
+            imagenAnterior !== imagenCentral &&
+            obtenerRutaImagenStorage(imagenAnterior)
+        ) {
+            await eliminarImagenDeStorage(imagenAnterior);
+        }
+    }
+
+    //==============================
     // AGREGAR O EDITAR
     //==============================
 
@@ -734,6 +872,10 @@ async function eliminarProducto(index) {
 
     if (!eliminado) {
         return;
+    }
+
+    if (producto.imagen) {
+        await eliminarImagenDeStorage(producto.imagen);
     }
 
     productos.splice(index, 1);
