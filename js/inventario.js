@@ -108,39 +108,43 @@ async function cargarProductosDesdeSupabase() {
         return false;
     }
 
+    // IMPORTANTE: capturamos las imágenes locales ANTES de reemplazar
+    // localStorage con la versión central de Supabase.
+    // Así no perdemos las imágenes antiguas que todavía existen en este dispositivo.
     const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
     const imagenesLocales = new Map(
         productosLocales
             .filter(p => p && p.id && p.imagen)
-            .map(p => [p.id, p.imagen])
+            .map(p => [String(p.id), p.imagen])
     );
 
     productos = (data || []).map(normalizarProductoSupabase);
 
+    // Si Supabase todavía no tiene imagen, conservamos temporalmente la local
+    // para que pueda migrarse a Storage. Si ya existe una URL central,
+    // esa siempre tiene prioridad.
     productos.forEach(producto => {
-        if (!producto.imagen && imagenesLocales.has(producto.id)) {
-            producto.imagen = imagenesLocales.get(producto.id);
+        if (!producto.imagen && imagenesLocales.has(String(producto.id))) {
+            producto.imagen = imagenesLocales.get(String(producto.id));
         }
     });
 
-    localStorage.setItem("productos", JSON.stringify(productos));
+    // Migra las imágenes antiguas guardadas como data URLs hacia Storage.
+    // La migración usa el snapshot capturado antes de sobrescribir localStorage.
+    await migrarImagenesLocalesASupabase(imagenesLocales);
 
-    // Migra automáticamente imágenes antiguas guardadas como data URLs
-    // en este dispositivo hacia Supabase Storage.
-    await migrarImagenesLocalesASupabase();
+    localStorage.setItem("productos", JSON.stringify(productos));
 
     console.log(`☁️ Inventario cargado desde Supabase: ${productos.length} productos.`);
     return true;
 }
 
-async function migrarImagenesLocalesASupabase() {
-    const productosLocales = JSON.parse(localStorage.getItem("productos")) || [];
-    if (!Array.isArray(productosLocales) || productosLocales.length === 0) return;
+async function migrarImagenesLocalesASupabase(imagenesLocales) {
+    if (!(imagenesLocales instanceof Map) || imagenesLocales.size === 0) return;
 
     const imagenesPendientes = new Map(
-        productosLocales
-            .filter(p => p && p.id && esDataUrlImagen(p.imagen))
-            .map(p => [String(p.id), p.imagen])
+        [...imagenesLocales.entries()]
+            .filter(([id, imagen]) => id && esDataUrlImagen(imagen))
     );
 
     if (imagenesPendientes.size === 0) return;
@@ -149,7 +153,11 @@ async function migrarImagenesLocalesASupabase() {
 
     for (const producto of productos) {
         const imagenLocal = imagenesPendientes.get(String(producto.id));
-        if (!imagenLocal || producto.imagen) continue;
+        if (!imagenLocal) continue;
+
+        // Si ya existe una URL central en Supabase, no la reemplazamos.
+        // Si la imagen actual sigue siendo una data URL local, sí debemos migrarla.
+        if (producto.imagen && !esDataUrlImagen(producto.imagen)) continue;
 
         const imagenCentral = await subirImagenASupabase(imagenLocal, producto.id);
         if (!imagenCentral) continue;
