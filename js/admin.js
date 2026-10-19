@@ -18,7 +18,7 @@ function dinero(valor) {
 }
 
 function normalizarTexto(valor) {
-    return String(valor ?? "").trim().toLowerCase();
+    return String(valor ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 function obtenerFechaVenta(venta) {
@@ -79,14 +79,21 @@ function calcularVenta(venta, mapaProductos) {
         if (!productoInventario) return;
 
         const precio = Number(productoVenta.precio) || 0;
-        const costo = Number(productoInventario.costo);
+        const costoGuardado = Number(productoVenta.costo);
+        const costo = Number.isFinite(costoGuardado) && productoVenta.costo !== null && productoVenta.costo !== undefined
+            ? costoGuardado
+            : Number(productoInventario.costo);
         const cantidad = Number(productoVenta.cantidad) || 0;
+        const subtotalNeto = Number(productoVenta.subtotal ?? (precio * cantidad));
 
         if (!Number.isFinite(costo) || cantidad <= 0) return;
 
-        const utilidadProducto = Math.max(0, precio - costo) * cantidad;
+        // La utilidad sí descuenta el costo de todas las unidades, incluso la bonificada.
+        // La comisión se calcula sobre el ingreso neto de la línea después del descuento.
+        const utilidadProducto = subtotalNeto - (costo * cantidad);
         utilidad += utilidadProducto;
-        comision += utilidadProducto * PORCENTAJE_COMISION;
+        const ingresoNetoUnitario = subtotalNeto / cantidad;
+        comision += Math.max(0, ingresoNetoUnitario - costo) * cantidad * PORCENTAJE_COMISION;
     });
 
     return { utilidad, comision };
@@ -220,7 +227,7 @@ async function renderizarComisiones() {
                 </table>
             </div>
             <div class="nota-comisiones-admin">
-                ℹ️ La comisión se calcula automáticamente con base en el costo unitario y el precio registrado para cada producto.
+                ℹ️ La utilidad descuenta el costo de todas las unidades y considera el importe neto de cada línea después de promociones. La comisión es el 25% del margen positivo por producto; las unidades bonificadas no generan comisión y su costo sí afecta la utilidad.
             </div>
         `;
 

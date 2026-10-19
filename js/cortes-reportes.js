@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js?v=20261007-2";
+import { esMaster } from "./login.js?v=20261007-5";
 
 // =====================================
 // SNACK OFFICE - JORNADAS, CORTES Y REPORTES
@@ -15,6 +16,29 @@ function fechaBonita(iso) {
     if (!iso) return "—";
     const [y, m, d] = String(iso).slice(0, 10).split("-");
     return y && m && d ? `${d}/${m}/${y}` : "—";
+}
+
+function fechaHoraBonita(valor) {
+    if (!valor) return "—";
+    const fecha = new Date(valor);
+    return Number.isNaN(fecha.getTime()) ? "—" : fecha.toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" });
+}
+
+
+function calcularUtilidadComision(venta) {
+    let utilidad = 0;
+    let comision = 0;
+    const productos = Array.isArray(venta?.productos) ? venta.productos : [];
+    productos.forEach(producto => {
+        const cantidad = Number(producto.cantidad || 0);
+        const costo = Number(producto.costo);
+        const precio = Number(producto.precio || 0);
+        const subtotal = Number(producto.subtotal ?? precio * cantidad);
+        if (!Number.isFinite(costo) || cantidad <= 0) return;
+        utilidad += subtotal - costo * cantidad;
+        comision += Math.max(0, subtotal / cantidad - costo) * cantidad * 0.25;
+    });
+    return { utilidad, comision };
 }
 
 function estadoJornadaAbierta(jornada) {
@@ -88,7 +112,7 @@ export async function registrarVentaEnJornada(venta) {
 async function obtenerVentasJornada(jornadaId) {
     const { data, error } = await supabase
         .from("ventas")
-        .select("id,folio,fecha,cliente,metodo_pago,desglose_pago,total,total_cobrado,estado_pago,abonado,saldo,saldo_favor,productos,jornada_id")
+        .select("id,folio,fecha,cliente,metodo_pago,desglose_pago,total,total_cobrado,estado_pago,abonado,saldo,saldo_favor,productos,jornada_id,promocion_tipo,promocion_id,promocion_descuento")
         .eq("jornada_id", String(jornadaId))
         .order("fecha", { ascending: true });
 
@@ -169,6 +193,7 @@ function calcularResumen(ventas, movimientos, estadoCxC) {
         abonosEfectivo: 0,
         abonosTarjeta: 0,
         abonosTransferencia: 0,
+        movimientosCobranza: 0,
         cuentasActivas: 0,
         saldoPendiente: 0,
         saldoFavor: 0
@@ -190,9 +215,12 @@ function calcularResumen(ventas, movimientos, estadoCxC) {
     });
 
     movimientos.forEach(movimiento => {
-        if (String(movimiento.tipo || "").toUpperCase() !== "ABONO") return;
+        // El cobro recibido es el ingreso real. ABONO y SALDO_FAVOR son su
+        // desglose por deuda y excedente; sumarlos también duplicaría la cobranza.
+        if (String(movimiento.tipo || "").toUpperCase() !== "COBRO_CXC") return;
         const importe = Number(movimiento.importe || 0);
         resumen.abonosCxC += importe;
+        resumen.movimientosCobranza += 1;
         if (movimiento.metodo_pago === "Efectivo") resumen.abonosEfectivo += importe;
         if (movimiento.metodo_pago === "Tarjeta") resumen.abonosTarjeta += importe;
         if (movimiento.metodo_pago === "Transferencia") resumen.abonosTransferencia += importe;
@@ -343,12 +371,15 @@ export async function renderizarCortes() {
                         <h1>📊 Corte de jornada</h1>
                         <p>Resumen de la operación actual antes de cerrar el día.</p>
                     </div>
-                    <span class="so-estado-jornada">🟢 Jornada abierta</span>
+                    <div class="so-modulo-acciones">
+                        <span class="so-estado-jornada">🟢 Jornada abierta</span>
+                        <button type="button" id="btnExportarCorteActual" class="so-btn-secundario">⬇ Exportar corte CSV</button>
+                    </div>
                 </div>
 
                 <div class="so-jornada-barra">
                     <strong>Jornada:</strong> ${fechaBonita(jornada.fecha)}
-                    <span>ID: ${jornada.id}</span>
+                    <span>ID: ${jornada.id}</span><span>Fecha de apertura: ${jornada.apertura ? new Date(jornada.apertura).toLocaleString("es-MX") : "No disponible"}</span>
                 </div>
 
                 <div class="so-metricas">
@@ -356,6 +387,8 @@ export async function renderizarCortes() {
                     <div><span>📦</span><small>Productos vendidos</small><strong>${resumen.productos}</strong></div>
                     <div><span>💰</span><small>Total vendido</small><strong>${dinero(resumen.totalVendido)}</strong></div>
                     <div><span>📒</span><small>Ventas a crédito</small><strong>${dinero(resumen.pendiente)}</strong></div>
+                    <div><span>💸</span><small>Comisión estimada (25%)</small><strong>${dinero(estado.ventas.reduce((s, v) => s + calcularUtilidadComision(v).comision, 0))}</strong></div>
+                    <div><span>📈</span><small>Utilidad estimada</small><strong>${dinero(estado.ventas.reduce((s, v) => s + calcularUtilidadComision(v).utilidad, 0))}</strong></div>
                 </div>
 
                 <div class="so-grid-2">
@@ -369,10 +402,9 @@ export async function renderizarCortes() {
 
                     <div class="so-panel">
                         <h2>💵 Cobranza CxC del día</h2>
-                        <div class="so-linea"><span>💵 Efectivo</span><strong>${dinero(resumen.abonosEfectivo)}</strong></div>
-                        <div class="so-linea"><span>💳 Tarjeta</span><strong>${dinero(resumen.abonosTarjeta)}</strong></div>
-                        <div class="so-linea"><span>🔄 Transferencia</span><strong>${dinero(resumen.abonosTransferencia)}</strong></div>
-                        <div class="so-linea destacado"><span>Total cobrado</span><strong>${dinero(resumen.abonosCxC)}</strong></div>
+                        <div class="so-linea"><span>Movimientos de cobranza</span><strong>${resumen.movimientosCobranza}</strong></div>
+                        <div class="so-linea"><span>Abonos efectivamente recibidos</span><strong>${dinero(resumen.abonosCxC)}</strong></div>
+                        <div class="so-linea destacado"><span>Estado</span><strong>${resumen.movimientosCobranza ? "Con movimientos registrados" : "Sin movimientos de cobranza en esta jornada"}</strong></div>
                     </div>
                 </div>
 
@@ -385,6 +417,29 @@ export async function renderizarCortes() {
                     </div>
                 </div>
 
+                <div class="so-panel">
+                    <h2>🧾 Movimientos detallados de la jornada</h2>
+                    <p class="so-panel-ayuda">Los cobros CxC representan el dinero recibido; los movimientos ABONO y SALDO_FAVOR explican cómo se aplicó, pero no se suman de nuevo como ingresos.</p>
+                    <div class="so-tabla-wrap">
+                        <table class="so-tabla">
+                            <thead><tr><th>Fecha y hora</th><th>Tipo</th><th>Cliente</th><th>Venta</th><th>Método de pago</th><th>Importe</th><th>Saldo posterior</th><th>Saldo a favor</th></tr></thead>
+                            <tbody>
+                                ${estado.movimientos.length ? estado.movimientos.map(m => `
+                                    <tr>
+                                        <td>${fechaHoraBonita(m.fecha)}</td>
+                                        <td>${String(m.tipo || "Movimiento")}</td>
+                                        <td>${m.cliente || "—"}</td>
+                                        <td>${m.venta_id ? `#${m.venta_id}` : "—"}</td>
+                                        <td>${m.metodo_pago || "—"}</td>
+                                        <td>${dinero(m.importe)}</td>
+                                        <td>${m.saldo_despues == null ? "—" : dinero(m.saldo_despues)}</td>
+                                        <td>${m.saldo_favor_despues == null ? "—" : dinero(m.saldo_favor_despues)}</td>
+                                    </tr>`).join("") : `<tr><td colspan="8">No hay movimientos de CxC en esta jornada.</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="so-acciones-corte">
                     <button id="btnCerrarJornada" class="so-btn-cerrar">🔒 Cerrar jornada y archivar</button>
                 </div>
@@ -392,6 +447,37 @@ export async function renderizarCortes() {
         `;
 
         document.getElementById("btnCerrarJornada")?.addEventListener("click", cerrarJornada);
+        document.getElementById("btnExportarCorteActual")?.addEventListener("click", async () => {
+            try {
+                const ventasCorte = await obtenerVentasJornada(jornada.id);
+                const movimientosCorte = await obtenerMovimientosJornada(jornada, ventasCorte);
+                const filas = [];
+                ventasCorte.forEach(v => {
+                    const productos = Array.isArray(v.productos) ? v.productos : [];
+                    if (!productos.length) {
+                        filas.push({ tipo_registro: "VENTA", jornada: jornada.id, fecha: v.fecha || "", folio: v.folio || v.id, cliente: v.cliente || "", metodo_pago: v.metodo_pago || "", producto: "", cantidad: "", precio_unitario: "", importe: "", total_venta: Number(v.total || 0), promocion_tipo: v.promocion_tipo || "NINGUNA", promocion_id: v.promocion_id || "", descuento_promocional: Number(v.promocion_descuento || 0), abonado: Number(v.abonado || 0), saldo: Number(v.saldo || 0) });
+                        return;
+                    }
+                    productos.forEach(p => filas.push({
+                        tipo_registro: "VENTA_PRODUCTO", jornada: jornada.id, fecha: v.fecha || "",
+                        folio: v.folio || v.id, cliente: v.cliente || "", metodo_pago: v.metodo_pago || "",
+                        producto: p.nombre || "", cantidad: Number(p.cantidad || 0),
+                        precio_unitario: Number(p.precio || 0),
+                        importe: Number(p.subtotal ?? Number(p.precio || 0) * Number(p.cantidad || 0)),
+                        total_venta: Number(v.total || 0), promocion_tipo: v.promocion_tipo || p.promocion_tipo || "NINGUNA", promocion_id: v.promocion_id || "", descuento_promocional: Number(v.promocion_descuento || p.descuento_promocion || 0), abonado: Number(v.abonado || 0), saldo: Number(v.saldo || 0)
+                    }));
+                });
+                movimientosCorte.forEach(m => filas.push({
+                    tipo_registro: `CXC_${m.tipo || "MOVIMIENTO"}`, jornada: jornada.id,
+                    fecha: m.fecha || "", folio: m.venta_id || "", cliente: m.cliente || "",
+                    metodo_pago: m.metodo_pago || "", producto: "", cantidad: "", precio_unitario: "",
+                    importe: Number(m.importe || 0), total_venta: "", abonado: "", saldo: m.saldo_despues ?? ""
+                }));
+                descargarCSV(`SnackOffice_corte_${jornada.id}.csv`, filas);
+            } catch (error) {
+                alert("No se pudo exportar el corte: " + (error.message || error));
+            }
+        });
     } catch (error) {
         console.error(error);
         contentArea.innerHTML = `
@@ -417,6 +503,31 @@ async function cargarJornadasCerradas() {
 
     if (error) throw error;
     return data || [];
+}
+
+function descargarCSV(nombre, filas) {
+    if (!Array.isArray(filas) || !filas.length) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+    const escapar = valor => {
+        const texto = valor == null ? "" : String(valor);
+        return `"${texto.replace(/"/g, '""')}"`;
+    };
+    const encabezados = Object.keys(filas[0]);
+    const contenido = "\uFEFF" + [
+        encabezados.map(escapar).join(","),
+        ...filas.map(fila => encabezados.map(k => escapar(fila[k])).join(","))
+    ].join("\r\n");
+    const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = nombre;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    URL.revokeObjectURL(url);
 }
 
 export async function renderizarReportes() {
@@ -450,12 +561,27 @@ export async function renderizarReportes() {
             <section class="so-admin-modulo">
                 <div class="so-modulo-header">
                     <div><h1>📈 Reportes históricos</h1><p>Las jornadas cerradas se conservan en Supabase.</p></div>
+                    <button type="button" id="btnExportarResumenReportes" class="so-btn-secundario">⬇ Exportar resumen CSV</button>
                 </div>
                 <div class="so-reportes-lista" id="soReportesLista"></div>
             </section>
         `;
 
         const lista = document.getElementById("soReportesLista");
+        document.getElementById("btnExportarResumenReportes")?.addEventListener("click", () => {
+            descargarCSV("SnackOffice_reportes_resumen.csv", jornadas.map(j => ({
+                jornada: j.id,
+                fecha: j.fecha || "",
+                apertura: j.apertura || "",
+                cierre: j.cierre || "",
+                estado: j.estado || "",
+                ventas: Number(j.resumen?.ventas || 0),
+                total_vendido: Number(j.resumen?.totalVendido || 0),
+                efectivo: Number(j.resumen?.efectivo || 0),
+                tarjeta: Number(j.resumen?.tarjeta || 0),
+                transferencia: Number(j.resumen?.transferencia || 0)
+            })));
+        });
         jornadas.forEach(jornada => {
             const r = jornada.resumen || {};
             const tarjeta = document.createElement("article");
@@ -503,17 +629,24 @@ async function mostrarDetalleReporte(jornada) {
         const r = jornada.resumen || {};
         const estadoCxC = Array.isArray(r.estadoCxC) ? r.estadoCxC : [];
         const clientes = Array.isArray(r.clientes) ? r.clientes : [];
+        const calculosEconomicos = ventas.reduce((acum, venta) => {
+            const calculo = calcularUtilidadComision(venta);
+            acum.utilidad += calculo.utilidad;
+            acum.comision += calculo.comision;
+            return acum;
+        }, { utilidad: 0, comision: 0 });
 
         contentArea.innerHTML = `
             <section class="so-admin-modulo">
                 <button id="btnVolverReportes" class="so-btn-secundario">← Volver a reportes</button>
                 <div class="so-modulo-header">
                     <div><h1>📄 Reporte ${fechaBonita(jornada.fecha)}</h1><p>Detalle de la jornada cerrada.</p></div>
+                    <button type="button" id="btnExportarDetalleReporte" class="so-btn-secundario">⬇ Exportar detalle CSV</button>
                 </div>
 
                 <div class="so-jornada-barra">
                     <strong>Jornada:</strong> ${jornada.id}
-                    <span>Cierre: ${jornada.cierre ? new Date(jornada.cierre).toLocaleString("es-MX") : "—"}</span>
+                    <span>Fecha de apertura: ${jornada.apertura ? new Date(jornada.apertura).toLocaleString("es-MX") : "No disponible"}</span><span>Cierre: ${jornada.cierre ? new Date(jornada.cierre).toLocaleString("es-MX") : "—"}</span>
                 </div>
 
                 <div class="so-metricas">
@@ -523,6 +656,8 @@ async function mostrarDetalleReporte(jornada) {
                     <div><span>💵</span><small>Abonos CxC</small><strong>${dinero(r.abonosCxC)}</strong></div>
                     <div><span>🔴</span><small>Saldo pendiente al cierre</small><strong>${dinero(r.saldoPendiente)}</strong></div>
                     <div><span>🟢</span><small>Saldo a favor al cierre</small><strong>${dinero(r.saldoFavor)}</strong></div>
+                    <div><span>📈</span><small>Utilidad estimada</small><strong>${dinero(calculosEconomicos.utilidad)}</strong></div>
+                    <div><span>💸</span><small>Comisión estimada (25%)</small><strong>${dinero(calculosEconomicos.comision)}</strong></div>
                 </div>
 
                 <div class="so-grid-2">
@@ -535,10 +670,9 @@ async function mostrarDetalleReporte(jornada) {
                     </div>
                     <div class="so-panel">
                         <h2>💵 Cobranza CxC</h2>
-                        <div class="so-linea"><span>💵 Efectivo</span><strong>${dinero(r.abonosEfectivo)}</strong></div>
-                        <div class="so-linea"><span>💳 Tarjeta</span><strong>${dinero(r.abonosTarjeta)}</strong></div>
-                        <div class="so-linea"><span>🔄 Transferencia</span><strong>${dinero(r.abonosTransferencia)}</strong></div>
-                        <div class="so-linea destacado"><span>Total cobrado</span><strong>${dinero(r.abonosCxC)}</strong></div>
+                        <div class="so-linea"><span>Movimientos de cobranza guardados al cierre</span><strong>${movimientos.filter(m => String(m.tipo || "").toUpperCase() === "COBRO_CXC").length}</strong></div>
+                        <div class="so-linea"><span>Abonos efectivamente recibidos</span><strong>${dinero(r.abonosCxC)}</strong></div>
+                        <div class="so-linea destacado"><span>Estado</span><strong>${movimientos.some(m => String(m.tipo || "").toUpperCase() === "COBRO_CXC") ? "Con movimientos registrados" : "Sin movimientos de cobranza en esta jornada"}</strong></div>
                     </div>
                 </div>
 
@@ -546,18 +680,21 @@ async function mostrarDetalleReporte(jornada) {
                     <h2>🧾 Ventas de la jornada</h2>
                     <div class="so-tabla-wrap">
                         <table class="so-tabla">
-                            <thead><tr><th>Folio</th><th>Hora</th><th>Cliente</th><th>Método</th><th>Estado</th><th>Total</th></tr></thead>
+                            <thead><tr><th>Folio</th><th>Fecha y hora</th><th>Cliente</th><th>Productos y desglose</th><th>Promoción / descuento</th><th>Pago / estado</th><th>Total</th><th>Utilidad estimada</th><th>Comisión</th></tr></thead>
                             <tbody>
                                 ${ventas.length ? ventas.map(v => `
                                     <tr>
                                         <td>#${v.folio || v.id}</td>
-                                        <td>${v.fecha ? new Date(v.fecha).toLocaleTimeString("es-MX", {hour: "2-digit", minute: "2-digit"}) : "—"}</td>
+                                        <td>${v.fecha ? new Date(v.fecha).toLocaleString("es-MX", {dateStyle:"short", timeStyle:"short"}) : "—"}</td>
                                         <td>${v.cliente || "Público general"}</td>
-                                        <td>${v.metodo_pago || "Efectivo"}</td>
-                                        <td>${v.estado_pago || "Pagado"}</td>
+                                        <td>${(Array.isArray(v.productos) ? v.productos : []).map(p => `${p.nombre || "Producto"} × ${Number(p.cantidad || 0)} · ${dinero(p.subtotal ?? Number(p.precio || 0) * Number(p.cantidad || 0))}`).join("<br>") || "Sin detalle guardado"}<br><small>Subtotal original: ${dinero(Number(v.total || 0) + Number(v.promocion_descuento || (Array.isArray(v.productos) ? v.productos.reduce((s,p)=>s+Number(p.descuento_promocion||0),0) : 0)))}</small></td>
+                                        <td>${(v.promocion_tipo && v.promocion_tipo !== "NINGUNA" ? v.promocion_tipo : ((Array.isArray(v.productos) ? v.productos.find(p => p.promocion_tipo && p.promocion_tipo !== "NINGUNA")?.promocion_tipo : "") || "NINGUNA")) !== "NINGUNA" ? `${v.promocion_tipo && v.promocion_tipo !== "NINGUNA" ? v.promocion_tipo : v.productos.find(p => p.promocion_tipo && p.promocion_tipo !== "NINGUNA")?.promocion_tipo} · Descuento ${dinero(v.promocion_descuento || (Array.isArray(v.productos) ? v.productos.reduce((s,p)=>s+Number(p.descuento_promocion||0),0) : 0))}${v.promocion_id ? ` · ID ${v.promocion_id}` : ""}` : "Sin promoción registrada"}</td>
+                                        <td>${Array.isArray(v.desglose_pago) && v.desglose_pago.length ? v.desglose_pago.map(p => `${p.metodo || p.tipo || "Pago"}: ${dinero(p.importe)}`).join("<br>") : (v.metodo_pago || "Efectivo")}<br><small>${v.estado_pago || "Pagado"}</small></td>
                                         <td>${dinero(v.total)}</td>
+                                        <td>${dinero(calcularUtilidadComision(v).utilidad)}</td>
+                                        <td>${dinero(calcularUtilidadComision(v).comision)}</td>
                                     </tr>
-                                `).join("") : `<tr><td colspan="6">No hubo ventas.</td></tr>`}
+                                `).join("") : `<tr><td colspan="9">No hubo ventas.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -567,17 +704,19 @@ async function mostrarDetalleReporte(jornada) {
                     <h2>💵 Movimientos CxC de la jornada</h2>
                     <div class="so-tabla-wrap">
                         <table class="so-tabla">
-                            <thead><tr><th>Tipo</th><th>Cliente</th><th>Venta</th><th>Método</th><th>Importe</th></tr></thead>
+                            <thead><tr><th>Fecha y hora</th><th>Tipo</th><th>Cliente</th><th>Venta</th><th>Método</th><th>Importe</th><th>Saldo posterior</th></tr></thead>
                             <tbody>
                                 ${movimientos.length ? movimientos.map(m => `
                                     <tr>
+                                        <td>${m.fecha ? new Date(m.fecha).toLocaleString("es-MX") : "—"}</td>
                                         <td>${m.tipo || "—"}</td>
                                         <td>${m.cliente || "—"}</td>
                                         <td>${m.venta_id ? `#${m.venta_id}` : "—"}</td>
-                                        <td>${m.metodo_pago || "—"}</td>
+                                        <td>${m.metodo_pago || "No aplica"}</td>
                                         <td>${dinero(m.importe)}</td>
+                                        <td>${m.saldo_despues === null || m.saldo_despues === undefined ? "—" : dinero(m.saldo_despues)}</td>
                                     </tr>
-                                `).join("") : `<tr><td colspan="5">No hubo movimientos CxC.</td></tr>`}
+                                `).join("") : `<tr><td colspan="7">No hubo movimientos CxC.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -627,6 +766,33 @@ async function mostrarDetalleReporte(jornada) {
             </section>
         `;
 
+        document.getElementById("btnExportarDetalleReporte")?.addEventListener("click", () => {
+            const filas = [];
+            ventas.forEach(v => {
+                const productos = Array.isArray(v.productos) ? v.productos : [];
+                if (!productos.length) {
+                    filas.push({
+                        jornada: jornada.id, fecha: v.fecha || "", folio: v.folio || v.id,
+                        cliente: v.cliente || "", metodo_pago: v.metodo_pago || "",
+                        estado_pago: v.estado_pago || "", producto: "",
+                        cantidad: "", precio_unitario: "", importe_producto: "",
+                        total_venta: Number(v.total || 0), promocion_tipo: v.promocion_tipo || "NINGUNA", promocion_id: v.promocion_id || "", descuento_promocional: Number(v.promocion_descuento || 0), abonado: Number(v.abonado || 0),
+                        saldo: Number(v.saldo || 0), saldo_favor: Number(v.saldo_favor || 0)
+                    });
+                    return;
+                }
+                productos.forEach(p => filas.push({
+                    jornada: jornada.id, fecha: v.fecha || "", folio: v.folio || v.id,
+                    cliente: v.cliente || "", metodo_pago: v.metodo_pago || "",
+                    estado_pago: v.estado_pago || "", producto: p.nombre || "",
+                    cantidad: Number(p.cantidad || 0), precio_unitario: Number(p.precio || 0),
+                    importe_producto: Number(p.subtotal ?? (Number(p.precio || 0) * Number(p.cantidad || 0))),
+                    total_venta: Number(v.total || 0), promocion_tipo: v.promocion_tipo || p.promocion_tipo || "NINGUNA", promocion_id: v.promocion_id || "", descuento_promocional: Number(v.promocion_descuento || p.descuento_promocion || 0), abonado: Number(v.abonado || 0),
+                    saldo: Number(v.saldo || 0), saldo_favor: Number(v.saldo_favor || 0)
+                }));
+            });
+            descargarCSV(`SnackOffice_jornada_${jornada.id}_detalle.csv`, filas);
+        });
         document.getElementById("btnVolverReportes")?.addEventListener("click", renderizarReportes);
     } catch (error) {
         console.error("❌ Error cargando detalle del reporte:", error);

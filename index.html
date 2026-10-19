@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="snackoffice-build" content="20261007-5">
+    <meta name="snackoffice-build" content="20261019-visualfix3">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snack Office</title>
 
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20261019-visualfix3">
 
 <style>
 .modal-abono-cxc{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(7,26,65,.52);backdrop-filter:blur(3px)}
@@ -91,7 +91,7 @@
                 id="btnAyudaAcceso"
                 type="button"
                 style="margin-top:12px;border:0;background:transparent;color:#6b7280;text-decoration:underline;cursor:pointer;font:inherit;">
-                🔑 ¿Problemas para entrar?
+                ¿Problemas para entrar?
             </button>
 
         </div>
@@ -105,15 +105,18 @@
 
         <h2>Snack Office</h2>
 
-        <button id="btnInventario">📦 Inventario</button>
+        <button id="btnInventario">Inventario</button>
         
-        <button id="btnComisiones">💰 Comisiones</button>
+        <button id="btnComisiones">Comisiones</button>
 
-        <button id="btnCortes">📊 Cortes</button>
+        <button id="btnCortes">Cortes</button>
 
-        <button id="btnReportes">📈 Reportes</button>
+        <button id="btnReportes">Reportes</button>
+        <button id="btnPromociones">Promociones</button>
+        <button id="btnCatalogoClientes">Catálogo de clientes</button>
 
-        <button id="btnCerrarSesionAdmin">🚪 Cerrar sesión</button>
+
+        <button id="btnCerrarSesionAdmin">Cerrar sesión</button>
 
     </aside>
 
@@ -121,7 +124,7 @@
 
        <div id="contentArea">
 
-        <h1>Bienvenido Administrador 👨‍💼</h1>
+        <h1>Bienvenido Administrador</h1>
 
         <p>Selecciona una opción del menú.</p>
 
@@ -144,23 +147,19 @@
             <h2>Snack Office</h2>
 
             <button id="btnNuevaVenta">
-                🛒 Nueva venta
+                Nueva venta
             </button>
 
             <button id="btnHistorialVentas">
-                📋 Historial
-            </button>
-
-            <button id="btnPendientesVentas">
-                📒 Pendientes
+                Historial
             </button>
 
             <button id="btnClientesVentas">
-                👥 Clientes
+                Clientes
             </button>
 
             <button id="btnCerrarSesionVentas">
-                🚪 Cerrar sesión
+                Cerrar sesión
             </button>
 
         </aside>
@@ -175,7 +174,7 @@
 
     <div id="ventasInicio">
 
-        <h1>Bienvenido Ventas 🧑‍💼</h1>
+        <h1>Bienvenido Ventas</h1>
 
         <p>
             Selecciona una opción del menú.
@@ -192,12 +191,12 @@
 
     <div class="venta-header">
         <div>
-            <h1>🛒 Nueva venta</h1>
+            <h1>Nueva venta</h1>
             <p>Selecciona una categoría para comenzar.</p>
         </div>
 
         <div class="venta-contador">
-            🛒 <span id="contadorCarrito">0</span>
+            <span id="contadorCarrito">0</span>
         </div>
     </div>
 
@@ -206,7 +205,7 @@
         <input
             type="text"
             id="buscarProductoVenta"
-            placeholder="🔎 Buscar producto..."
+            placeholder="Buscar producto..."
         >
     </div>
 
@@ -231,12 +230,22 @@
 
         <div id="listaProductosVenta">
             <div class="mensaje-ventas">
-                <span>🛍️</span>
+                <span class="mensaje-ventas-icono" aria-hidden="true"></span>
                 <p>Selecciona una categoría para ver los productos.</p>
             </div>
         </div>
 
     </div>
+<!-- Las promociones activas se detectan automáticamente desde la configuración del ADMIN. -->
+<div class="venta-promocion-card" id="ventaPromocionCard">
+    <div class="venta-promocion-cabecera">
+        <div><span class="venta-promocion-etiqueta">PROMOCIONES ACTIVAS</span><h3>Beneficios detectados automáticamente</h3></div>
+        <span class="venta-promocion-badge">Configuradas por ADMIN</span>
+    </div>
+    <p id="promocionVentaRegla" class="venta-promocion-regla" aria-live="polite">Consultando promociones vigentes...</p>
+    <div id="promocionVentaResumen" class="venta-promocion-resumen">Agrega productos al carrito para revisar si participan en una promoción activa.</div>
+</div>
+
 <!-- =========================================
      PANEL DE VENTA
 ========================================= -->
@@ -246,7 +255,7 @@
     <!-- CARRITO -->
     <div class="venta-carrito">
 
-        <h2>🛒 Carrito</h2>
+        <h2>Carrito</h2>
 
         <div id="carritoVenta">
             <p>
@@ -268,28 +277,28 @@
             type="button"
             class="btn-pago activo"
             data-pago="Efectivo">
-            💵 Efectivo
+            Efectivo
         </button>
 
         <button
             type="button"
             class="btn-pago"
             data-pago="Tarjeta">
-            💳 Tarjeta
+            Tarjeta
         </button>
 
         <button
             type="button"
             class="btn-pago"
             data-pago="Transferencia">
-            🔄 Transferencia
+            Transferencia
         </button>
 
         <button
             type="button"
             class="btn-pago"
             data-pago="Pendiente">
-            🕐 Pendiente
+            Pendiente
         </button>
 
     </div>
@@ -330,11 +339,11 @@
     <div class="venta-acciones">
 
         <button id="btnRegistrarVenta">
-            🧾 Registrar venta
+            Registrar venta
         </button>
 
         <button id="btnCancelarVenta">
-            ❌ Cancelar
+            Cancelar
         </button>
 
     </div>
@@ -351,14 +360,14 @@
 
     <div class="clientes-header">
         <div>
-            <h1>👥 Clientes</h1>
+            <h1>Clientes</h1>
             <p>Consulta el historial y el estado de cuenta de tus clientes.</p>
         </div>
     </div>
 
     <div class="clientes-resumen">
         <div class="resumen-pendiente">
-            <span>👥</span>
+            <span aria-hidden="true" class="so-icon so-icon-clientes"></span>
             <div>
                 <small>Total de clientes</small>
                 <strong id="totalClientesVentas">0</strong>
@@ -366,7 +375,7 @@
         </div>
 
         <div class="resumen-pendiente">
-            <span>🛒</span>
+            <span aria-hidden="true" class="so-icon so-icon-ventas"></span>
             <div>
                 <small>Con compras</small>
                 <strong id="clientesConComprasVentas">0</strong>
@@ -374,7 +383,7 @@
         </div>
 
         <div class="resumen-pendiente">
-            <span>💰</span>
+            <span aria-hidden="true" class="so-icon so-icon-pagos"></span>
             <div>
                 <small>Saldo pendiente</small>
                 <strong id="deudaClientesVentas">$0.00</strong>
@@ -382,7 +391,7 @@
         </div>
 
         <div class="resumen-pendiente">
-            <span>🟢</span>
+            <span aria-hidden="true" class="so-icon so-icon-activo"></span>
             <div>
                 <small>Saldo a favor</small>
                 <strong id="favorClientesVentas">$0.00</strong>
@@ -394,13 +403,12 @@
         <input
             type="text"
             id="buscarClienteVentas"
-            placeholder="🔎 Buscar cliente...">
-        <button type="button" id="btnRefrescarClientes">🔄 Actualizar</button>
+            placeholder="Buscar cliente...">
+        <button type="button" id="btnRefrescarClientes">Actualizar</button>
     </div>
 
     <div id="listaClientesVentas">
         <div class="clientes-vacio">
-            👥
             <h3>Cargando clientes...</h3>
         </div>
     </div>
@@ -418,7 +426,7 @@
             <button type="button" id="btnVolverClientes" class="btn-volver-categorias">
                 ← Clientes
             </button>
-            <h1>📄 Estado de cuenta</h1>
+            <h1>Estado de cuenta</h1>
             <p id="nombreEstadoCuentaCliente">Cliente</p>
         </div>
     </section>
@@ -448,7 +456,7 @@
 
 <div id="historialVentasScreen" style="display: none;">
 
-    <h1>📋 Historial de ventas</h1>
+    <h1>Historial de ventas</h1>
 
     <p>
         Consulta las ventas realizadas en el sistema.
@@ -462,64 +470,9 @@
 
 </div>
 
-<!-- =========================================
-     CUENTAS PENDIENTES
-========================================== -->
-<div id="pendientesVentasScreen" style="display: none;">
 
-    <div class="pendientes-header">
-        <div>
-            <h1>📒 Cuentas pendientes</h1>
-            <p>Consulta y administra los saldos pendientes de tus clientes.</p>
-        </div>
-    </div>
-
-    <div class="pendientes-resumen">
-        <div class="resumen-pendiente">
-            <span>👥</span>
-            <div>
-                <small>Cuentas activas</small>
-                <strong id="totalCuentasPendientes">0</strong>
-            </div>
-        </div>
-
-        <div class="resumen-pendiente">
-            <span>💰</span>
-            <div>
-                <small>Saldo pendiente</small>
-                <strong id="saldoPendienteTotal">$0.00</strong>
-            </div>
-        </div>
-
-        <div class="resumen-pendiente">
-            <span>💵</span>
-            <div>
-                <small>Total abonado</small>
-                <strong id="totalAbonadoPendientes">$0.00</strong>
-            </div>
-        </div>
-
-        <div class="resumen-pendiente">
-            <span>🟢</span>
-            <div>
-                <small>Saldo a favor</small>
-                <strong id="saldoFavorTotal">$0.00</strong>
-            </div>
-        </div>
-    </div>
-
-    <div id="listaPendientesVentas">
-        <div class="mensaje-pendientes">
-            <span>📒</span>
-            <h3>No hay cuentas pendientes</h3>
-            <p>Las ventas registradas como pendientes aparecerán aquí.</p>
-        </div>
-    </div>
 
 </div>
-
-</div>
-
 
         </main>
 
@@ -536,18 +489,18 @@
     // Refuerzo de inicialización del catálogo e imágenes.
     // Es seguro aunque app.js también las inicialice.
     import { inicializarCatalogo } from "./js/catalogo-inicial.js?v=20261007-2";
-    import { inicializarImagenesCatalogo } from "./js/imagenes-iniciales.js?v=20261007-2";
+    import { inicializarImagenesCatalogo } from "./js/imagenes-iniciales.js?v=20261019-imgfix3";
 
     inicializarCatalogo();
     inicializarImagenesCatalogo();
 </script>
-<script type="module" src="js/app.js?v=20261007-7"></script>
+<script type="module" src="js/app.js?v=20261019-visualfix3"></script>
 
 <!-- MODAL REGISTRAR ABONO CxC -->
 <div id="modalAbonoCxc" class="modal-abono-cxc" style="display:none;">
     <div class="modal-abono-contenido">
         <button type="button" id="btnCerrarModalAbono" class="modal-abono-cerrar">×</button>
-        <div class="modal-abono-icono">💵</div>
+        <div class="modal-abono-icono" aria-hidden="true"><span class="so-icon so-icon-pagos"></span></div>
         <h2>Registrar abono</h2>
         <p id="modalAbonoCliente" class="modal-abono-cliente">Cliente</p>
         <div class="modal-abono-saldo">
@@ -558,14 +511,14 @@
         <input type="number" id="montoAbonoCxc" min="0.01" step="0.01" placeholder="0.00">
         <label for="metodoAbonoCxc">Forma de pago</label>
         <select id="metodoAbonoCxc">
-            <option value="Efectivo">💵 Efectivo</option>
-            <option value="Tarjeta">💳 Tarjeta</option>
-            <option value="Transferencia">🔄 Transferencia</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
         </select>
         <p class="modal-abono-ayuda">Si el abono supera el saldo, el excedente se conservará como saldo a favor.</p>
         <div class="modal-abono-acciones">
             <button type="button" id="btnCancelarAbonoCxc">Cancelar</button>
-            <button type="button" id="btnConfirmarAbonoCxc">💵 Registrar abono</button>
+            <button type="button" id="btnConfirmarAbonoCxc">Registrar abono</button>
         </div>
     </div>
 </div>

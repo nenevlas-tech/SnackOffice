@@ -178,16 +178,17 @@ export async function iniciarLogin(opciones = {}) {
             sidebar.appendChild(btnCuenta);
         }
 
-        if (perfilActual?.rol === "MASTER") {
+        if (perfilActual?.rol === "MASTER" || (perfilActual?.rol === "ADMIN" && String(perfilActual?.email || "").toLowerCase() === "admin@snackoffice.local")) {
             const btnCambio = document.createElement("button");
             btnCambio.id = "btnCambiarPantallaMaster";
+            btnCambio.setAttribute("aria-label", pantalla === "admin" ? "Entrar a Ventas sin cerrar sesión" : "Regresar a Administración sin cerrar sesión");
             btnCambio.type = "button";
 
             if (pantalla === "admin") {
-                btnCambio.textContent = "🛒 Ir a Ventas";
+                btnCambio.textContent = perfilActual?.rol === "MASTER" ? "🛒 Ir a Ventas" : "🛒 Abrir perfil de Ventas";
                 btnCambio.addEventListener("click", () => mostrarVentasDesdeMaster());
             } else {
-                btnCambio.textContent = "🛠️ Administración";
+                btnCambio.textContent = perfilActual?.rol === "MASTER" ? "🛠️ Administración" : "🛠️ Regresar a Administración";
                 btnCambio.addEventListener("click", () => mostrarAdminDesdeMaster());
             }
 
@@ -205,7 +206,7 @@ export async function iniciarLogin(opciones = {}) {
         prepararInterfazCuenta("ventas");
 
         const titulo = document.querySelector("#ventasScreen #ventasInicio h1");
-        if (titulo) titulo.textContent = "Bienvenido MASTER 👑 · Ventas";
+        if (titulo) titulo.textContent = perfilActual?.rol === "MASTER" ? "Bienvenido MASTER 👑 · Ventas" : "Bienvenido Administrador · Vista de Ventas";
     }
 
     function mostrarAdminDesdeMaster() {
@@ -214,7 +215,7 @@ export async function iniciarLogin(opciones = {}) {
         prepararInterfazCuenta("admin");
 
         const titulo = document.querySelector("#adminScreen #contentArea h1");
-        if (titulo) titulo.textContent = "Bienvenido MASTER 👑";
+        if (titulo) titulo.textContent = perfilActual?.rol === "MASTER" ? "Bienvenido MASTER 👑" : "Bienvenido Administrador 👨‍💼";
     }
 
     async function mostrarModalCuenta() {

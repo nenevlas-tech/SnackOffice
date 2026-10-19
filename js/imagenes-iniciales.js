@@ -103,9 +103,26 @@ function normalizarNombre(valor) {
     return String(valor || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "")
         .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
+        .trim();
+}
+
+const CODIGOS_POR_NOMBRE_NORMALIZADOS = Object.fromEntries(
+    Object.entries(CODIGOS_POR_NOMBRE).map(([nombre, codigo]) => [normalizarNombre(nombre), codigo])
+);
+
+/** Devuelve una ruta local conocida para la miniatura de un producto, si existe. */
+export function resolverImagenLocalProducto(producto) {
+    if (!producto || typeof producto !== "object") return null;
+    const candidatos = [producto.codigo, producto.sku, producto.codigo_producto, producto.id]
+        .map(valor => String(valor || "").trim());
+    let codigo = candidatos.find(valor => Boolean(IMAGENES_CATALOGO[valor])) || null;
+    if (!codigo) {
+        codigo = CODIGOS_POR_NOMBRE_NORMALIZADOS[normalizarNombre(producto.nombre)] || null;
+    }
+    return codigo ? IMAGENES_CATALOGO[codigo] || null : null;
 }
 
 /**
@@ -147,7 +164,7 @@ export function inicializarImagenesCatalogo() {
         // 2. Si el ID es PROD-XXXXXXXX, busca el código por nombre.
         if (!codigo) {
             const nombre = normalizarNombre(producto.nombre);
-            codigo = CODIGOS_POR_NOMBRE[nombre] || null;
+            codigo = CODIGOS_POR_NOMBRE_NORMALIZADOS[nombre] || null;
         }
 
         const imagen = codigo ? IMAGENES_CATALOGO[codigo] : null;

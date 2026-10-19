@@ -1441,9 +1441,15 @@ PANEL ADMINISTRADOR
     gap: 12px;
 
     position: sticky;
-    top: 20px;
-
+    top: 14px;
     align-self: start;
+
+    /* El panel acompaña toda la venta sin desaparecer al bajar al catálogo/promociones. */
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
 }
 
 /* =========================================================
@@ -1464,9 +1470,9 @@ PANEL ADMINISTRADOR
 
     min-height: 150px;
 
-    max-height: 300px;
-
-    overflow-y: auto;
+    /* El desplazamiento lo administra el panel completo para mantener pago y total accesibles. */
+    max-height: none;
+    overflow: visible;
 }
 
 .venta-carrito h2 {
@@ -4121,6 +4127,16 @@ PANEL ADMINISTRADOR
     white-space: nowrap;
 }
 
+/* ---------- ESTADO DE CUENTA DETALLADO ---------- */
+.estado-cuenta-card-detallada { align-items: flex-start; }
+.estado-cuenta-contenido { flex: 1; min-width: 0; }
+.estado-cuenta-productos-wrap { width: 100%; overflow-x: auto; margin: 12px 0; }
+.estado-cuenta-productos { width: 100%; border-collapse: collapse; font-size: 12px; }
+.estado-cuenta-productos th, .estado-cuenta-productos td { padding: 8px 9px; border-bottom: 1px solid #edf0f4; text-align: right; white-space: nowrap; }
+.estado-cuenta-productos th:first-child, .estado-cuenta-productos td:first-child { text-align: left; white-space: normal; }
+.estado-cuenta-productos th { color: #66758a; background: #f7f9fc; font-weight: 800; }
+@media (max-width: 640px) { .estado-cuenta-card-detallada { flex-direction: column; } .estado-cuenta-acciones { width: 100%; } }
+
 /* ---------- MOVIMIENTOS ---------- */
 .movimientos-cxc-lista {
     display: flex;
@@ -4992,3 +5008,820 @@ PANEL ADMINISTRADOR
         width: 100%;
     }
 }
+
+
+/* Ajustes responsive del ciclo de pruebas */
+.so-modulo-header,
+.so-modulo-acciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.so-tabla-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.so-tabla {
+    min-width: 680px;
+}
+.estado-cuenta-productos-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.estado-cuenta-productos {
+    min-width: 420px;
+}
+.estado-cuenta-movimientos-global {
+    margin-top: 16px;
+}
+.estado-cuenta-movimientos-global .movimiento-cxc-vacio {
+    line-height: 1.45;
+}
+@media (max-width: 900px) {
+    .admin-container { grid-template-columns: 210px minmax(0, 1fr); }
+    .sidebar { width: 210px; }
+    .content { min-width: 0; padding: 16px; }
+    .so-grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .admin-container { display: block; }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+    .sidebar h2 { grid-column: 1 / -1; margin: 4px 0 8px; }
+    .sidebar button { width: 100%; min-width: 0; margin: 0; }
+    .content { width: 100%; padding: 12px; box-sizing: border-box; }
+    .so-modulo-header { align-items: flex-start; }
+    .so-modulo-header button { width: 100%; }
+    .so-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .so-reporte-card { flex-direction: column; align-items: stretch; }
+    .so-reporte-datos { flex-wrap: wrap; }
+    .estado-cuenta-resumen-cuentas,
+    .estado-cuenta-movimientos { min-width: 0; }
+    .estado-cuenta-card { padding: 12px; }
+}
+
+.so-promocion-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.so-promocion-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+.so-promocion-form input,
+.so-promocion-form select {
+    min-height: 42px;
+    border: 1px solid #dbe2ea;
+    border-radius: 10px;
+    padding: 9px 11px;
+    background: #fff;
+    font: inherit;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.so-promocion-resumen {
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    border-radius: 10px;
+    color: #115e59;
+}
+.so-promocion-form button { grid-column: 1 / -1; }
+@media (max-width: 640px) {
+    .so-promocion-form { grid-template-columns: 1fr; }
+    .so-promocion-resumen, .so-promocion-form button { grid-column: auto; }
+}
+
+/* Promociones combinadas: captura manual por producto */
+.so-promocion-productos { grid-column: 1 / -1; display: grid; gap: 8px; }
+.so-promocion-producto { display: grid; grid-template-columns: minmax(0,1fr) 130px; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+.so-promocion-producto-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.so-promocion-producto-info strong { overflow-wrap: anywhere; color: #0f172a; }
+.so-promocion-producto-info small { color: #64748b; }
+.so-promocion-producto label { font-size: 12px; }
+.so-promocion-error { color: #b91c1c; font-weight: 700; }
+@media (max-width: 640px) { .so-promocion-producto { grid-template-columns: minmax(0,1fr) 100px; } }
+
+/* =========================================================
+   SNACK OFFICE — VENTAS REFRESH (visual only)
+   No modifica reglas de negocio ni eventos de JavaScript.
+   ========================================================= */
+#ventasScreen .content {
+    background: linear-gradient(145deg, #f7f9fc 0%, #f1f5fb 100%);
+}
+
+#nuevaVentaScreen {
+    gap: 20px 22px;
+}
+
+#nuevaVentaScreen .venta-header {
+    padding: 6px 2px 2px;
+}
+
+#nuevaVentaScreen .venta-header h1 {
+    font-size: clamp(27px, 2.4vw, 35px);
+    letter-spacing: -1.1px;
+    font-weight: 800;
+}
+
+#nuevaVentaScreen .venta-header p {
+    color: #748198;
+    font-size: 14px;
+}
+
+#nuevaVentaScreen .venta-contador {
+    border: 1px solid #dce7ff;
+    border-radius: 14px;
+    background: #edf4ff;
+    color: #2457b8;
+    font-weight: 800;
+    box-shadow: none;
+}
+
+#nuevaVentaScreen .venta-buscador input {
+    height: 52px;
+    border: 1px solid #e0e7f0;
+    border-radius: 15px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 5px 18px rgba(28, 49, 85, .045);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+#nuevaVentaScreen .venta-buscador input:focus {
+    border-color: #7da7f7;
+    box-shadow: 0 0 0 4px rgba(64, 119, 225, .11);
+}
+
+#nuevaVentaScreen .categoria-venta {
+    border-color: #e6ebf3;
+    border-radius: 16px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 4px 14px rgba(28, 49, 85, .035);
+}
+
+#nuevaVentaScreen .categoria-venta:hover,
+#nuevaVentaScreen .categoria-venta.activa,
+#nuevaVentaScreen .categoria-venta.seleccionada {
+    border-color: #8aaff9;
+    background: #f3f7ff;
+    box-shadow: 0 8px 20px rgba(49, 99, 190, .09);
+}
+
+#nuevaVentaScreen .categoria-venta strong,
+#nuevaVentaScreen .productos-header h2,
+#nuevaVentaScreen .venta-carrito h2 {
+    color: #20304c;
+}
+
+#nuevaVentaScreen .venta-productos,
+#nuevaVentaScreen .venta-carrito,
+#nuevaVentaScreen .venta-pago,
+#nuevaVentaScreen .venta-cliente {
+    border: 1px solid #e5eaf2;
+    border-radius: 18px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 8px 24px rgba(28, 49, 85, .045);
+}
+
+#nuevaVentaScreen .venta-productos,
+#nuevaVentaScreen .venta-carrito {
+    padding: 19px;
+}
+
+#nuevaVentaScreen .productos-header {
+    min-height: 36px;
+}
+
+#nuevaVentaScreen .btn-volver-categorias {
+    border-radius: 10px;
+}
+
+#nuevaVentaScreen #listaProductosVenta {
+    gap: 13px;
+    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: thin;
+}
+
+#nuevaVentaScreen .producto-venta {
+    border-color: #e7ebf2;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(28, 49, 85, .035);
+}
+
+#nuevaVentaScreen .producto-venta:hover {
+    border-color: #9bbaf7;
+    box-shadow: 0 10px 24px rgba(45, 88, 163, .11);
+}
+
+#nuevaVentaScreen .producto-venta .producto-imagen {
+    background: linear-gradient(180deg, #fbfcff 0%, #f6f8fc 100%);
+    border-bottom-color: #edf1f7;
+}
+
+#nuevaVentaScreen .producto-venta .producto-info > h3 {
+    color: #273750;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#nuevaVentaScreen .producto-precio {
+    color: #2457b8;
+    font-size: 18px;
+}
+
+#nuevaVentaScreen .producto-stock {
+    color: #8490a3;
+}
+
+#nuevaVentaScreen .venta-panel {
+    gap: 13px;
+}
+
+#nuevaVentaScreen .venta-carrito {
+    border-color: #e3e9f2;
+}
+
+#nuevaVentaScreen .venta-carrito h2 {
+    border-bottom: 1px solid #edf1f6;
+}
+
+#nuevaVentaScreen .item-carrito {
+    border-bottom-color: #edf1f6;
+}
+
+#nuevaVentaScreen .item-carrito strong {
+    color: #2a3952;
+}
+
+#nuevaVentaScreen .item-carrito button {
+    border-color: #dce4f0;
+    border-radius: 9px;
+    background: #f8faff;
+}
+
+#nuevaVentaScreen .item-carrito button:hover {
+    background: #eaf1ff;
+    border-color: #bfd1f7;
+}
+
+#nuevaVentaScreen .venta-pago,
+#nuevaVentaScreen .venta-cliente {
+    padding: 17px;
+}
+
+#nuevaVentaScreen .venta-pago h3,
+#nuevaVentaScreen .venta-cliente h3 {
+    color: #34445e;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#nuevaVentaScreen .btn-pago {
+    border-color: #e0e7f0;
+    border-radius: 10px;
+    background: #f9fbfe;
+    color: #53627a;
+}
+
+#nuevaVentaScreen .btn-pago.activo {
+    border-color: #2f67cf;
+    background: #2f67cf;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(47, 103, 207, .18);
+}
+
+#nuevaVentaScreen #clienteVenta {
+    border-color: #e0e7f0;
+    border-radius: 11px;
+}
+
+#nuevaVentaScreen #clienteVenta:focus {
+    border-color: #7da7f7;
+    box-shadow: 0 0 0 3px rgba(64, 119, 225, .1);
+}
+
+#nuevaVentaScreen .venta-total {
+    border: 1px solid #285dbd;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2457b8 0%, #3979e2 100%);
+    box-shadow: 0 9px 20px rgba(36, 87, 184, .19);
+}
+
+#nuevaVentaScreen #btnRegistrarVenta {
+    border-radius: 12px;
+    background: linear-gradient(135deg, #159b68 0%, #20b47b 100%);
+    box-shadow: 0 6px 14px rgba(21, 155, 104, .17);
+}
+
+#nuevaVentaScreen #btnRegistrarVenta:hover {
+    background: linear-gradient(135deg, #11865b 0%, #159b68 100%);
+}
+
+#nuevaVentaScreen #btnCancelarVenta {
+    border: 1px solid #e1e7ef;
+    border-radius: 12px;
+    background: #fff;
+    color: #657187;
+}
+
+#nuevaVentaScreen #btnCancelarVenta:hover {
+    background: #fff5f4;
+    border-color: #f3c9c5;
+}
+
+@media (max-width: 900px) {
+    #ventasScreen .content { padding: 20px 16px; }
+    #nuevaVentaScreen { gap: 15px; }
+    #nuevaVentaScreen .venta-productos,
+    #nuevaVentaScreen .venta-carrito { padding: 15px; }
+}
+
+@media (max-width: 600px) {
+    #ventasScreen .content { padding: 15px 11px; }
+    #nuevaVentaScreen .venta-header h1 { font-size: 27px; }
+    #nuevaVentaScreen .venta-contador { align-self: flex-start; }
+    #nuevaVentaScreen .categoria-venta { border-radius: 13px; }
+    #nuevaVentaScreen .producto-venta { display: grid; grid-template-columns: 94px minmax(0, 1fr); min-height: 112px; }
+    #nuevaVentaScreen .producto-venta .producto-info { display: contents; }
+    #nuevaVentaScreen .producto-venta .producto-imagen { grid-column: 1; grid-row: 1 / span 3; width: 94px; height: 100%; min-height: 112px; border-bottom: 0; border-right: 1px solid #edf1f7; }
+    #nuevaVentaScreen .producto-venta .producto-imagen img { width: 100%; height: 100%; padding: 7px; }
+    #nuevaVentaScreen .producto-venta .producto-info > h3 { grid-column: 2; margin: 13px 12px 4px; align-self: end; }
+    #nuevaVentaScreen .producto-venta .producto-info > .producto-precio { grid-column: 2; margin: 0 12px; }
+    #nuevaVentaScreen .producto-venta .producto-info > .producto-stock { grid-column: 2; margin: 2px 12px 12px; }
+    #nuevaVentaScreen .venta-total { padding: 15px; }
+}
+
+/* Promociones: presentación unificada para perfiles Administración y Ventas */
+.so-promociones { display: grid; gap: 20px; max-width: 1500px; margin: 0 auto; }
+.so-promociones .so-promociones-hero { display: flex; justify-content: space-between; align-items: center; gap: 22px; padding: 24px 26px; border: 1px solid #e4eaf2; border-radius: 18px; background: linear-gradient(120deg, #fff 0%, #fff7f1 100%); box-shadow: 0 8px 24px rgba(15, 23, 42, .05); }
+.so-promociones-eyebrow, .so-promociones-paso { display: block; margin-bottom: 7px; color: #ea580c; font-size: 11px; font-weight: 850; letter-spacing: .12em; }
+.so-promociones .so-promociones-hero h1 { margin: 0 0 7px; color: #0f2348; font-size: clamp(25px, 3vw, 34px); }
+.so-promociones .so-promociones-hero p { margin: 0; color: #64748b; line-height: 1.5; }
+.so-promociones-aviso { display: grid; gap: 5px; flex: 0 0 min(300px, 36%); padding: 14px 16px; border: 1px solid #fed7aa; border-radius: 13px; background: #fff; color: #9a3412; font-size: 12px; line-height: 1.45; }
+.so-promociones-aviso strong { font-size: 13px; }
+.so-promociones .so-promociones-panel, .so-promociones .so-promociones-historial { padding: 22px; border: 1px solid #e4eaf2; border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgba(15, 23, 42, .04); }
+.so-promociones-panel-titulo { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 18px; }
+.so-promociones-panel-titulo h2 { margin: 0; color: #102348; font-size: 20px; }
+.so-promociones-panel-titulo p { max-width: 440px; margin: 0; color: #64748b; font-size: 13px; line-height: 1.5; }
+.so-promociones .so-promocion-form { gap: 16px; }
+.so-promociones .so-promocion-form > label { padding: 13px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+.so-promociones .so-promocion-form > .so-promocion-tipo { background: #fff7ed; border-color: #fed7aa; }
+.so-promociones .so-promocion-form input, .so-promociones .so-promocion-form select { width: 100%; }
+.so-promociones .so-promocion-productos { max-height: 480px; overflow: auto; padding: 3px; }
+.so-promociones .so-promocion-producto { min-height: 62px; padding: 12px 14px; border-color: #e8edf4; background: #fff; transition: border-color .15s, background .15s; }
+.so-promociones .so-promocion-producto:focus-within { border-color: #fb923c; background: #fffaf5; }
+.so-promociones .so-promocion-producto input { min-height: 38px; text-align: center; font-weight: 750; }
+.so-promociones .so-promocion-resumen { padding: 16px 18px; border-color: #c7e9e2; background: #f0fdfa; line-height: 1.8; }
+.so-promociones #btnAplicarPromocion { min-height: 48px; border-radius: 12px; font-weight: 800; }
+.so-promociones .so-tabla-wrap { overflow-x: auto; }
+.so-promociones .so-promociones-historial > small { display: block; margin-top: 12px; color: #64748b; line-height: 1.5; }
+@media (max-width: 760px) {
+  .so-promociones .so-promociones-hero, .so-promociones-panel-titulo { align-items: stretch; flex-direction: column; }
+  .so-promociones-aviso { flex-basis: auto; }
+  .so-promociones .so-promociones-panel, .so-promociones .so-promociones-historial { padding: 15px; }
+  .so-promociones .so-promocion-producto { grid-template-columns: minmax(0, 1fr) 92px; }
+}
+
+.so-promociones-hero #btnVolverDesdePromociones { flex: 0 0 auto; min-height: 42px; padding: 10px 14px; border: 1px solid #dbe2ea; border-radius: 10px; background: #fff; color: #334155; font-weight: 750; cursor: pointer; }
+
+
+/* Promoción integrada en Nueva venta */
+.venta-promocion-card{margin:18px 0;padding:18px 20px;border:1px solid #fed7aa;border-radius:16px;background:linear-gradient(135deg,#fffaf5,#fff7ed);box-shadow:0 8px 24px rgba(124,45,18,.06)}
+.venta-promocion-cabecera{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.venta-promocion-etiqueta{display:block;color:#ea580c;font-size:10px;font-weight:900;letter-spacing:.14em}
+.venta-promocion-cabecera h3{margin:4px 0 0;color:#10234b;font-size:19px}
+.venta-promocion-badge{padding:6px 10px;border:1px solid #fed7aa;border-radius:999px;background:#fff;color:#9a3412;font-size:11px;font-weight:800}
+.venta-promocion-card>label{display:block;margin:10px 0 6px;color:#10234b;font-size:13px;font-weight:800}
+.venta-promocion-card select{width:100%;min-height:43px;padding:10px 12px;border:1px solid #dbe3ee;border-radius:10px;background:#fff;color:#10234b;font:inherit}
+.venta-promocion-regla{margin:10px 0;padding:10px 12px;border-left:3px solid #fb923c;border-radius:6px;background:rgba(255,255,255,.8);color:#7c2d12;font-size:13px;line-height:1.5}
+.venta-promocion-resumen{color:#334155;font-size:13px;line-height:1.65}
+.venta-promocion-resumen strong{color:#10234b}
+.venta-descuento{color:#15803d;font-size:12px;font-weight:700}
+@media(max-width:640px){.venta-promocion-card{padding:14px}.venta-promocion-cabecera h3{font-size:17px}.venta-promocion-badge{white-space:normal}}
+
+/* Promociones configuradas por ADMIN y señalización automática en Ventas */
+.producto-venta.producto-con-promocion { position: relative; border: 2px solid #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,.12); }
+.producto-promo-badge { display:inline-flex; align-items:center; gap:4px; max-width:100%; margin:0 0 8px; padding:5px 8px; border-radius:7px; background:#fff0c2; color:#8a3d00; border:1px solid #f59e0b; font-size:.72rem; font-weight:800; line-height:1.2; }
+.so-promocion-seleccion { border:1px solid #e1e8f2; border-radius:12px; padding:14px; background:#f8fafc; }
+.so-promocion-seleccion h3 { margin:0 0 6px; }
+.so-promocion-seleccion>p { margin:0 0 12px; color:#53647e; font-size:.9rem; }
+.so-promocion-seleccion input[type=search] { width:100%; margin-bottom:10px; }
+.so-promocion-productos .so-promocion-producto { display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #e5eaf2; background:#fff; cursor:pointer; }
+.so-promocion-productos .so-promocion-producto[hidden] { display:none !important; }
+.so-promocion-productos .so-promocion-producto input[type=checkbox] { width:18px; height:18px; flex:0 0 auto; }
+.so-promocion-producto-info { display:flex; flex-direction:column; gap:3px; }
+.so-promocion-producto-info small { color:#64748b; }
+.so-promocion-acciones { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.promo-estado { display:inline-block; padding:4px 8px; border-radius:999px; font-size:.78rem; font-weight:700; }
+.promo-estado.activa { color:#166534; background:#dcfce7; }
+.promo-estado.inactiva { color:#475569; background:#e2e8f0; }
+@media (max-width: 700px) { .so-promocion-productos .so-promocion-producto { align-items:flex-start; } .producto-promo-badge { font-size:.66rem; } }
+
+
+/* Fechas y horas visibles en los movimientos detallados de CxC. */
+.movimiento-cxc-fecha {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: #687b98;
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   PULIDO VISUAL — botones con relieve discreto y consistente
+   ========================================================= */
+button:not(.producto-venta):not([style*="background:transparent"]):not([style*="background: transparent"]) {
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+    box-shadow: 0 3px 0 rgba(7, 26, 65, .14), 0 5px 10px rgba(7, 26, 65, .07);
+    transform: translateY(0);
+}
+
+button:not(.producto-venta):not([style*="background:transparent"]):not([style*="background: transparent"]):hover:not(:disabled) {
+    filter: brightness(.985);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 rgba(7, 26, 65, .13), 0 7px 13px rgba(7, 26, 65, .09);
+}
+
+button:not(.producto-venta):not([style*="background:transparent"]):not([style*="background: transparent"]):active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(7, 26, 65, .16), 0 2px 4px rgba(7, 26, 65, .06);
+}
+
+button:focus-visible {
+    outline: 3px solid rgba(255, 90, 20, .38);
+    outline-offset: 2px;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    filter: saturate(.65);
+}
+
+/* El carrito completo permanece fijo; en pantallas pequeñas vuelve al flujo normal. */
+@media (min-width: 851px) {
+    .venta-panel {
+        position: sticky;
+        top: 14px;
+        max-height: calc(100vh - 28px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+}
+
+@media (max-width: 850px) {
+    .venta-panel {
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+/* Iconografía minimalista para sustituir emojis decorativos de módulos. */
+.so-icon { display:inline-block; position:relative; width:1.05em; height:1.05em; vertical-align:-.16em; color:currentColor; }
+.so-icon-clientes::before { content:""; position:absolute; width:.36em; height:.36em; left:.32em; top:.06em; border:1.7px solid currentColor; border-radius:50%; }
+.so-icon-clientes::after { content:""; position:absolute; width:.78em; height:.4em; left:.1em; bottom:.04em; border:1.7px solid currentColor; border-radius:.55em .55em .25em .25em; }
+.so-icon-ventas::before { content:""; position:absolute; left:.08em; top:.15em; width:.78em; height:.55em; border:1.7px solid currentColor; border-radius:.12em; }
+.so-icon-ventas::after { content:""; position:absolute; left:.18em; bottom:.03em; width:.15em; height:.15em; border:1.7px solid currentColor; border-radius:50%; box-shadow:.48em 0 0 -1px currentColor; }
+.so-icon-pagos::before { content:"$"; position:absolute; inset:-.18em 0 0; font-size:1.1em; line-height:1.1; font-weight:800; text-align:center; }
+.so-icon-activo::before { content:""; position:absolute; inset:.18em; border-radius:50%; background:currentColor; }
+
+/* El desplazamiento pertenece al panel completo, no a subpaneles anidados. */
+@media (min-width: 851px) {
+    #nuevaVentaScreen .venta-panel .venta-carrito {
+        position: static;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    #nuevaVentaScreen .venta-panel .venta-total,
+    #nuevaVentaScreen .venta-panel .venta-acciones {
+        position: static;
+        top: auto;
+        z-index: auto;
+    }
+}
+
+@media (max-width: 850px) {
+    #nuevaVentaScreen .venta-panel .venta-carrito {
+        position: static;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    #nuevaVentaScreen .venta-panel .venta-total,
+    #nuevaVentaScreen .venta-panel .venta-acciones {
+        position: static;
+        top: auto;
+        z-index: auto;
+    }
+}
+
+/* =========================================================
+   AJUSTES VISUALES CONSOLIDADOS — 2026-10-19
+   Mantiene la paleta original y mejora jerarquía, densidad y accesibilidad.
+   ========================================================= */
+
+/* Navegación: activo sutil, sin bordes blancos excesivos. */
+.sidebar button {
+    border: 1px solid transparent;
+    border-left: 3px solid transparent;
+    background: transparent;
+    text-align: left;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.sidebar button:hover {
+    background: rgba(255,255,255,.09);
+    border-left-color: rgba(255,255,255,.45);
+}
+.sidebar button.active,
+.sidebar button[aria-current="page"] {
+    background: rgba(255,255,255,.13);
+    border-left-color: #ff6a2a;
+}
+.sidebar button:last-child {
+    border: 1px solid transparent;
+    background: transparent;
+    color: #d7deeb;
+    box-shadow: none;
+}
+.sidebar button:last-child:hover { color: #fff; background: rgba(255,255,255,.08); }
+
+/* Nueva venta: categorías compactas y estado seleccionado visible. */
+#nuevaVentaScreen .categoria-venta {
+    min-height: 78px;
+    padding: 10px 12px;
+    border: 1px solid #e3e9f2;
+    border-radius: 12px;
+    background: #fff;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+}
+#nuevaVentaScreen .categoria-venta span { font-size: 22px; margin-bottom: 3px; }
+#nuevaVentaScreen .categoria-venta strong { font-size: 13px; }
+#nuevaVentaScreen .categoria-venta small { font-size: 11px; }
+#nuevaVentaScreen .categoria-venta:hover { transform: translateY(-2px); }
+#nuevaVentaScreen .categoria-venta.activa,
+#nuevaVentaScreen .categoria-venta.seleccionada {
+    border-color: #ff8a50;
+    background: #fff7f1;
+    box-shadow: inset 0 0 0 1px rgba(255,106,42,.12), 0 4px 12px rgba(255,106,42,.08);
+}
+#nuevaVentaScreen #buscarProductoVenta,
+#nuevaVentaScreen .venta-buscador input {
+    border: 1px solid #d8e0eb;
+    border-radius: 11px;
+    background: #fff;
+}
+#nuevaVentaScreen #buscarProductoVenta:focus,
+#nuevaVentaScreen .venta-buscador input:focus {
+    outline: none;
+    border-color: #7da7f7;
+    box-shadow: 0 0 0 3px rgba(64,119,225,.10);
+}
+#nuevaVentaScreen .producto-venta {
+    cursor: pointer;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#nuevaVentaScreen .producto-venta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    border-color: #b8c9e8;
+}
+#nuevaVentaScreen .producto-precio { font-size: 1.2rem; font-weight: 850; }
+#nuevaVentaScreen .producto-stock {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #f1f5f9;
+    color: #526176;
+}
+#nuevaVentaScreen .producto-venta.stock-alto .producto-stock { background: #dcfce7; color: #15803d; }
+#nuevaVentaScreen .producto-venta.stock-medio .producto-stock { background: #fef3c7; color: #92400e; }
+#nuevaVentaScreen .producto-venta.stock-bajo .producto-stock { background: #fee2e2; color: #b91c1c; }
+#nuevaVentaScreen .producto-venta:focus-visible { outline: 3px solid rgba(255,106,42,.38); outline-offset: 2px; }
+
+/* Carrito, pago y cliente con jerarquía y separaciones consistentes. */
+#nuevaVentaScreen .venta-panel { gap: 10px; }
+#nuevaVentaScreen .venta-carrito,
+#nuevaVentaScreen .venta-pago,
+#nuevaVentaScreen .venta-cliente { border-radius: 14px; }
+#nuevaVentaScreen .venta-carrito h2,
+#nuevaVentaScreen .venta-pago h3,
+#nuevaVentaScreen .venta-cliente h3 {
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #edf0f4;
+}
+#nuevaVentaScreen .pago-opciones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+}
+#nuevaVentaScreen .btn-pago {
+    min-height: 42px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    justify-content: center;
+}
+#nuevaVentaScreen .btn-pago:not(.activo):hover { background: #f8fafc; border-color: #94a3b8; }
+#nuevaVentaScreen #carritoVenta > p {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    color: #8994a5;
+    text-align: center;
+}
+#nuevaVentaScreen .venta-total { color: #fff; }
+#nuevaVentaScreen .venta-total strong,
+#nuevaVentaScreen .venta-total span { color: #fff; }
+
+/* Historial: dos ventas por fila en escritorio, una en móvil. */
+#historialVentasScreen { max-width: 1500px; }
+#listaHistorialVentas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    align-items: start;
+    gap: 14px;
+}
+#listaHistorialVentas .historial-venta { min-width: 0; padding: 16px; border-radius: 13px; }
+#listaHistorialVentas .historial-venta h3:first-child { font-size: 17px; }
+#listaHistorialVentas .historial-venta p { font-size: 13px; overflow-wrap: anywhere; }
+#listaHistorialVentas .historial-venta h3:last-child { font-size: 19px; }
+
+/* Clientes: importes con jerarquía, saldos cero neutros y acciones secundarias. */
+.so-metricas > div > span { border-radius: 50%; background: #f1f5fb; }
+.so-metricas > div:nth-child(3) > span { background: #fff1e7; color: #c45a00; }
+.so-metricas > div:nth-child(4) > span { background: #dcfce7; color: #15803d; }
+.cliente-card-metricas small { color: #778397; font-size: 10px; }
+.cliente-card-metricas strong { font-size: 15px; }
+.cliente-card-metricas .cliente-deuda { color: #c45a00; }
+.cliente-card-metricas .cliente-favor { color: #15803d; }
+#listaClientesVentas .btn-ver-estado-cuenta { background: #fff; color: #e95412; border: 1px solid #ffb18b; box-shadow: none; }
+#listaClientesVentas .btn-ver-estado-cuenta:hover { background: #fff7f1; border-color: #ff8a50; }
+#listaClientesVentas .cliente-card-ventas { padding: 16px; }
+
+/* Administración > Promociones: miniaturas discretas y tarjetas legibles. */
+.so-promociones .so-promocion-producto {
+    display: grid;
+    grid-template-columns: 18px 48px minmax(0,1fr);
+    align-items: center;
+    gap: 10px;
+    min-height: 66px;
+    padding: 8px 10px;
+}
+.so-promocion-producto-imagen {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border: 1px solid #edf0f5;
+    border-radius: 8px;
+    background: #fff;
+    color: #94a3b8;
+    font-size: 22px;
+}
+.so-promocion-producto-imagen img { width: 100%; height: 100%; padding: 3px; object-fit: contain; }
+.so-promociones .so-promociones-aviso { flex-basis: min(340px, 38%); }
+.so-promociones .so-promociones-aviso span { line-height: 1.5; }
+
+@media (max-width: 760px) {
+    #listaHistorialVentas { grid-template-columns: minmax(0,1fr); }
+    .so-promociones .so-promocion-producto { grid-template-columns: 18px 42px minmax(0,1fr); }
+    .so-promocion-producto-imagen { width: 42px; height: 42px; }
+}
+@media (max-width: 520px) {
+    #nuevaVentaScreen .pago-opciones { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    #nuevaVentaScreen .categoria-venta { min-height: 70px; padding: 8px; }
+}
+
+
+/* Ajustes de revisión visual v3: coherencia de marca e iconos KPI. */
+#loginScreen {
+    background:
+        radial-gradient(circle at 12% 20%, rgba(255,255,255,.12) 0 80px, transparent 81px),
+        radial-gradient(circle at 88% 18%, rgba(255,255,255,.10) 0 110px, transparent 111px),
+        linear-gradient(135deg, #071a41 0%, #12356d 52%, #214d88 100%);
+}
+#loginScreen::before,
+#loginScreen::after {
+    background: rgba(255,255,255,.07);
+}
+#loginScreen .login-button {
+    background: linear-gradient(135deg, #ff5a1f, #ff741f);
+    box-shadow: 0 7px 16px rgba(255,90,31,.22);
+}
+#loginScreen .login-button:hover {
+    box-shadow: 0 10px 20px rgba(255,90,31,.28);
+}
+
+.clientes-resumen .resumen-pendiente > span.so-icon,
+.pendientes-resumen .resumen-pendiente > span.so-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 12px;
+    background: #f0f5fc;
+    color: #244b83;
+}
+.clientes-resumen .so-icon-clientes::before,
+.pendientes-resumen .so-icon-clientes::before {
+    width: 7px;
+    height: 7px;
+    left: 17px;
+    top: 7px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+}
+.clientes-resumen .so-icon-clientes::after,
+.pendientes-resumen .so-icon-clientes::after {
+    width: 17px;
+    height: 9px;
+    left: 12px;
+    bottom: 7px;
+    border: 2px solid currentColor;
+    border-radius: 10px 10px 5px 5px;
+}
+.clientes-resumen .so-icon-ventas::before,
+.pendientes-resumen .so-icon-ventas::before {
+    width: 17px;
+    height: 12px;
+    left: 12px;
+    top: 10px;
+    border: 2px solid currentColor;
+    border-radius: 3px;
+}
+.clientes-resumen .so-icon-ventas::after,
+.pendientes-resumen .so-icon-ventas::after {
+    width: 4px;
+    height: 4px;
+    left: 15px;
+    bottom: 8px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    box-shadow: 11px 0 0 -1px #f0f5fc, 11px 0 0 1px currentColor;
+}
+.clientes-resumen .so-icon-pagos,
+.pendientes-resumen .so-icon-pagos {
+    background: #fff5e9 !important;
+    color: #bd5a00 !important;
+}
+.clientes-resumen .so-icon-pagos::before,
+.pendientes-resumen .so-icon-pagos::before {
+    content: "$";
+    position: absolute;
+    inset: 0;
+    font-size: 22px;
+    line-height: 42px;
+    font-weight: 800;
+    text-align: center;
+}
+.clientes-resumen .so-icon-activo,
+.pendientes-resumen .so-icon-activo {
+    background: #e8f8ef !important;
+    color: #16804a !important;
+}
+.clientes-resumen .so-icon-activo::before,
+.pendientes-resumen .so-icon-activo::before {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    font-size: 24px;
+    line-height: 42px;
+    font-weight: 800;
+    text-align: center;
+    background: none;
+}
+.clientes-resumen .so-icon-activo::after,
+.pendientes-resumen .so-icon-activo::after { content: none; }
