@@ -374,6 +374,7 @@ export async function renderizarCortes() {
                     <div class="so-modulo-acciones">
                         <span class="so-estado-jornada">🟢 Jornada abierta</span>
                         <button type="button" id="btnExportarCorteActual" class="so-btn-secundario">⬇ Exportar corte CSV</button>
+                        ${esMaster() ? '<button type="button" id="btnReiniciarDatosPrueba" class="so-btn-secundario" style="border-color:#b91c1c;color:#b91c1c">🧹 Reiniciar datos de prueba</button>' : ''}
                     </div>
                 </div>
 
@@ -447,6 +448,7 @@ export async function renderizarCortes() {
         `;
 
         document.getElementById("btnCerrarJornada")?.addEventListener("click", cerrarJornada);
+        document.getElementById("btnReiniciarDatosPrueba")?.addEventListener("click", reiniciarDatosPrueba);
         document.getElementById("btnExportarCorteActual")?.addEventListener("click", async () => {
             try {
                 const ventasCorte = await obtenerVentasJornada(jornada.id);
@@ -491,6 +493,81 @@ export async function renderizarCortes() {
                 <div class="so-vacio">❌ ${error.message || "No fue posible cargar el corte."}</div>
             </section>
         `;
+    }
+}
+
+
+async function reiniciarDatosPrueba(evento) {
+    const boton = evento?.currentTarget || document.getElementById("btnReiniciarDatosPrueba");
+    if (!esMaster()) {
+        alert("Esta acción está disponible únicamente para MASTER.");
+        return;
+    }
+
+    const primera = confirm(
+        "⚠️ REINICIAR DATOS DE PRUEBA EN SUPABASE
+
+" +
+        "Se eliminarán TODAS las ventas, movimientos de CxC, promociones, jornadas/reportes y claves de idempotencia transaccionales de esta base. Se conservarán clientes, productos, existencias actuales, imágenes, perfiles y configuración.
+
+" +
+        "No se restaurará el stock automáticamente. Usa esta función solo mientras todas las operaciones de la base sean pruebas. Esta acción no se puede deshacer.
+
+¿Deseas continuar?"
+    );
+    if (!primera) return;
+
+    const confirmacion = prompt('Para confirmar, escribe exactamente: REINICIAR DATOS DE PRUEBA');
+    if (confirmacion !== "REINICIAR DATOS DE PRUEBA") {
+        alert("Reinicio cancelado. No se realizaron cambios.");
+        return;
+    }
+
+    const textoOriginal = boton?.textContent || "🧹 Reiniciar datos de prueba";
+    if (boton) {
+        boton.disabled = true;
+        boton.textContent = "⏳ Reiniciando...";
+    }
+
+    try {
+        const { data, error } = await supabase.rpc("reiniciar_datos_prueba_master", {
+            p_confirmacion: confirmacion
+        });
+        if (error) throw error;
+
+        const resultado = Array.isArray(data) ? data[0] : data;
+        [
+            "historialVentas", "cuentasPendientes", "movimientosCxC", "jornadaActual",
+            "jornadasArchivadas", "ventas", "promociones", "reportes", "reportesArchivados",
+            "cortes", "cortesArchivados"
+        ].forEach(clave => localStorage.removeItem(clave));
+
+        alert(
+            "✅ Datos de prueba reiniciados en Supabase.
+
+" +
+            `Promociones eliminadas: ${resultado?.promociones_eliminadas ?? "—"}
+` +
+            `Movimientos CxC eliminados: ${resultado?.movimientos_cxc_eliminados ?? "—"}
+` +
+            `Ventas eliminadas: ${resultado?.ventas_eliminadas ?? "—"}
+` +
+            `Jornadas/reportes eliminados: ${resultado?.jornadas_eliminadas ?? "—"}
+` +
+            `Claves de idempotencia eliminadas: ${resultado?.idempotencias_eliminadas ?? "—"}
+
+` +
+            "Se conservaron clientes, productos, existencias actuales, imágenes, perfiles y configuración."
+        );
+        location.reload();
+    } catch (error) {
+        console.error("Error al reiniciar datos de prueba:", error);
+        alert("❌ No se pudo reiniciar la información. Supabase revirtió la operación si ocurrió un error.\n\n" + (error?.message || error));
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.textContent = textoOriginal;
+        }
     }
 }
 

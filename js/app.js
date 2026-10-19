@@ -13,7 +13,7 @@ import { iniciarInventario } from "./inventario.js?v=20261007-3";
 import { iniciarAdministrador } from "./admin.js?v=20261016-integrado3";
 import { iniciarPromociones } from "./promociones.js?v=20261019-promos-fix3";
 import { iniciarCatalogoClientes } from "./catalogo-clientes.js?v=20261016-integrado3";
-import { iniciarCortesReportes } from "./cortes-reportes.js?v=20261016-integrado3";
+import { iniciarCortesReportes } from "./cortes-reportes.js?v=20261019-resetmaster1";
 
 console.log("Snack Office iniciado");
 
