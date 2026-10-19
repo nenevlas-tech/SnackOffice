@@ -505,15 +505,10 @@ async function reiniciarDatosPrueba(evento) {
     }
 
     const primera = confirm(
-        "⚠️ REINICIAR DATOS DE PRUEBA EN SUPABASE
-
-" +
-        "Se eliminarán TODAS las ventas, movimientos de CxC, promociones, jornadas/reportes y claves de idempotencia transaccionales de esta base. Se conservarán clientes, productos, existencias actuales, imágenes, perfiles y configuración.
-
-" +
-        "No se restaurará el stock automáticamente. Usa esta función solo mientras todas las operaciones de la base sean pruebas. Esta acción no se puede deshacer.
-
-¿Deseas continuar?"
+        "⚠️ REINICIAR DATOS DE PRUEBA EN SUPABASE\n\n" +
+        "Se eliminarán TODAS las ventas, movimientos de CxC, promociones, jornadas/reportes y claves de idempotencia transaccionales de esta base. Se conservarán clientes, productos, existencias actuales, imágenes, perfiles y configuración.\n\n" +
+        "No se restaurará el stock automáticamente. Usa esta función solo mientras todas las operaciones de la base sean pruebas. Esta acción no se puede deshacer.\n\n" +
+        "¿Deseas continuar?"
     );
     if (!primera) return;
 
@@ -543,20 +538,12 @@ async function reiniciarDatosPrueba(evento) {
         ].forEach(clave => localStorage.removeItem(clave));
 
         alert(
-            "✅ Datos de prueba reiniciados en Supabase.
-
-" +
-            `Promociones eliminadas: ${resultado?.promociones_eliminadas ?? "—"}
-` +
-            `Movimientos CxC eliminados: ${resultado?.movimientos_cxc_eliminados ?? "—"}
-` +
-            `Ventas eliminadas: ${resultado?.ventas_eliminadas ?? "—"}
-` +
-            `Jornadas/reportes eliminados: ${resultado?.jornadas_eliminadas ?? "—"}
-` +
-            `Claves de idempotencia eliminadas: ${resultado?.idempotencias_eliminadas ?? "—"}
-
-` +
+            `✅ Datos de prueba reiniciados en Supabase.\n\n` +
+            `Promociones eliminadas: ${resultado?.promociones_eliminadas ?? "—"}\n` +
+            `Movimientos CxC eliminados: ${resultado?.movimientos_cxc_eliminados ?? "—"}\n` +
+            `Ventas eliminadas: ${resultado?.ventas_eliminadas ?? "—"}\n` +
+            `Jornadas/reportes eliminados: ${resultado?.jornadas_eliminadas ?? "—"}\n` +
+            `Claves de idempotencia eliminadas: ${resultado?.idempotencias_eliminadas ?? "—"}\n\n` +
             "Se conservaron clientes, productos, existencias actuales, imágenes, perfiles y configuración."
         );
         location.reload();
