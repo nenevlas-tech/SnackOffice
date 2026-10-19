@@ -5825,3 +5825,182 @@ button:disabled {
 }
 .clientes-resumen .so-icon-activo::after,
 .pendientes-resumen .so-icon-activo::after { content: none; }
+
+
+/* SnackOffice: ajustes móviles para Administración > Promociones */
+.so-promociones,
+.so-promociones * {
+    box-sizing: border-box;
+}
+
+.so-promociones {
+    width: 100%;
+    min-width: 0;
+}
+
+.so-promociones .so-promociones-panel,
+.so-promociones .so-promociones-historial {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.so-promociones .so-promocion-form input,
+.so-promociones .so-promocion-form select {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.so-promociones .so-promocion-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.so-promociones .so-promocion-acciones button {
+    min-height: 44px;
+    padding: 11px 16px;
+    border: 1px solid #dbe3ee;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.so-promociones #btnGuardarConfigPromo {
+    color: #fff;
+    background: linear-gradient(135deg, #ff5a1f, #ea580c);
+    border-color: #ea580c;
+    box-shadow: 0 4px 10px rgba(234, 88, 12, .18);
+}
+
+.so-promociones #btnGuardarConfigPromo:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.so-promociones .so-tabla-wrap {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
+}
+
+.so-promociones .so-tabla-wrap > table {
+    min-width: 760px;
+    width: 100%;
+}
+
+.so-promociones .so-tabla-wrap th,
+.so-promociones .so-tabla-wrap td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+}
+
+@media (max-width: 640px) {
+    .so-promociones {
+        gap: 14px;
+    }
+
+    .so-promociones .so-promociones-hero,
+    .so-promociones .so-promociones-panel,
+    .so-promociones .so-promociones-historial {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .so-promociones .so-promociones-hero h1 {
+        font-size: 25px;
+        overflow-wrap: anywhere;
+    }
+
+    .so-promociones .so-promociones-panel-titulo {
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .so-promociones .so-promociones-panel-titulo h2 {
+        font-size: 19px;
+        overflow-wrap: anywhere;
+    }
+
+    .so-promociones .so-promocion-acciones {
+        flex-direction: column;
+    }
+
+    .so-promociones .so-promocion-acciones button {
+        width: 100%;
+    }
+
+    .so-promociones .so-promocion-producto {
+        grid-template-columns: 18px 38px minmax(0, 1fr);
+        gap: 8px;
+        padding: 9px;
+    }
+
+    .so-promociones .so-promocion-producto-imagen {
+        width: 38px;
+        height: 38px;
+    }
+
+    .so-promociones .so-promocion-producto-info strong {
+        overflow-wrap: anywhere;
+    }
+}
+
+
+/* FIX móvil: tabla de promociones y botones */
+@media (max-width: 760px) {
+    .so-promociones,
+    .so-promociones .so-promociones-historial,
+    .so-promociones .so-promociones-panel,
+    .so-promociones .so-tabla-wrap {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .so-promociones .so-tabla-wrap {
+        display: block;
+        overflow-x: scroll !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        overscroll-behavior-x: contain;
+    }
+
+    .so-promociones .so-tabla-wrap table {
+        width: 760px;
+        min-width: 760px;
+        table-layout: auto;
+    }
+
+    .so-promociones .so-tabla-wrap th,
+    .so-promociones .so-tabla-wrap td {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .so-promociones .so-promocion-acciones {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .so-promociones .so-promocion-acciones button {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 10px;
+        font-weight: 750;
+    }
+
+    .so-promociones #btnGuardarConfigPromo {
+        color: #fff;
+        background: #ea580c;
+        border: 1px solid #ea580c;
+    }
+}
