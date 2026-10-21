@@ -205,14 +205,21 @@ async function guardarProductoEnSupabase(producto) {
 }
 
 async function eliminarProductoDeSupabase(id) {
-    const { error } = await supabase
-        .from("productos")
-        .delete()
-        .eq("id", id);
+    // La eliminación se realiza mediante una RPC segura en Supabase.
+    // La función valida en el servidor que el perfil esté activo y sea MASTER o ADMIN.
+    const { data, error } = await supabase.rpc("eliminar_producto_autorizado", {
+        p_id: String(id)
+    });
 
     if (error) {
         console.error("❌ Error eliminando producto de Supabase:", error);
-        alert(`❌ No se pudo eliminar el producto de la base central.\n\n${error.message}`);
+        alert(`❌ No se pudo eliminar el producto de la base central.\\n\\n${error.message}`);
+        return false;
+    }
+
+    if (!data || data.eliminado !== true) {
+        console.error("❌ Supabase no confirmó la eliminación:", data);
+        alert("❌ Supabase no confirmó la eliminación del producto. No se modificó la lista local.");
         return false;
     }
 
