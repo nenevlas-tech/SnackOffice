@@ -114,6 +114,12 @@ function configurarNavegacionVentas() {
         btnClientesVentas.addEventListener("click", async () => {
             mostrarPantallaVentas("clientesVentasScreen");
             try { await cargarCatalogoClientesCentral(); } catch (error) { console.warn("No se pudo actualizar catálogo de clientes:", error); }
+            try {
+                const cxcActualizada = await cargarCxCDesdeSupabase();
+                if (!cxcActualizada) console.warn("No se pudo actualizar CxC; se conserva la información local disponible.");
+            } catch (error) {
+                console.warn("No se pudo actualizar CxC al abrir Clientes:", error);
+            }
             cargarClientesVentas();
         });
     }
@@ -280,7 +286,33 @@ function configurarNuevaVenta() {
         buscarCliente.addEventListener("input", cargarClientesVentas);
     }
 
-    document.getElementById("btnRefrescarClientes")?.addEventListener("click", cargarClientesVentas);
+    document.getElementById("btnRefrescarClientes")?.addEventListener("click", async evento => {
+        const boton = evento.currentTarget;
+        const textoOriginal = boton?.textContent;
+        if (boton) {
+            boton.disabled = true;
+            boton.textContent = "Actualizando...";
+        }
+        try {
+            const cxcActualizada = await cargarCxCDesdeSupabase();
+            if (!cxcActualizada) {
+                alert("No se pudo actualizar el saldo desde Supabase. Se conserva la información disponible; intenta de nuevo cuando haya conexión.");
+                return;
+            }
+            try { await cargarCatalogoClientesCentral(); } catch (error) {
+                console.warn("No se pudo actualizar catálogo de clientes:", error);
+            }
+            cargarClientesVentas();
+        } catch (error) {
+            console.error("Error actualizando clientes y saldos:", error);
+            alert("No se pudieron actualizar los saldos desde Supabase. No se modificaron los registros centrales.");
+        } finally {
+            if (boton) {
+                boton.disabled = false;
+                boton.textContent = textoOriginal || "Actualizar";
+            }
+        }
+    });
 
     document.getElementById("btnCerrarModalAbono")?.addEventListener("click", cerrarModalAbono);
     document.getElementById("btnCancelarAbonoCxc")?.addEventListener("click", cerrarModalAbono);
@@ -1171,6 +1203,27 @@ function obtenerCuentasPendientes() {
     return JSON.parse(localStorage.getItem("cuentasPendientes")) || [];
 }
 
+// Conserva un respaldo local de cuentas antiguas que no aparecen en Supabase.
+// No se muestran como deuda vigente, pero pueden revisarse manualmente si eran
+// registros históricos legítimos que aún no se habían migrado.
+function respaldarCuentasLocalesNoCentrales(cuentasLocales, idsVentasCentral = new Set()) {
+    const antiguas = (Array.isArray(cuentasLocales) ? cuentasLocales : [])
+        .filter(c => !idsVentasCentral.has(String(c.id)));
+    if (!antiguas.length) return;
+
+    const claveRespaldo = "cuentasPendientes_respaldo_pre_cxc_central_20261022";
+    try {
+        const existentes = JSON.parse(localStorage.getItem(claveRespaldo) || "[]");
+        const mapa = new Map((Array.isArray(existentes) ? existentes : []).map(c => [String(c.id), c]));
+        antiguas.forEach(c => {
+            if (!mapa.has(String(c.id))) mapa.set(String(c.id), c);
+        });
+        localStorage.setItem(claveRespaldo, JSON.stringify(Array.from(mapa.values())));
+    } catch (error) {
+        console.warn("No se pudo guardar respaldo de cuentas locales antiguas:", error);
+    }
+}
+
 // -------------------------------------
 // CxC CENTRALIZADO EN SUPABASE
 // -------------------------------------
@@ -1247,6 +1300,10 @@ async function cargarCxCDesdeSupabase() {
     }
 
     if (!ventasCentral || ventasCentral.length === 0) {
+        // Supabase respondió correctamente y no hay ventas centrales:
+        // respaldar y retirar saldos locales antiguos de la vista vigente.
+        respaldarCuentasLocalesNoCentrales(obtenerCuentasPendientes());
+        localStorage.setItem("cuentasPendientes", JSON.stringify([]));
         return true;
     }
 
@@ -1297,17 +1354,12 @@ async function cargarCxCDesdeSupabase() {
                 }))
         }));
 
-    // Conservamos cuentas locales antiguas solo si todavía no existe su venta en Supabase.
-    // Para las ventas centrales, Supabase es la fuente de verdad y evita reintroducir saldos obsoletos.
-    const cuentasLocales = obtenerCuentasPendientes();
+    // Tras una consulta central exitosa, Supabase es la fuente única de saldos.
+    // Respaldar las cuentas locales que no estén en central y no mezclarlas con
+    // los saldos vigentes: podrían duplicar deudas o reaparecer como saldo obsoleto.
     const idsVentasCentral = new Set(ventasCentral.map(v => String(v.id)));
-    const cuentasMap = new Map(
-        cuentasLocales
-            .filter(c => !idsVentasCentral.has(String(c.id)))
-            .map(c => [String(c.id), c])
-    );
-    cuentas.forEach(cuenta => cuentasMap.set(String(cuenta.id), cuenta));
-    localStorage.setItem("cuentasPendientes", JSON.stringify(Array.from(cuentasMap.values())));
+    respaldarCuentasLocalesNoCentrales(obtenerCuentasPendientes(), idsVentasCentral);
+    localStorage.setItem("cuentasPendientes", JSON.stringify(cuentas));
 
     // Las ventas centrales se mezclan con el historial local existente.
     // Así no borramos datos históricos mientras terminamos la migración.

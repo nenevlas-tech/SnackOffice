@@ -6,7 +6,7 @@
 import { supabase } from "./supabase.js?v=20261007-1";
 import { inicializarCatalogo } from "./catalogo-inicial.js?v=20261007-1";
 import { inicializarImagenesCatalogo } from "./imagenes-iniciales.js?v=20261019-imgfix3";
-import { iniciarVentas } from "./ventas.js?v=20261017-cxcfix1";
+import { iniciarVentas } from "./ventas.js?v=20261022-cxc-cachefix1";
 import { iniciarLogin } from "./login.js?v=20261007-5";
 
 import { iniciarInventario } from "./inventario.js?v=20261007-3";
