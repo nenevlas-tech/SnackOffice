@@ -6004,3 +6004,211 @@ button:disabled {
         border: 1px solid #ea580c;
     }
 }
+
+
+/* =========================================================
+   AJUSTE RESPONSIVO EXCLUSIVO DEL PERFIL DE VENTAS
+   Optimizado para pantallas de escritorio compactas (1360x768)
+   ========================================================= */
+@media (min-width: 851px) {
+    #ventasScreen .content {
+        padding: 18px 22px;
+        box-sizing: border-box;
+    }
+
+    #ventasScreen #ventasContentArea {
+        max-width: 1600px;
+    }
+
+    #ventasScreen #nuevaVentaScreen {
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 330px);
+        gap: 14px 18px;
+        align-items: start;
+    }
+
+    #ventasScreen .venta-categorias {
+        gap: 10px;
+    }
+
+    #ventasScreen .categoria-venta {
+        min-height: 78px;
+    }
+
+    #ventasScreen .categoria-venta span {
+        font-size: 24px;
+    }
+
+    #ventasScreen .venta-productos {
+        padding: 15px;
+        min-height: 460px;
+    }
+
+    #ventasScreen #listaProductosVenta {
+        max-height: max(420px, calc(100vh - 285px));
+        min-height: 420px;
+        gap: 10px;
+        align-content: start;
+    }
+
+    #ventasScreen .producto-venta {
+        min-height: 190px;
+    }
+
+    #ventasScreen .producto-icono {
+        height: 112px;
+        flex-shrink: 0;
+    }
+
+    #ventasScreen .producto-info {
+        padding: 10px 9px 12px;
+    }
+
+    #ventasScreen .producto-venta h3 {
+        overflow-wrap: anywhere;
+    }
+
+    #ventasScreen .venta-panel {
+        width: auto;
+        max-height: calc(100vh - 125px);
+        top: 12px;
+        gap: 9px;
+    }
+
+    /* La lista del carrito se desplaza dentro de su tarjeta y no invade Pago. */
+    #ventasScreen .venta-carrito {
+        min-height: 0;
+        max-height: min(42vh, 340px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 15px;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    #ventasScreen .venta-carrito h2 {
+        position: sticky;
+        top: -15px;
+        z-index: 2;
+        padding-top: 2px;
+    }
+
+    #ventasScreen .item-carrito {
+        gap: 7px;
+        padding: 9px 0;
+    }
+
+    #ventasScreen .item-carrito button {
+        width: 27px;
+        height: 28px;
+    }
+
+    #ventasScreen .venta-pago,
+    #ventasScreen .venta-cliente {
+        padding: 12px;
+    }
+}
+
+/* En ventanas más estrechas, el panel baja debajo del catálogo sin superponerse. */
+@media (max-width: 1100px) and (min-width: 851px) {
+    #ventasScreen #nuevaVentaScreen {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 12px;
+    }
+
+    #ventasScreen .venta-productos {
+        padding: 12px;
+    }
+
+    #ventasScreen #listaProductosVenta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   FIX DEFINITIVO: EVITAR QUE EL CARRITO SE MONTE SOBRE PAGO
+   Solo presentación del perfil de ventas. 2026-10-27
+   ========================================================= */
+#ventasScreen #nuevaVentaScreen .venta-panel {
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+#ventasScreen #nuevaVentaScreen .venta-carrito {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#ventasScreen #nuevaVentaScreen .venta-carrito h2 {
+    position: static;
+    flex: 0 0 auto;
+    top: auto;
+    background: #fff;
+}
+
+#ventasScreen #nuevaVentaScreen #carritoVenta {
+    position: static;
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 0;
+    max-height: clamp(130px, 27vh, 250px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+#ventasScreen #nuevaVentaScreen .venta-pago,
+#ventasScreen #nuevaVentaScreen .venta-cliente,
+#ventasScreen #nuevaVentaScreen .venta-total,
+#ventasScreen #nuevaVentaScreen .venta-acciones {
+    position: static;
+    flex-shrink: 0;
+    min-width: 0;
+    box-sizing: border-box;
+    z-index: auto;
+}
+
+#ventasScreen #nuevaVentaScreen .item-carrito {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+@media (min-width: 851px) {
+    #ventasScreen #nuevaVentaScreen .venta-panel {
+        max-height: calc(100vh - 125px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        align-self: start;
+    }
+
+    #ventasScreen #nuevaVentaScreen #carritoVenta {
+        max-height: clamp(130px, 27vh, 230px);
+    }
+}
+
+@media (max-width: 850px) {
+    #ventasScreen #nuevaVentaScreen .venta-panel {
+        width: 100%;
+        max-height: none;
+        overflow: visible;
+        gap: 10px;
+    }
+
+    #ventasScreen #nuevaVentaScreen .venta-carrito {
+        width: 100%;
+    }
+
+    #ventasScreen #nuevaVentaScreen #carritoVenta {
+        max-height: 220px;
+    }
+}
